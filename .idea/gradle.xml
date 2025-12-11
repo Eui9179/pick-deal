@@ -8,6 +8,8 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/common" />
+            <option value="$PROJECT_DIR$/example-application" />
           </set>
         </option>
       </GradleProjectSettings>
@@ -16,14 +18,6 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$/example-application" />
-          </set>
-        </option>
-      </GradleProjectSettings>
-      <GradleProjectSettings>
-        <option name="externalProjectPath" value="$PROJECT_DIR$/example-server" />
-        <option name="modules">
-          <set>
-            <option value="$PROJECT_DIR$/example-server" />
           </set>
         </option>
       </GradleProjectSettings>
