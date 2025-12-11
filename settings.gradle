@@ -1,4 +1,4 @@
 rootProject.name = 'gradle-example'
 include('example-application')
-include ('common')
+include('common')
 
