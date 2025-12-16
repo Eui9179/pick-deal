@@ -10,6 +10,10 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter'
 }
 
+repositories {
+    mavenCentral()
+}
+
 test {
     useJUnitPlatform()
 }
