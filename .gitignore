@@ -1,7 +1,15 @@
 HELP.md
-.gradle
+
+# Gradle
+.gradle/
 build/
+
+# gradle 디렉토리 자체를 먼저 unignore
+!gradle/
+!gradle/wrapper/
 !gradle/wrapper/gradle-wrapper.jar
+
+# src 하위 build는 예외
 !**/src/main/**/build/
 !**/src/test/**/build/
 
