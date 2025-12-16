@@ -1,13 +1,13 @@
-package com.leui.exampleapplication;
+package com.leui.dealservice;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class ExampleApplicationTests {
+class DealServiceApplicationTests {
 
-    @Test
-    void contextLoads() {
-    }
+	@Test
+	void contextLoads() {
+	}
 
 }

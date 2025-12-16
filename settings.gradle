@@ -1,7 +1,4 @@
-/*
-빌드 구조를 정의하는 파일
- */
 rootProject.name = 'gradle-example'
-include('example-application')
-include('common')
+
+include('deal-service')
 
