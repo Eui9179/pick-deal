@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/orders")
 public class OrdersController {
 
+    @PostMapping
     public ResponseEntity<OrderResponse> order(OrderRequest orderRequest) {
         return ResponseEntity.ok().build();
     }
