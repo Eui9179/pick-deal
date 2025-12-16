@@ -1,0 +1,23 @@
+plugins {
+    id 'java'
+}
+
+group = 'com.leui'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher' // 테스트 코드에 사용 (런타임)
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+tasks.named('test', Test) {
+    useJUnitPlatform()
+}
