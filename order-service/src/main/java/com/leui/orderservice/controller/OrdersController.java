@@ -2,6 +2,7 @@ package com.leui.orderservice.controller;
 
 import com.leui.orderservice.dto.OrderCreateRequest;
 import com.leui.orderservice.dto.OrderCreateResponse;
+import com.leui.orderservice.dto.OrderDetailResponse;
 import com.leui.orderservice.service.OrdersService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,10 +22,13 @@ public class OrdersController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<OrderCreateResponse> order(@Valid @RequestBody OrderCreateRequest orderCreateRequest) {
+    public ResponseEntity<OrderCreateResponse> createOrder(@Valid @RequestBody OrderCreateRequest orderCreateRequest) {
         return ResponseEntity.ok(ordersService.createOrder(orderCreateRequest));
     }
 
-    @GetMapping("/{orderId}")
-    public ResponseEntity<>
+    @GetMapping(value = "/{orderId}",
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<OrderDetailResponse> getOrderDetail(@PathVariable Long orderId) {
+        return ResponseEntity.ok(ordersService.getOrderDetail(orderId));
+    }
 }
