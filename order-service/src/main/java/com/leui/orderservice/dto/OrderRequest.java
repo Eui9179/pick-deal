@@ -1,5 +1,8 @@
 package com.leui.orderservice.dto;
 
+import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -10,8 +13,16 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 public class OrderRequest {
+    @NotNull
     private Long storeId;
+
+    @NotNull
     private Long productId;
+
+    @Min(value = 1, message = "Quantity must be at least one.")
     private int quantity;
-    LocalDateTime pickupTime;
+
+    @NotNull
+    @FutureOrPresent(message = "PickupTime must be set to the future or present.")
+    private LocalDateTime pickupTime;
 }

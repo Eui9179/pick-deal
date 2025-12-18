@@ -3,6 +3,7 @@ package com.leui.orderservice.controller;
 import com.leui.orderservice.dto.OrderRequest;
 import com.leui.orderservice.dto.OrderResponse;
 import com.leui.orderservice.service.OrdersService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +24,7 @@ public class OrdersController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<OrderResponse> order(@RequestBody OrderRequest orderRequest) {
+    public ResponseEntity<OrderResponse> order(@Valid @RequestBody OrderRequest orderRequest) {
         return ResponseEntity.ok(ordersService.createOrder(orderRequest));
     }
 }
