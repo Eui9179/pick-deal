@@ -1,7 +1,7 @@
 package com.leui.orderservice.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.leui.orderservice.dto.OrderRequest;
+import com.leui.orderservice.dto.OrderCreateRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +34,7 @@ public class OrdersControllerTest {
     public void createOrder() throws Exception {
         // given
         String uri = "/orders";
-        OrderRequest request = OrderRequest.builder()
+        OrderCreateRequest request = OrderCreateRequest.builder()
                 .storeId(1L)
                 .productId(1L)
                 .quantity(1)

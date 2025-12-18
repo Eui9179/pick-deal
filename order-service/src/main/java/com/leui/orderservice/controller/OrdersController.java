@@ -1,16 +1,13 @@
 package com.leui.orderservice.controller;
 
-import com.leui.orderservice.dto.OrderRequest;
-import com.leui.orderservice.dto.OrderResponse;
+import com.leui.orderservice.dto.OrderCreateRequest;
+import com.leui.orderservice.dto.OrderCreateResponse;
 import com.leui.orderservice.service.OrdersService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 
 @RequiredArgsConstructor
@@ -24,7 +21,10 @@ public class OrdersController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<OrderResponse> order(@Valid @RequestBody OrderRequest orderRequest) {
-        return ResponseEntity.ok(ordersService.createOrder(orderRequest));
+    public ResponseEntity<OrderCreateResponse> order(@Valid @RequestBody OrderCreateRequest orderCreateRequest) {
+        return ResponseEntity.ok(ordersService.createOrder(orderCreateRequest));
     }
+
+    @GetMapping("/{orderId}")
+    public ResponseEntity<>
 }
