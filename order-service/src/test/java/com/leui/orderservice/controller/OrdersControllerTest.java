@@ -2,6 +2,7 @@ package com.leui.orderservice.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.leui.orderservice.dto.OrderCreateRequest;
+import com.leui.orderservice.dto.OrderDetailResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 
 import java.time.LocalDateTime;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -41,11 +43,13 @@ public class OrdersControllerTest {
                 .pickupTime(LocalDateTime.now().plusMinutes(30))
                 .build();
 
+
+        // when
         MockHttpServletRequestBuilder builder = post(uri)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request));
 
-        // when, then
+        // then
         mvc.perform(builder)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.orderId").value(1L));
@@ -57,12 +61,35 @@ public class OrdersControllerTest {
     public void createOrder_ROLE_STORE() throws Exception {
         // given
         String uri = "/orders";
+
+
+        // when
         MockHttpServletRequestBuilder builder = post(uri)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("");
 
-        // when, then
+        // then
         mvc.perform(builder)
                 .andExpect(status().isForbidden());
     }
+
+    @Test
+    @DisplayName("/orders/id 주문 조회 테스트")
+    @WithMockUser(username = "user1", roles = {"USER", "STORE"})
+    public void getOrderDetails() throws Exception {
+        // given
+        long orderId = 1L;
+        String uri = "/orders";
+
+        // when
+        MockHttpServletRequestBuilder builder = get(uri + "/" + orderId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("");
+
+        // then
+        mvc.perform(builder)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.orderId").value(orderId));
+    }
+
 }
