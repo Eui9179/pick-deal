@@ -11,9 +11,11 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import java.time.LocalDateTime;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -27,35 +29,40 @@ public class OrdersControllerTest {
     ObjectMapper objectMapper;
 
     @Test
-    @DisplayName("주문 통합 테스트")
+    @DisplayName("/orders 주문 통합 테스트")
     @WithMockUser(username = "user1", roles = "USER")
     public void createOrder() throws Exception {
         // given
-        OrderRequest request = OrderRequest.builder().build();
-        MockHttpServletRequestBuilder builder = post("/orders")
+        String uri = "/orders";
+        OrderRequest request = OrderRequest.builder()
+                .storeId(1L)
+                .productId(1L)
+                .quantity(1)
+                .pickupTime(LocalDateTime.now().plusMinutes(30))
+                .build();
+
+        MockHttpServletRequestBuilder builder = post(uri)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request));
 
         // when, then
         mvc.perform(builder)
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.orderId").value(1L));
     }
 
     @Test
-    @DisplayName("주문 ROLE 테스트")
+    @DisplayName("/orders 주문 ROLE_STORE 테스트")
     @WithMockUser(username = "user1", roles = "STORE")
     public void createOrder_ROLE_STORE() throws Exception {
-
         // given
-        MockHttpServletRequestBuilder builder = post("/orders")
+        String uri = "/orders";
+        MockHttpServletRequestBuilder builder = post(uri)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("");
-        // when
 
-        //then
+        // when, then
         mvc.perform(builder)
                 .andExpect(status().isForbidden());
-
     }
-
 }
