@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @SoftDelete
+@Table(name = "pickdeal_deals")
 public class Deals extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

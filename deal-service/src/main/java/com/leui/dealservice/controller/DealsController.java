@@ -1,9 +1,7 @@
 package com.leui.dealservice.controller;
 
-import com.leui.dealservice.dto.DealDetailRequest;
-import com.leui.dealservice.dto.DealDetailResponse;
-import com.leui.dealservice.dto.DealsRequest;
 import com.leui.dealservice.dto.DealsDetailResponse;
+import com.leui.dealservice.dto.DealsRequest;
 import com.leui.dealservice.service.DealsService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
