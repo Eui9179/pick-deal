@@ -51,22 +51,7 @@ public class DealsControllerTest {
 
     @BeforeEach
     void setUp() {
-        List<Deals> deals = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            Category category = categoryRepository.save(Category.builder().name("CATEGORY" + i).build());
-            deals.add(Deals.builder()
-                    .storeId((long) i)
-                    .category(category)
-                    .dealsStatus(DealsStatus.ON_SALE)
-                    .name("test name")
-                    .description("test description")
-                    .price(1000)
-                    .discountPrice(700)
-                    .stockQuantity(10)
-                    .pickupEndTime(LocalDateTime.now())
-                    .build());
-        }
-        dealsRepository.saveAll(deals);
+        setupDeals();
     }
 
     @Test
@@ -88,5 +73,24 @@ public class DealsControllerTest {
                 .readValue(result.getResponse().getContentAsString(StandardCharsets.UTF_8), DealsDetailResponse.class);
 
         Assertions.assertThat(responseBody.getId()).isEqualTo(id);
+    }
+
+    private void setupDeals() {
+        List<Deals> deals = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            Category category = categoryRepository.save(Category.builder().name("CATEGORY" + i).build());
+            deals.add(Deals.builder()
+                    .storeId((long) i)
+                    .category(category)
+                    .dealsStatus(DealsStatus.ON_SALE)
+                    .name("test name")
+                    .description("test description")
+                    .price(1000)
+                    .discountPrice(700)
+                    .stockQuantity(10)
+                    .pickupEndTime(LocalDateTime.now())
+                    .build());
+        }
+        dealsRepository.saveAll(deals);
     }
 }
