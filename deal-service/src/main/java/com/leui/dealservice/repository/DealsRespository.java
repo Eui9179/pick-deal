@@ -7,6 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface DealsRespository extends JpaRepository<Deals, Integer> {
+public interface DealsRespository extends JpaRepository<Deals, Long> {
     Slice<Deals> findByOrderByCreatedAtDesc(Pageable pageable); // 임시
 }

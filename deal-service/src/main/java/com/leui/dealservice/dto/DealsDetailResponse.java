@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class DealsResponse {
+public class DealsDetailResponse {
     private Long id;
     private Long storeId;
     private String name;
@@ -23,8 +23,8 @@ public class DealsResponse {
     private DealsStatus dealsStatus;
     private LocalDateTime pickupEndTime;
 
-    public static DealsResponse from(Deals deals) {
-        return DealsResponse.builder()
+    public static DealsDetailResponse from(Deals deals) {
+        return DealsDetailResponse.builder()
                 .id(deals.getId())
                 .storeId(deals.getStoreId())
                 .name(deals.getName())

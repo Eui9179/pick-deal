@@ -1,7 +1,9 @@
 package com.leui.dealservice.controller;
 
+import com.leui.dealservice.dto.DealDetailRequest;
+import com.leui.dealservice.dto.DealDetailResponse;
 import com.leui.dealservice.dto.DealsRequest;
-import com.leui.dealservice.dto.DealsResponse;
+import com.leui.dealservice.dto.DealsDetailResponse;
 import com.leui.dealservice.service.DealsService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -9,10 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
@@ -25,8 +24,20 @@ public class DealsController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<Slice<DealsResponse>> getDeals(@Valid @RequestBody DealsRequest dealsRequest, Pageable pageable) {
+    public ResponseEntity<Slice<DealsDetailResponse>> getDeals(
+            @Valid @ModelAttribute DealsRequest dealsRequest,
+            Pageable pageable
+    ) {
         return ResponseEntity.ok(dealsService.getDeals(dealsRequest, pageable));
+    }
+
+    @GetMapping(
+            value = "/{dealId}",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<DealsDetailResponse> getDealDetail(@PathVariable Long dealId) {
+        return ResponseEntity.ok(dealsService.getDealDetail(dealId));
     }
 
 }
