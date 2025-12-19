@@ -16,7 +16,6 @@ public class SecutityConfig {
     private final String ROLE_USER = "USER";
     private final String ROLE_STORE = "STORE";
 
-    private final String[] hasRole_USER = {"/api/v1/deals"};
     private final String[] permitAll = {"/h2-console/**", "/api/v1/deals"};
 
     @Bean
@@ -30,9 +29,9 @@ public class SecutityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.GET, "/api/v1/deals").hasRole("USER")
-                        .requestMatchers(HttpMethod.GET, "/api/v1/deals/*").hasAnyRole("USER", "STORE")
-                        .requestMatchers(HttpMethod.POST, "/api/v1/deals").hasRole("STORE")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/deals").hasRole(ROLE_USER)
+                        .requestMatchers(HttpMethod.GET, "/api/v1/deals/*").hasAnyRole(ROLE_USER, ROLE_STORE)
+                        .requestMatchers(HttpMethod.POST, "/api/v1/deals").hasRole(ROLE_STORE)
                         .requestMatchers(permitAll).permitAll()
                         .anyRequest().authenticated()
 
