@@ -2,6 +2,7 @@ package com.leui.dealservice.config.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -11,6 +12,12 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 public class SecutityConfig {
+
+    private final String ROLE_USER = "USER";
+    private final String ROLE_STORE = "STORE";
+
+    private final String[] hasRole_USER = {"/api/v1/deals"};
+    private final String[] permitAll = {"/h2-console/**", "/api/v1/deals"};
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -23,7 +30,10 @@ public class SecutityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/h2-console/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/deals").hasRole("USER")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/deals/*").hasAnyRole("USER", "STORE")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/deals").hasRole("STORE")
+                        .requestMatchers(permitAll).permitAll()
                         .anyRequest().authenticated()
 
                 ).build();

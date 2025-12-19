@@ -17,5 +17,5 @@ public class DealsServiceImpl implements DealsService {
     public Slice<DealsResponse> getDeals(Pageable pageable) {
         return dealsRespository.findByOrderByCreatedAtDesc(pageable)
                 .map(DealsResponse::from);
-    }
+        }
 }
