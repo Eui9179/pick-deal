@@ -44,4 +44,7 @@ public class Deals extends BaseEntity {
 
     @Column(nullable = false)
     private LocalDateTime pickupEndTime;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Category category;
 }
