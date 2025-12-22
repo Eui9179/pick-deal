@@ -12,5 +12,5 @@ public interface DealsService {
 
     DealCreateResponse createDeal(DealCreateRequest request, MultipartFile image);
 
-    DealUpdateResponse updateDealContent(DealUpdateRequest request, MultipartFile image);
+    DealUpdateResponse updateDealContent(Long dealId, DealUpdateRequest request, MultipartFile image);
 }

@@ -13,12 +13,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 @Service
 public class DealsServiceImpl implements DealsService {
 
     private final DealsRepository dealsRepository;
     private final EntityManager entityManager;
-
 
     @Override
     public Slice<DealsDetailResponse> getDeals(DealsRequest dealsRequest, Pageable pageable) {
@@ -44,17 +44,19 @@ public class DealsServiceImpl implements DealsService {
         return new DealCreateResponse(deal.getId());
     }
 
+    @Transactional
     @Override
-    public DealUpdateResponse updateDealContent(DealUpdateRequest request, MultipartFile image) {
+    public DealUpdateResponse updateDealContent(Long dealId, DealUpdateRequest request, MultipartFile image) {
         // TODO 이미지 업데이트
         // TODO Error 정의
         Deals deal = dealsRepository.findById(request.dealId())
                 .orElseThrow(() -> new RuntimeException());
         deal.updateContent(request);
-        return null;
+        return new DealUpdateResponse(dealId);
     }
 
     private Category getCategoryRefer(Long categoryId) {
         return entityManager.getReference(Category.class, categoryId);
     }
+
 }

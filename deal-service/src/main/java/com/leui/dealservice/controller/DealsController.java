@@ -58,7 +58,7 @@ public class DealsController {
             @Valid @RequestPart("data") DealUpdateRequest request,
             @RequestPart("image")MultipartFile image
     ) {
-        return ResponseEntity.ok(dealsService.updateDealContent(request, image));
+        return ResponseEntity.ok(dealsService.updateDealContent(dealId, request, image));
     }
 
 }
