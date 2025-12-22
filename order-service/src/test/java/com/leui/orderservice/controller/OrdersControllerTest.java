@@ -59,7 +59,7 @@ public class OrdersControllerTest {
     @Test
     @DisplayName("/orders 주문 ROLE_STORE 테스트")
     @WithMockUser(username = "user1", roles = "STORE")
-    public void createOrder_ROLE_STORE() throws Exception {
+    public void createOrder_roleSTORE_Forbidden() throws Exception {
         //given
         String uri = "/orders";
 
@@ -131,7 +131,7 @@ public class OrdersControllerTest {
     @Test
     @DisplayName("/order/id/paid 통합 테스트")
     @WithMockUser(username = "user1", roles = {"STORE"})
-    public void updateOrderStatus_PAID_STORE() throws Exception {
+    public void updateOrderStatusPAID_roleSTORE_Forbidden() throws Exception {
         //given
         long orderId = 1L;
         String uri = "/orders/" + orderId + "/paid";
