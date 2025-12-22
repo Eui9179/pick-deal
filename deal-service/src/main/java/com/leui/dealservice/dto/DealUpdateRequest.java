@@ -2,8 +2,8 @@ package com.leui.dealservice.dto;
 
 import java.time.LocalDateTime;
 
-public record DealCreateRequest(
-        Long storeId,
+public record DealUpdateRequest(
+        Long dealId,
         Long categoryId,
         String name,
         String description,
