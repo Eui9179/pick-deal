@@ -3,10 +3,7 @@ package com.leui.dealservice.dto;
 import lombok.*;
 
 @Getter
-@Setter
-@NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class DealsRequest {
     private Double longitude;
     private Double latitude;

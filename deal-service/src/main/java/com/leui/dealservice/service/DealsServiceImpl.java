@@ -1,5 +1,7 @@
 package com.leui.dealservice.service;
 
+import com.leui.dealservice.dto.DealCreateRequest;
+import com.leui.dealservice.dto.DealCreateResponse;
 import com.leui.dealservice.dto.DealsDetailResponse;
 import com.leui.dealservice.dto.DealsRequest;
 import com.leui.dealservice.entity.Deals;
@@ -8,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @RequiredArgsConstructor
 @Service
@@ -26,6 +29,11 @@ public class DealsServiceImpl implements DealsService {
         Deals deal = dealsRepository.findById(dealId)
                 .orElseThrow(RuntimeException::new);
         return DealsDetailResponse.from(deal);
+    }
+
+    @Override
+    public DealCreateResponse createDeal(DealCreateRequest request, MultipartFile image) {
+        return null;
     }
 
 }

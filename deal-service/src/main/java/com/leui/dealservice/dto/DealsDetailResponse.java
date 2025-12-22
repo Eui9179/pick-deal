@@ -2,15 +2,13 @@ package com.leui.dealservice.dto;
 
 import com.leui.dealservice.entity.Deals;
 import com.leui.dealservice.entity.DealsStatus;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 
 @Getter
-@Setter
-@NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class DealsDetailResponse {
     private Long id;
     private Long storeId;
@@ -24,17 +22,17 @@ public class DealsDetailResponse {
     private LocalDateTime pickupEndTime;
 
     public static DealsDetailResponse from(Deals deals) {
-        return DealsDetailResponse.builder()
-                .id(deals.getId())
-                .storeId(deals.getStoreId())
-                .name(deals.getName())
-                .description(deals.getDescription())
-                .category(deals.getCategory().getName())
-                .price(deals.getPrice())
-                .discountPrice(deals.getDiscountPrice())
-                .stockQuantity(deals.getStockQuantity())
-                .dealsStatus(deals.getDealsStatus())
-                .pickupEndTime(deals.getPickupEndTime())
-                .build();
+        return new DealsDetailResponse(
+                deals.getId(),
+                deals.getStoreId(),
+                deals.getName(),
+                deals.getDescription(),
+                deals.getCategory().getName(),
+                deals.getPrice(),
+                deals.getDiscountPrice(),
+                deals.getStockQuantity(),
+                deals.getDealsStatus(),
+                deals.getPickupEndTime()
+        );
     }
 }

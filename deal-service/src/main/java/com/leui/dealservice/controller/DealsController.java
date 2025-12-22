@@ -1,5 +1,7 @@
 package com.leui.dealservice.controller;
 
+import com.leui.dealservice.dto.DealCreateRequest;
+import com.leui.dealservice.dto.DealCreateResponse;
 import com.leui.dealservice.dto.DealsDetailResponse;
 import com.leui.dealservice.dto.DealsRequest;
 import com.leui.dealservice.service.DealsService;
@@ -10,6 +12,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RequiredArgsConstructor
 @RestController
@@ -36,6 +39,16 @@ public class DealsController {
     )
     public ResponseEntity<DealsDetailResponse> getDealDetail(@PathVariable Long dealId) {
         return ResponseEntity.ok(dealsService.getDealDetail(dealId));
+    }
+
+    @PostMapping(
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    public ResponseEntity<DealCreateResponse> createDeal(
+            @Valid @RequestPart("data") DealCreateRequest request,
+            @RequestPart("image") MultipartFile image
+    ) {
+        return ResponseEntity.ok(dealsService.createDeal(request, image));
     }
 
 }
