@@ -1,9 +1,9 @@
 package com.leui.dealservice.entity;
 
+import com.leui.dealservice.dto.DealCreateRequest;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SoftDelete;
@@ -50,10 +50,8 @@ public class Deals extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Category category;
 
-    @Builder
-    public Deals(Long id, Long storeId, String name, String description, int price, int discountPrice,
+    public Deals(Long storeId, String name, String description, int price, int discountPrice,
                  int stockQuantity, DealsStatus dealsStatus, LocalDateTime pickupEndTime, Category category) {
-        this.id = id;
         this.storeId = storeId;
         this.name = name;
         this.description = description;
@@ -63,5 +61,18 @@ public class Deals extends BaseEntity {
         this.dealsStatus = dealsStatus;
         this.pickupEndTime = pickupEndTime;
         this.category = category;
+    }
+
+    public static Deals create(DealCreateRequest request, Category category) {
+        return new Deals(
+                request.getStoreId(),
+                request.getName(),
+                request.getDescription(),
+                request.getPrice(),
+                request.getDiscountPrice(),
+                request.getStockQuantity(),
+                DealsStatus.ON_SALE,
+                request.getPickupEndTime(),
+                category);
     }
 }

@@ -4,12 +4,15 @@ import com.leui.dealservice.dto.DealCreateRequest;
 import com.leui.dealservice.dto.DealCreateResponse;
 import com.leui.dealservice.dto.DealsDetailResponse;
 import com.leui.dealservice.dto.DealsRequest;
+import com.leui.dealservice.entity.Category;
 import com.leui.dealservice.entity.Deals;
 import com.leui.dealservice.repository.DealsRepository;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 @RequiredArgsConstructor
@@ -17,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class DealsServiceImpl implements DealsService {
 
     private final DealsRepository dealsRepository;
+    private final EntityManager entityManager;
 
     @Override
     public Slice<DealsDetailResponse> getDeals(DealsRequest dealsRequest, Pageable pageable) {
@@ -31,9 +35,16 @@ public class DealsServiceImpl implements DealsService {
         return DealsDetailResponse.from(deal);
     }
 
+    @Transactional
     @Override
     public DealCreateResponse createDeal(DealCreateRequest request, MultipartFile image) {
-        return null;
+        Category category = getCategoryRefer(request.getCategoryId());
+        Deals deal = Deals.create(request, category);
+        dealsRepository.save(deal);
+        return new DealCreateResponse(deal.getId());
     }
 
+    private Category getCategoryRefer(Long categoryId) {
+        return entityManager.getReference(Category.class, categoryId);
+    }
 }

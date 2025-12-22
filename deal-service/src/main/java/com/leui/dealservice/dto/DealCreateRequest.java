@@ -10,9 +10,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class DealCreateRequest {
     private Long storeId;
+    private Long categoryId;
     private String name;
     private String description;
-    private String category;
     private int price;
     private int discountPrice;
     private int stockQuantity;

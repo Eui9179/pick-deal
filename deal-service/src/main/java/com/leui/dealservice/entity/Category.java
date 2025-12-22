@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SoftDelete;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -18,9 +19,12 @@ public class Category extends BaseEntity {
     @Column(unique = true, nullable = false)
     private String name;
 
-    @Builder
     public Category(Long id, String name) {
         this.id = id;
         this.name = name;
+    }
+
+    public Category(Long id) {
+        this.id = id;
     }
 }

@@ -79,17 +79,17 @@ public class DealsControllerTest {
         List<Deals> deals = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             Category category = categoryRepository.save(Category.builder().name("CATEGORY" + i).build());
-            deals.add(Deals.builder()
-                    .storeId((long) i)
-                    .category(category)
-                    .dealsStatus(DealsStatus.ON_SALE)
-                    .name("test name")
-                    .description("test description")
-                    .price(1000)
-                    .discountPrice(700)
-                    .stockQuantity(10)
-                    .pickupEndTime(LocalDateTime.now())
-                    .build());
+            deals.add(new Deals(
+                    (long) i,
+                    "test name",
+                    "test description",
+                    1000,
+                    700,
+                    10,
+                    DealsStatus.ON_SALE,
+                    LocalDateTime.now(),
+                    category
+            ));
         }
         dealsRepository.saveAll(deals);
     }
