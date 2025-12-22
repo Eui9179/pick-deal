@@ -38,4 +38,10 @@ public class OrdersController {
     public ResponseEntity<OrderStatusResponse> getOrderStatus(@PathVariable Long orderId) {
         return ResponseEntity.ok(ordersService.getOrderStatus(orderId));
     }
+
+    @PostMapping(value = "/{orderId}/paid",
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<OrderStatusResponse> updateOrderStatusPaid(@PathVariable Long orderId) {
+        return ResponseEntity.ok(ordersService.updateOrderStatusPaid(orderId));
+    }
 }

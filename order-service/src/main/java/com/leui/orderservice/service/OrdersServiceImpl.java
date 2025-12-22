@@ -24,4 +24,9 @@ public class OrdersServiceImpl implements OrdersService {
     public OrderStatusResponse getOrderStatus(Long orderId) {
         return OrderStatusResponse.builder().orderId(orderId).status(OrderStatus.PAID).build();
     }
+
+    @Override
+    public OrderStatusResponse updateOrderStatusPaid(Long orderId) {
+        return OrderStatusResponse.builder().orderId(orderId).status(OrderStatus.PAID).build();
+    }
 }
