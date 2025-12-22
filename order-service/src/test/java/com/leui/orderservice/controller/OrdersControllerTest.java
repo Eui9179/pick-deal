@@ -128,4 +128,18 @@ public class OrdersControllerTest {
                 .andExpect(jsonPath("$.status").value(OrderStatus.PAID.name()));
     }
 
+    @Test
+    @DisplayName("/order/id/paid 통합 테스트")
+    @WithMockUser(username = "user1", roles = {"STORE"})
+    public void updateOrderStatus_PAID_STORE() throws Exception {
+        //given
+        long orderId = 1L;
+        String uri = "/orders/" + orderId + "/paid";
+
+        //when
+        MockHttpServletRequestBuilder builder = post(uri).contentType(MediaType.APPLICATION_JSON);
+
+        //then
+        mvc.perform(builder).andExpect(status().isForbidden());
+    }
 }

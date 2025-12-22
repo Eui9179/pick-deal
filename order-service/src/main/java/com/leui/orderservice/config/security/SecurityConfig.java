@@ -29,7 +29,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/h2-console"
                         ).permitAll()
-                        .requestMatchers("/orders").hasRole("USER")
+                        .requestMatchers("/orders", "/orders/*/paid").hasRole("USER")
                         .requestMatchers("/orders/*").hasAnyRole("USER", "STORE")
                         .anyRequest().authenticated()
 
