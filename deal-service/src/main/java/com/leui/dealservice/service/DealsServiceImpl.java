@@ -1,9 +1,6 @@
 package com.leui.dealservice.service;
 
-import com.leui.dealservice.dto.DealCreateRequest;
-import com.leui.dealservice.dto.DealCreateResponse;
-import com.leui.dealservice.dto.DealsDetailResponse;
-import com.leui.dealservice.dto.DealsRequest;
+import com.leui.dealservice.dto.*;
 import com.leui.dealservice.entity.Category;
 import com.leui.dealservice.entity.Deals;
 import com.leui.dealservice.repository.DealsRepository;
@@ -22,8 +19,10 @@ public class DealsServiceImpl implements DealsService {
     private final DealsRepository dealsRepository;
     private final EntityManager entityManager;
 
+
     @Override
     public Slice<DealsDetailResponse> getDeals(DealsRequest dealsRequest, Pageable pageable) {
+        // TODO 위치 기반 검색 조건 추가
         return dealsRepository.findByOrderByCreatedAtDesc(pageable)
                 .map(DealsDetailResponse::from);
         }
@@ -38,10 +37,21 @@ public class DealsServiceImpl implements DealsService {
     @Transactional
     @Override
     public DealCreateResponse createDeal(DealCreateRequest request, MultipartFile image) {
-        Category category = getCategoryRefer(request.getCategoryId());
+        // TODO 이벤트 발행, 이미지 저장
+        Category category = getCategoryRefer(request.categoryId());
         Deals deal = Deals.create(request, category);
         dealsRepository.save(deal);
         return new DealCreateResponse(deal.getId());
+    }
+
+    @Override
+    public DealUpdateResponse updateDealContent(DealUpdateRequest request, MultipartFile image) {
+        // TODO 이미지 업데이트
+        // TODO Error 정의
+        Deals deal = dealsRepository.findById(request.dealId())
+                .orElseThrow(() -> new RuntimeException());
+        deal.updateContent(request);
+        return null;
     }
 
     private Category getCategoryRefer(Long categoryId) {

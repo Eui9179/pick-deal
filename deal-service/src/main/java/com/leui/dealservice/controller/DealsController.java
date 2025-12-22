@@ -1,9 +1,6 @@
 package com.leui.dealservice.controller;
 
-import com.leui.dealservice.dto.DealCreateRequest;
-import com.leui.dealservice.dto.DealCreateResponse;
-import com.leui.dealservice.dto.DealsDetailResponse;
-import com.leui.dealservice.dto.DealsRequest;
+import com.leui.dealservice.dto.*;
 import com.leui.dealservice.service.DealsService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -49,6 +46,19 @@ public class DealsController {
             @RequestPart("image") MultipartFile image
     ) {
         return ResponseEntity.ok(dealsService.createDeal(request, image));
+    }
+
+    @PatchMapping(
+            value = "/{dealId}",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<DealUpdateResponse> updateDeal(
+            @PathVariable Long dealId,
+            @Valid @RequestPart("data") DealUpdateRequest request,
+            @RequestPart("image")MultipartFile image
+    ) {
+        return ResponseEntity.ok(dealsService.updateDealContent(request, image));
     }
 
 }

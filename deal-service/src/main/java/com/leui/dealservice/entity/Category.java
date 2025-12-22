@@ -18,13 +18,4 @@ public class Category extends BaseEntity {
 
     @Column(unique = true, nullable = false)
     private String name;
-
-    public Category(Long id, String name) {
-        this.id = id;
-        this.name = name;
-    }
-
-    public Category(Long id) {
-        this.id = id;
-    }
 }

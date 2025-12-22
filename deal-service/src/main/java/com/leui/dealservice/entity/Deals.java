@@ -1,6 +1,7 @@
 package com.leui.dealservice.entity;
 
 import com.leui.dealservice.dto.DealCreateRequest;
+import com.leui.dealservice.dto.DealUpdateRequest;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
@@ -10,6 +11,7 @@ import org.hibernate.annotations.SoftDelete;
 
 import java.time.LocalDateTime;
 
+//TODO 이미지 URL
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
@@ -65,14 +67,39 @@ public class Deals extends BaseEntity {
 
     public static Deals create(DealCreateRequest request, Category category) {
         return new Deals(
-                request.getStoreId(),
-                request.getName(),
-                request.getDescription(),
-                request.getPrice(),
-                request.getDiscountPrice(),
-                request.getStockQuantity(),
+                request.storeId(),
+                request.name(),
+                request.description(),
+                request.price(),
+                request.discountPrice(),
+                request.stockQuantity(),
                 DealsStatus.ON_SALE,
-                request.getPickupEndTime(),
-                category);
+                request.pickupEndTime(),
+                category
+        );
+    }
+
+    public void updateContent(DealUpdateRequest request) {
+        this.name = request.name();
+        this.description = request.description();
+        this.price = request.price();
+        this.discountPrice = request.discountPrice();
+        this.stockQuantity = request.stockQuantity();
+    }
+
+    public void updateCategory(Category category) {
+        this.category = category;
+    }
+
+    public void updateOnSale() {
+        this.dealsStatus = DealsStatus.ON_SALE;
+    }
+
+    public void updateSoldOut() {
+        this.dealsStatus = DealsStatus.SOLD_OUT;
+    }
+
+    public void updateClosed() {
+        this.dealsStatus = DealsStatus.CLOSED;
     }
 }
