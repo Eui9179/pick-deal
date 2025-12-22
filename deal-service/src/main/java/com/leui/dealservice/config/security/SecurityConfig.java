@@ -12,12 +12,14 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
-public class SecutityConfig {
+public class SecurityConfig {
 
     private final String ROLE_USER = "USER";
     private final String ROLE_STORE = "STORE";
 
     private final String[] permitAll = {"/h2-console/**", "/api/v1/deals", "/api/v1/deals/*"};
+    private final String[] postHasRoleSTORE = {"/api/v1/deals"};
+    private final String[] getHasRoleUser = {"/api/v1/deals"};
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -34,8 +36,8 @@ public class SecutityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.GET, "/api/v1/deals").hasRole(ROLE_USER)
-                        .requestMatchers(HttpMethod.POST, "/api/v1/deals").hasRole(ROLE_STORE)
+                        .requestMatchers(HttpMethod.GET, getHasRoleUser).hasRole(ROLE_USER)
+                        .requestMatchers(HttpMethod.POST, postHasRoleSTORE).hasRole(ROLE_STORE)
                         .requestMatchers(permitAll).permitAll()
                         .anyRequest().authenticated()
 
