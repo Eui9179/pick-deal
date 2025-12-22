@@ -3,6 +3,7 @@ package com.leui.orderservice.controller;
 import com.leui.orderservice.dto.OrderCreateRequest;
 import com.leui.orderservice.dto.OrderCreateResponse;
 import com.leui.orderservice.dto.OrderDetailResponse;
+import com.leui.orderservice.dto.OrderStatusResponse;
 import com.leui.orderservice.service.OrdersService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -30,5 +31,11 @@ public class OrdersController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<OrderDetailResponse> getOrderDetail(@PathVariable Long orderId) {
         return ResponseEntity.ok(ordersService.getOrderDetail(orderId));
+    }
+
+    @GetMapping(value = "/{orderId}/status",
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<OrderStatusResponse> getOrderStatus(@PathVariable Long orderId) {
+        return ResponseEntity.ok(ordersService.getOrderStatus(orderId));
     }
 }
