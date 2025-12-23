@@ -1,0 +1,138 @@
+package com.leui.orderservice.controller;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.leui.orderservice.dto.OrderCreateRequest;
+import com.leui.orderservice.entity.OrderStatus;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+
+import java.time.LocalDateTime;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+public class OrdersControllerTest {
+
+    @Autowired
+    MockMvc mvc;
+
+    @Autowired
+    ObjectMapper objectMapper;
+
+    @Test
+    @DisplayName("/orders 주문 통합 테스트")
+    @WithMockUser(username = "user1", roles = "USER")
+    public void createOrder() throws Exception {
+        //given
+        String uri = "/orders";
+        OrderCreateRequest request = new OrderCreateRequest(1L, 1L, 1, LocalDateTime.now().plusMinutes(30));
+
+        //when
+        MockHttpServletRequestBuilder builder = post(uri)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request));
+
+        //then
+        mvc.perform(builder)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.orderId").value(1L));
+    }
+
+    @Test
+    @DisplayName("/orders 주문 ROLE_STORE 테스트")
+    @WithMockUser(username = "user1", roles = "STORE")
+    public void createOrder_roleSTORE_Forbidden() throws Exception {
+        //given
+        String uri = "/orders";
+
+
+        //when
+        MockHttpServletRequestBuilder builder = post(uri)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("");
+
+        //then
+        mvc.perform(builder)
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("/orders/id 주문 조회 테스트")
+    @WithMockUser(username = "user1", roles = {"USER", "STORE"})
+    public void getOrderDetails() throws Exception {
+        //given
+        long orderId = 1L;
+        String uri = "/orders";
+
+        //when
+        MockHttpServletRequestBuilder builder = get(uri + "/" + orderId)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        //then
+        mvc.perform(builder)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.orderId").value(orderId));
+    }
+
+    @Test
+    @DisplayName("/order/id/status 통합 테스트")
+    @WithMockUser(username = "user1", roles = {"USER", "STORE"})
+    public void getOrderStatus() throws Exception {
+        //given
+        long orderId = 1L;
+        String uri = "/orders/" + orderId + "/status";
+
+        //when
+        MockHttpServletRequestBuilder builder = get(uri).contentType(MediaType.APPLICATION_JSON);
+
+        //then
+        mvc.perform(builder)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.orderId").value(orderId));
+
+    }
+
+    @Test
+    @DisplayName("/order/id/paid 통합 테스트")
+    @WithMockUser(username = "user1")
+    public void updateOrderStatus_PAID() throws Exception {
+        //given
+        long orderId = 1L;
+        String uri = "/orders/" + orderId + "/paid";
+
+        //when
+        MockHttpServletRequestBuilder builder = post(uri).contentType(MediaType.APPLICATION_JSON);
+
+        //then
+        mvc.perform(builder)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.orderId").value(orderId))
+                .andExpect(jsonPath("$.status").value(OrderStatus.PAID.name()));
+    }
+
+    @Test
+    @DisplayName("/order/id/paid 통합 테스트")
+    @WithMockUser(username = "user1", roles = {"STORE"})
+    public void updateOrderStatusPAID_roleSTORE_Forbidden() throws Exception {
+        //given
+        long orderId = 1L;
+        String uri = "/orders/" + orderId + "/paid";
+
+        //when
+        MockHttpServletRequestBuilder builder = post(uri).contentType(MediaType.APPLICATION_JSON);
+
+        //then
+        mvc.perform(builder).andExpect(status().isForbidden());
+    }
+}
