@@ -18,10 +18,7 @@ public class DealsController {
 
     private final DealsService dealsService;
 
-    @GetMapping(
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
+    @GetMapping
     public ResponseEntity<Slice<DealsDetailResponse>> getDeals(
             @Valid @ModelAttribute DealsRequest dealsRequest,
             Pageable pageable
@@ -29,18 +26,12 @@ public class DealsController {
         return ResponseEntity.ok(dealsService.getDeals(dealsRequest, pageable));
     }
 
-    @GetMapping(
-            value = "/{dealId}",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
+    @GetMapping("/{dealId}")
     public ResponseEntity<DealsDetailResponse> getDealDetail(@PathVariable Long dealId) {
         return ResponseEntity.ok(dealsService.getDealDetail(dealId));
     }
 
-    @PostMapping(
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
-    )
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<DealCreateResponse> createDeal(
             @Valid @RequestPart("data") DealCreateRequest request,
             @RequestPart("image") MultipartFile image
@@ -48,15 +39,11 @@ public class DealsController {
         return ResponseEntity.ok(dealsService.createDeal(request, image));
     }
 
-    @PatchMapping(
-            value = "/{dealId}",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
+    @PatchMapping(value = "/{dealId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<DealUpdateResponse> updateDeal(
             @PathVariable Long dealId,
             @Valid @RequestPart("data") DealUpdateRequest request,
-            @RequestPart("image")MultipartFile image
+            @RequestPart("image") MultipartFile image
     ) {
         return ResponseEntity.ok(dealsService.updateDealContent(dealId, request, image));
     }
