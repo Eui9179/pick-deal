@@ -2,7 +2,6 @@ package com.leui.orderservice.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.leui.orderservice.dto.OrderCreateRequest;
-import com.leui.orderservice.dto.OrderDetailResponse;
 import com.leui.orderservice.entity.OrderStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,13 +36,7 @@ public class OrdersControllerTest {
     public void createOrder() throws Exception {
         //given
         String uri = "/orders";
-        OrderCreateRequest request = OrderCreateRequest.builder()
-                .storeId(1L)
-                .productId(1L)
-                .quantity(1)
-                .pickupTime(LocalDateTime.now().plusMinutes(30))
-                .build();
-
+        OrderCreateRequest request = new OrderCreateRequest(1L, 1L, 1, LocalDateTime.now().plusMinutes(30));
 
         //when
         MockHttpServletRequestBuilder builder = post(uri)

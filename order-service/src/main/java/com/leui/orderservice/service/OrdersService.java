@@ -11,20 +11,19 @@ import org.springframework.stereotype.Service;
 public class OrdersService {
 
     public OrderCreateResponse createOrder(OrderCreateRequest orderCreateRequest) {
-        return OrderCreateResponse.builder()
-                .orderId(1L).build();
+        return new OrderCreateResponse(1L);
     }
 
     public OrderDetailResponse getOrderDetail(Long orderId) {
-        return OrderDetailResponse.builder().orderId(orderId).build();
+        return new OrderDetailResponse(orderId);
     }
 
     public OrderStatusResponse getOrderStatus(Long orderId) {
-        return OrderStatusResponse.builder().orderId(orderId).status(OrderStatus.PAID).build();
+        return new OrderStatusResponse(orderId, OrderStatus.PAID);
     }
 
     public OrderStatusResponse updateOrderStatusPaid(Long orderId) {
-        return OrderStatusResponse.builder().orderId(orderId).status(OrderStatus.PAID).build();
+        return new OrderStatusResponse(orderId, OrderStatus.PAID);
     }
 
 }
