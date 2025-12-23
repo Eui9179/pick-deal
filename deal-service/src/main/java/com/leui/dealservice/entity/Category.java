@@ -18,4 +18,12 @@ public class Category extends BaseEntity {
 
     @Column(unique = true, nullable = false)
     private String name;
+
+    private Category(String name) {
+        this.name = name;
+    }
+
+    public static Category create(String name){
+        return new Category(name);
+    }
 }

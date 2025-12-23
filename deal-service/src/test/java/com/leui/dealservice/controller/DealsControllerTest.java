@@ -72,14 +72,14 @@ public class DealsControllerTest {
         DealsDetailResponse responseBody = objectMapper
                 .readValue(result.getResponse().getContentAsString(StandardCharsets.UTF_8), DealsDetailResponse.class);
 
-        Assertions.assertThat(responseBody.getId()).isEqualTo(id);
+        Assertions.assertThat(responseBody.id()).isEqualTo(id);
     }
 
     private void setupDeals() {
         List<Deals> deals = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
-            Category category = categoryRepository.save(Category.builder().name("CATEGORY" + i).build());
-            deals.add(new Deals(
+            Category category = categoryRepository.save(Category.create("CATEGORY" + i));
+            deals.add(Deals.create(
                     (long) i,
                     "test name",
                     "test description",
