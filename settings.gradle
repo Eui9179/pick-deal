@@ -1,4 +1,6 @@
 rootProject.name = 'pickdeal'
 
-include('deal-service')
-include('order-service')
+include 'deal-service'
+include 'order-service'
+include 'common-module'
+
