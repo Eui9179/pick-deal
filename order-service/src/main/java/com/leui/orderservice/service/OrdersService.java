@@ -4,13 +4,26 @@ import com.leui.orderservice.dto.OrderCreateRequest;
 import com.leui.orderservice.dto.OrderCreateResponse;
 import com.leui.orderservice.dto.OrderDetailResponse;
 import com.leui.orderservice.dto.OrderStatusResponse;
+import com.leui.orderservice.entity.OrderStatus;
+import org.springframework.stereotype.Service;
 
-public interface OrdersService {
-    OrderCreateResponse createOrder(OrderCreateRequest orderCreateRequest);
+@Service
+public class OrdersService {
 
-    OrderDetailResponse getOrderDetail(Long orderId);
+    public OrderCreateResponse createOrder(OrderCreateRequest orderCreateRequest) {
+        return new OrderCreateResponse(1L);
+    }
 
-    OrderStatusResponse getOrderStatus(Long orderId);
+    public OrderDetailResponse getOrderDetail(Long orderId) {
+        return new OrderDetailResponse(orderId);
+    }
 
-    OrderStatusResponse updateOrderStatusPaid(Long orderId);
+    public OrderStatusResponse getOrderStatus(Long orderId) {
+        return new OrderStatusResponse(orderId, OrderStatus.PAID);
+    }
+
+    public OrderStatusResponse updateOrderStatusPaid(Long orderId) {
+        return new OrderStatusResponse(orderId, OrderStatus.PAID);
+    }
+
 }
