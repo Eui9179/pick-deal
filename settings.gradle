@@ -1,4 +1,4 @@
-rootProject.name = 'gradle-example'
+rootProject.name = 'pickdeal'
 
 include('deal-service')
 include('order-service')
