@@ -1,5 +1,7 @@
 package com.leui.dealservice.dto;
 
+import com.leui.dealservice.entity.DealsStatus;
+
 import java.time.LocalDateTime;
 
 public record DealUpdateRequest(
@@ -10,6 +12,7 @@ public record DealUpdateRequest(
         int price,
         int discountPrice,
         int stockQuantity,
-        LocalDateTime pickupEndTime
+        LocalDateTime pickupEndTime,
+        DealsStatus dealsStatus
 ) {
 }

@@ -47,8 +47,7 @@ public class DealsService {
         // TODO Error 정의
         Deals deal = dealsRepository.findById(request.dealId())
                 .orElseThrow(() -> new RuntimeException());
-        deal.updateContent(request);
-        return new DealUpdateResponse(dealId);
+        return new DealUpdateResponse(deal.updateContent(request));
     }
 
     private Category getCategoryRefer(Long categoryId) {

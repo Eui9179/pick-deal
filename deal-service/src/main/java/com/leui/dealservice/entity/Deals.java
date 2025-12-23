@@ -79,12 +79,14 @@ public class Deals extends BaseEntity {
         );
     }
 
-    public void updateContent(DealUpdateRequest request) {
+    public Long updateContent(DealUpdateRequest request) {
         this.name = request.name();
         this.description = request.description();
         this.price = request.price();
         this.discountPrice = request.discountPrice();
         this.stockQuantity = request.stockQuantity();
+        this.dealsStatus = request.dealsStatus();
+        return this.id;
     }
 
     public void updateCategory(Category category) {
