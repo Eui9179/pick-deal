@@ -52,8 +52,8 @@ public class Deals extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Category category;
 
-    public Deals(Long storeId, String name, String description, int price, int discountPrice,
-                 int stockQuantity, DealsStatus dealsStatus, LocalDateTime pickupEndTime, Category category) {
+    private Deals(Long storeId, String name, String description, int price, int discountPrice,
+                  int stockQuantity, DealsStatus dealsStatus, LocalDateTime pickupEndTime, Category category) {
         this.storeId = storeId;
         this.name = name;
         this.description = description;
@@ -75,6 +75,30 @@ public class Deals extends BaseEntity {
                 request.stockQuantity(),
                 DealsStatus.ON_SALE,
                 request.pickupEndTime(),
+                category
+        );
+    }
+
+    public static Deals create(
+            Long storeId,
+            String name,
+            String description,
+            int price,
+            int discountPrice,
+            int stockQuantity,
+            DealsStatus dealsStatus,
+            LocalDateTime pickupEndTime,
+            Category category
+    ) {
+        return new Deals(
+                storeId,
+                name,
+                description,
+                price,
+                discountPrice,
+                stockQuantity,
+                dealsStatus,
+                pickupEndTime,
                 category
         );
     }
