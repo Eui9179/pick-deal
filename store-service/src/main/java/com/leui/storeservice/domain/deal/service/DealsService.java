@@ -1,9 +1,12 @@
 package com.leui.storeservice.domain.deal.service;
 
 import com.leui.storeservice.domain.deal.dto.*;
-import com.leui.storeservice.domain.deal.entity.Category;
+import com.leui.storeservice.domain.deal.entity.DealCategory;
 import com.leui.storeservice.domain.deal.entity.Deals;
+import com.leui.storeservice.domain.deal.repository.DealCategoryRepository;
 import com.leui.storeservice.domain.deal.repository.DealsRepository;
+import com.leui.storeservice.domain.store.entity.Stores;
+import com.leui.storeservice.domain.store.repository.StoresRepository;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -18,7 +21,8 @@ import org.springframework.web.multipart.MultipartFile;
 public class DealsService {
 
     private final DealsRepository dealsRepository;
-    private final EntityManager entityManager;
+    private final DealCategoryRepository categoryRepository;
+    private final StoresRepository storesRepository;
 
     public Slice<DealsDetailResponse> getDeals(DealsRequest dealsRequest, Pageable pageable) {
         // TODO 위치 기반 검색 조건 추가
@@ -35,8 +39,9 @@ public class DealsService {
     @Transactional
     public DealCreateResponse createDeal(DealCreateRequest request, MultipartFile image) {
         // TODO 이벤트 발행, 이미지 저장
-        Category category = getCategoryRefer(request.categoryId());
-        Deals deal = Deals.create(request, category);
+        DealCategory dealCategory = categoryRepository.getReferenceById(request.categoryId());
+        Stores store = storesRepository.getReferenceById(request.storeId());
+        Deals deal = Deals.create(request, store, dealCategory);
         dealsRepository.save(deal);
         return new DealCreateResponse(deal.getId());
     }
@@ -49,9 +54,4 @@ public class DealsService {
                 .orElseThrow(() -> new RuntimeException());
         return new DealUpdateResponse(deal.updateContent(request));
     }
-
-    private Category getCategoryRefer(Long categoryId) {
-        return entityManager.getReference(Category.class, categoryId);
-    }
-
 }

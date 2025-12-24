@@ -21,10 +21,10 @@ public record DealsDetailResponse(
     public static DealsDetailResponse from(Deals deals) {
         return new DealsDetailResponse(
                 deals.getId(),
-                deals.getStoreId(),
+                deals.getStore().getId(),
                 deals.getName(),
                 deals.getDescription(),
-                CategoryResponse.from(deals.getCategory()),
+                CategoryResponse.from(deals.getDealCategory()),
                 deals.getPrice(),
                 deals.getDiscountPrice(),
                 deals.getStockQuantity(),

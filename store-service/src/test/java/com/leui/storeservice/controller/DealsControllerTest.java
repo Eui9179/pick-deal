@@ -2,10 +2,10 @@ package com.leui.storeservice.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.leui.storeservice.domain.deal.dto.DealsDetailResponse;
-import com.leui.storeservice.domain.deal.entity.Category;
+import com.leui.storeservice.domain.deal.entity.DealCategory;
 import com.leui.storeservice.domain.deal.entity.Deals;
 import com.leui.storeservice.domain.deal.entity.DealsStatus;
-import com.leui.storeservice.domain.deal.repository.CategoryRepository;
+import com.leui.storeservice.domain.deal.repository.DealCategoryRepository;
 import com.leui.storeservice.domain.deal.repository.DealsRepository;
 import com.leui.storeservice.domain.deal.service.DealsService;
 import org.assertj.core.api.Assertions;
@@ -44,14 +44,13 @@ public class DealsControllerTest {
     DealsRepository dealsRepository;
 
     @Autowired
-    CategoryRepository categoryRepository;
+    DealCategoryRepository dealCategoryRepository;
 
     @Autowired
     ObjectMapper objectMapper;
 
     @BeforeEach
     void setUp() {
-        setupDeals();
     }
 
     @Test
@@ -73,24 +72,5 @@ public class DealsControllerTest {
                 .readValue(result.getResponse().getContentAsString(StandardCharsets.UTF_8), DealsDetailResponse.class);
 
         Assertions.assertThat(responseBody.id()).isEqualTo(id);
-    }
-
-    private void setupDeals() {
-        List<Deals> deals = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            Category category = categoryRepository.save(Category.create("CATEGORY" + i));
-            deals.add(Deals.create(
-                    (long) i,
-                    "test name",
-                    "test description",
-                    1000,
-                    700,
-                    10,
-                    DealsStatus.ON_SALE,
-                    LocalDateTime.now(),
-                    category
-            ));
-        }
-        dealsRepository.saveAll(deals);
     }
 }

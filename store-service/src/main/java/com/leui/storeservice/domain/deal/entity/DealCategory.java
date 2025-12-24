@@ -9,8 +9,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@Table(name = "pickdeal_category")
-public class Category extends BaseEntity {
+public class DealCategory extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -18,11 +17,11 @@ public class Category extends BaseEntity {
     @Column(unique = true, nullable = false)
     private String name;
 
-    private Category(String name) {
+    private DealCategory(String name) {
         this.name = name;
     }
 
-    public static Category create(String name){
-        return new Category(name);
+    public static DealCategory create(String name){
+        return new DealCategory(name);
     }
 }

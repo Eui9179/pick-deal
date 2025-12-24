@@ -20,12 +20,16 @@ public class Stores extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, length = 100)
     private String name;
 
+    @Column(nullable = false)
     private Position position;
 
+    @Column(nullable = false)
     private String address;
 
+    @Column(nullable = false, length = 30)
     private String phoneNumber;
 
     private LocalDateTime closedAt;

@@ -1,9 +1,9 @@
 package com.leui.storeservice.domain.deal.repository;
 
-import com.leui.storeservice.domain.deal.entity.Category;
+import com.leui.storeservice.domain.deal.entity.DealCategory;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface CategoryRepository extends JpaRepository<Category, Long> {
+public interface DealCategoryRepository extends JpaRepository<DealCategory, Long> {
 }

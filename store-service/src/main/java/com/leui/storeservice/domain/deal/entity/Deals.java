@@ -53,11 +53,11 @@ public class Deals extends BaseEntity {
     private LocalDateTime pickupEndTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private Category category;
+    private DealCategory dealCategory;
 
-    private Deals(Long storeId, String name, String description, int price, int discountPrice,
-                  int stockQuantity, DealsStatus dealsStatus, LocalDateTime pickupEndTime, Category category) {
-        this.storeId = storeId;
+    private Deals(Stores store, String name, String description, int price, int discountPrice,
+                  int stockQuantity, DealsStatus dealsStatus, LocalDateTime pickupEndTime, DealCategory dealCategory) {
+        this.store = store;
         this.name = name;
         this.description = description;
         this.price = price;
@@ -65,12 +65,12 @@ public class Deals extends BaseEntity {
         this.stockQuantity = stockQuantity;
         this.dealsStatus = dealsStatus;
         this.pickupEndTime = pickupEndTime;
-        this.category = category;
+        this.dealCategory = dealCategory;
     }
 
-    public static Deals create(DealCreateRequest request, Category category) {
+    public static Deals create(DealCreateRequest request, Stores store, DealCategory dealCategory) {
         return new Deals(
-                request.storeId(),
+                store,
                 request.name(),
                 request.description(),
                 request.price(),
@@ -78,12 +78,12 @@ public class Deals extends BaseEntity {
                 request.stockQuantity(),
                 DealsStatus.ON_SALE,
                 request.pickupEndTime(),
-                category
+                dealCategory
         );
     }
 
     public static Deals create(
-            Long storeId,
+            Stores store,
             String name,
             String description,
             int price,
@@ -91,10 +91,10 @@ public class Deals extends BaseEntity {
             int stockQuantity,
             DealsStatus dealsStatus,
             LocalDateTime pickupEndTime,
-            Category category
+            DealCategory dealCategory
     ) {
         return new Deals(
-                storeId,
+                store,
                 name,
                 description,
                 price,
@@ -102,7 +102,7 @@ public class Deals extends BaseEntity {
                 stockQuantity,
                 dealsStatus,
                 pickupEndTime,
-                category
+                dealCategory
         );
     }
 
@@ -116,8 +116,8 @@ public class Deals extends BaseEntity {
         return this.id;
     }
 
-    public void updateCategory(Category category) {
-        this.category = category;
+    public void updateCategory(DealCategory dealCategory) {
+        this.dealCategory = dealCategory;
     }
 
     public void updateOnSale() {
