@@ -3,6 +3,7 @@ package com.leui.storeservice.domain.deal.entity;
 import com.leui.storeservice.common.entity.BaseEntity;
 import com.leui.storeservice.domain.deal.dto.DealCreateRequest;
 import com.leui.storeservice.domain.deal.dto.DealUpdateRequest;
+import com.leui.storeservice.domain.store.entity.Stores;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
@@ -24,7 +25,8 @@ public class Deals extends BaseEntity {
     private Long id;
 
     @Column(nullable = false)
-    private Long storeId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Stores store;
 
     @Size(max = 100, message = "The length of 'name' is exceeded")
     @Column(nullable = false, length = 100)
