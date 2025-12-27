@@ -19,7 +19,7 @@ public class StoresController {
 
     @GetMapping
     public ResponseEntity<List<StoreInfoResponse>> getStores(StoresRequest request) {
-        return ResponseEntity.ok(storesService.getStores(request));
+        return ResponseEntity.ok(storesService.getNearStores(request));
     }
 
     @PatchMapping("/{id}")

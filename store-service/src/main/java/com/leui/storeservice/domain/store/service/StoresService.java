@@ -17,9 +17,8 @@ public class StoresService {
 
     private final StoresRepository storesRepository;
 
-    // TODO 위치 기반으로 가게 리턴
-    public List<StoreInfoResponse> getStores(StoresRequest request) {
-        return storesRepository.findAll()
+    public List<StoreInfoResponse> getNearStores(StoresRequest request) {
+        return storesRepository.findNear(request.x(), request.y(), request.radius())
                 .stream()
                 .map(StoreInfoResponse::from)
                 .toList();

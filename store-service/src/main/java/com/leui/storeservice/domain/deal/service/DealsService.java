@@ -7,7 +7,6 @@ import com.leui.storeservice.domain.deal.repository.DealCategoryRepository;
 import com.leui.storeservice.domain.deal.repository.DealsRepository;
 import com.leui.storeservice.domain.store.entity.Stores;
 import com.leui.storeservice.domain.store.repository.StoresRepository;
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;

@@ -18,13 +18,12 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @SoftDelete
-@Table(name = "pickdeal_deals")
 public class Deals extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(nullable = false)
+    @JoinColumn(name = "store_id", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
     private Stores store;
 

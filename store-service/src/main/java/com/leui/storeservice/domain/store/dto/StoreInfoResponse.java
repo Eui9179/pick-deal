@@ -7,8 +7,8 @@ import java.time.LocalDateTime;
 public record StoreInfoResponse(
         Long id,
         String name,
-        Double longitude,
-        Double latitude,
+        Double x,
+        Double y,
         String address,
         String phoneNumber,
         LocalDateTime closedAt
@@ -18,13 +18,12 @@ public record StoreInfoResponse(
         return new StoreInfoResponse(
                 store.getId(),
                 store.getName(),
-                store.getPosition().getLongitude(),
-                store.getPosition().getLatitude(),
+                store.getLocation().getX(),
+                store.getLocation().getY(),
                 store.getAddress(),
                 store.getPhoneNumber(),
                 store.getClosedAt()
         );
     }
-
 
 }
