@@ -15,7 +15,7 @@ import java.util.List;
 @Service
 public class StoresService {
 
-    private StoresRepository storesRepository;
+    private final StoresRepository storesRepository;
 
     // TODO 위치 기반으로 가게 리턴
     public List<StoreInfoResponse> getStores(StoresRequest request) {
