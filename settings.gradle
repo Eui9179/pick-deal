@@ -1,6 +1,6 @@
 rootProject.name = 'pickdeal'
 
-include 'deal-service'
+include 'store-service'
 include 'order-service'
 include 'common-module'
 
