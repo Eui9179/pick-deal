@@ -1,10 +1,7 @@
-package com.leui.storeservice.controller;
+package com.leui.storeservice.domain.deal.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.leui.storeservice.domain.deal.dto.DealsDetailResponse;
-import com.leui.storeservice.domain.deal.entity.DealCategory;
-import com.leui.storeservice.domain.deal.entity.Deals;
-import com.leui.storeservice.domain.deal.entity.DealsStatus;
 import com.leui.storeservice.domain.deal.repository.DealCategoryRepository;
 import com.leui.storeservice.domain.deal.repository.DealsRepository;
 import com.leui.storeservice.domain.deal.service.DealsService;
@@ -22,9 +19,6 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
