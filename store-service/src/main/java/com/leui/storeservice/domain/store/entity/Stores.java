@@ -3,6 +3,7 @@ package com.leui.storeservice.domain.store.entity;
 import com.leui.storeservice.common.entity.BaseEntity;
 import com.leui.storeservice.common.entity.Position;
 import com.leui.storeservice.domain.deal.entity.Deals;
+import com.leui.storeservice.domain.store.dto.StoreUpdateRequest;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -37,4 +38,9 @@ public class Stores extends BaseEntity {
     @OneToMany(mappedBy = "store")
     private List<Deals> deals;
 
+    public void updateContent(StoreUpdateRequest request) {
+        this.name = request.name();
+        this.phoneNumber = request.phoneNumber();
+        this.closedAt = request.closedAt();
+    }
 }
