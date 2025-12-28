@@ -22,7 +22,7 @@ public class StoresController {
     private final StoresService storesService;
 
     @GetMapping
-    public ResponseEntity<List<StoreInfoResponse>> getStores(StoresRequest request) {
+    public ResponseEntity<List<StoreInfoResponse>> getStores(@ModelAttribute StoresRequest request) {
         return ResponseEntity.ok(storesService.getNearStores(request));
     }
 
