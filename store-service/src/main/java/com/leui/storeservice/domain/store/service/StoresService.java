@@ -1,6 +1,7 @@
 package com.leui.storeservice.domain.store.service;
 
 import com.leui.storeservice.domain.store.dto.StoreInfoResponse;
+import com.leui.storeservice.domain.store.dto.StoreSaveRequest;
 import com.leui.storeservice.domain.store.dto.StoreUpdateRequest;
 import com.leui.storeservice.domain.store.dto.StoresRequest;
 import com.leui.storeservice.domain.store.entity.Stores;
@@ -29,5 +30,9 @@ public class StoresService {
                 .orElseThrow(() -> new EntityNotFoundException("Stores entity not found. id:" + id));
         store.updateContent(request);
         return id;
+    }
+
+    public Long saveStore(StoreSaveRequest request) {
+        return storesRepository.save(Stores.create(request)).getId();
     }
 }

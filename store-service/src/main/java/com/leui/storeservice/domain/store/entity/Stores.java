@@ -1,13 +1,17 @@
 package com.leui.storeservice.domain.store.entity;
 
 import com.leui.storeservice.common.entity.BaseEntity;
+import com.leui.storeservice.common.util.LocationUtils;
 import com.leui.storeservice.domain.deal.entity.Deals;
+import com.leui.storeservice.domain.store.dto.StoreSaveRequest;
 import com.leui.storeservice.domain.store.dto.StoreUpdateRequest;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 
 import java.time.LocalDateTime;
@@ -52,6 +56,16 @@ public class Stores extends BaseEntity {
     public static Stores create(String name, Point location, String address,
                                 String phoneNumber, LocalDateTime closedAt) {
         return new Stores(name, location, address, phoneNumber, closedAt);
+    }
+
+    public static Stores create(StoreSaveRequest request) {
+        return new Stores(
+                request.name(),
+                LocationUtils.createPoint(request.x(), request.y()),
+                request.address(),
+                request.phoneNumber(),
+                request.closedAt()
+        );
     }
 
     public void updateContent(StoreUpdateRequest request) {

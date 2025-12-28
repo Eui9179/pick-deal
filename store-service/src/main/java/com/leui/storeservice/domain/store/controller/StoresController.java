@@ -1,6 +1,7 @@
 package com.leui.storeservice.domain.store.controller;
 
 import com.leui.storeservice.domain.store.dto.StoreInfoResponse;
+import com.leui.storeservice.domain.store.dto.StoreSaveRequest;
 import com.leui.storeservice.domain.store.dto.StoreUpdateRequest;
 import com.leui.storeservice.domain.store.dto.StoresRequest;
 import com.leui.storeservice.domain.store.service.StoresService;
@@ -25,5 +26,10 @@ public class StoresController {
     @PatchMapping("/{id}")
     public ResponseEntity<Long> updateStore(@PathVariable Long id, StoreUpdateRequest request) {
         return ResponseEntity.ok(storesService.updateStore(id, request));
+    }
+
+    @PostMapping
+    public ResponseEntity<Long> saveStore(StoreSaveRequest request) {
+        return ResponseEntity.ok(storesService.saveStore(request));
     }
 }
