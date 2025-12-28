@@ -33,6 +33,7 @@ public class StoresService {
     }
 
     public Long saveStore(StoreSaveRequest request) {
+        // TODO image 저장
         return storesRepository.save(Stores.create(request)).getId();
     }
 }

@@ -6,9 +6,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 import java.time.LocalDateTime;
 
@@ -28,9 +29,18 @@ public class StoresControllerTest {
     @Test
     void testStoreSave() {
         //given
-        StoreSaveRequest request = new StoreSaveRequest("name1", 1.1, 1.1, "address1", "010-1234-1234", LocalDateTime.now());
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
 
-        //when
+        StoreSaveRequest saveRequest = new StoreSaveRequest("name1", 1.1, 1.1, "address1",
+                "010-1234-1234", LocalDateTime.now());
+        HttpEntity<StoreSaveRequest> data = new HttpEntity<>(saveRequest);
+        body.add("data", data);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+        HttpEntity<?> request = new HttpEntity<>(body, headers);
+
         ResponseEntity<Long> responseEntity = restTemplate.postForEntity("/api/v1/stores", request, Long.class);
 
         //then
@@ -38,6 +48,4 @@ public class StoresControllerTest {
         assertThat(responseEntity.getBody()).isInstanceOf(Long.class);
 
     }
-
-
 }
