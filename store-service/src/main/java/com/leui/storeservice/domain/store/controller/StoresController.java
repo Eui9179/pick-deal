@@ -5,6 +5,7 @@ import com.leui.storeservice.domain.store.dto.StoreSaveRequest;
 import com.leui.storeservice.domain.store.dto.StoreUpdateRequest;
 import com.leui.storeservice.domain.store.dto.StoresRequest;
 import com.leui.storeservice.domain.store.service.StoresService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +30,7 @@ public class StoresController {
     }
 
     @PostMapping
-    public ResponseEntity<Long> saveStore(StoreSaveRequest request) {
+    public ResponseEntity<Long> saveStore(@Valid @RequestBody StoreSaveRequest request) {
         return ResponseEntity.ok(storesService.saveStore(request));
     }
 }
