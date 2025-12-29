@@ -7,6 +7,7 @@ import com.leui.storeservice.domain.deal.repository.DealCategoryRepository;
 import com.leui.storeservice.domain.deal.repository.DealsRepository;
 import com.leui.storeservice.domain.store.entity.Stores;
 import com.leui.storeservice.domain.store.repository.StoresRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,17 +32,15 @@ public class DealsService {
     }
 
     public DealsDetailResponse getDealDetail(Long dealId) {
-        Deals deal = dealsRepository.findById(dealId)
-                .orElseThrow(RuntimeException::new);
-        return DealsDetailResponse.from(deal);
+        return DealsDetailResponse.from(getDealById(dealId));
     }
 
     @Transactional
     public DealCreateResponse createDeal(DealCreateRequest request, MultipartFile image) {
         DealCategory dealCategory = categoryRepository.getReferenceById(request.categoryId());
-        Stores store = storesRepository.getReferenceById(request.storeId());
-        Deals deal = Deals.create(request, store, dealCategory);
-        dealsRepository.save(deal);
+        Stores store = storesRepository.findById(request.storeId())
+                .orElseThrow(() -> new EntityNotFoundException("Store not found. id = " + request.storeId()));
+        Deals deal = dealsRepository.save(Deals.create(request, store, dealCategory));
         return new DealCreateResponse(deal.getId());
     }
 
@@ -49,8 +48,12 @@ public class DealsService {
     public DealUpdateResponse updateDealContent(Long dealId, DealUpdateRequest request, MultipartFile image) {
         // TODO 이미지 업데이트
         // TODO Error 정의
-        Deals deal = dealsRepository.findById(request.dealId())
-                .orElseThrow(() -> new RuntimeException());
+        Deals deal = getDealById(dealId);
         return new DealUpdateResponse(deal.updateContent(request));
+    }
+
+    private Deals getDealById(Long dealId) {
+        return dealsRepository.findById(dealId)
+                .orElseThrow(() ->  new EntityNotFoundException("Deal not found. id = " + dealId));
     }
 }
