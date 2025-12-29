@@ -23,17 +23,18 @@ public class DealsController {
         return ResponseEntity.ok(dealsService.getDeals(storeId));
     }
 
-    @GetMapping("/deals/{dealId}")
-    public ResponseEntity<DealsDetailResponse> getDealDetail(@PathVariable Long dealId) {
-        return ResponseEntity.ok(dealsService.getDealDetail(dealId));
-    }
-
-    @PostMapping(value = "/deals", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/stores/{storeId}/deals", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<DealCreateResponse> createDeal(
+            @PathVariable Long storeId,
             @Valid @RequestPart("data") DealCreateRequest request,
             @RequestPart("image") MultipartFile image
     ) {
-        return ResponseEntity.ok(dealsService.createDeal(request, image));
+        return ResponseEntity.ok(dealsService.createDeal(storeId, request, image));
+    }
+
+    @GetMapping("/deals/{dealId}")
+    public ResponseEntity<DealsDetailResponse> getDealDetail(@PathVariable Long dealId) {
+        return ResponseEntity.ok(dealsService.getDealDetail(dealId));
     }
 
     @PatchMapping(value = "/deals/{dealId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

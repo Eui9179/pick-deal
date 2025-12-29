@@ -36,11 +36,11 @@ public class DealsService {
     }
 
     @Transactional
-    public DealCreateResponse createDeal(DealCreateRequest request, MultipartFile image) {
+    public DealCreateResponse createDeal(Long storeId, DealCreateRequest request, MultipartFile image) {
         DealCategory dealCategory = categoryRepository.getReferenceById(request.categoryId());
 
-        Stores store = storesRepository.findById(request.storeId())
-                .orElseThrow(() -> new EntityNotFoundException("Store not found. id = " + request.storeId()));
+        Stores store = storesRepository.findById(storeId)
+                .orElseThrow(() -> new EntityNotFoundException("Store not found. id = " + storeId));
 
         Deals deal = dealsRepository.save(Deals.create(request, store, dealCategory));
         return new DealCreateResponse(deal.getId());
