@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 @Entity
 public class Stores extends BaseEntity {
@@ -43,7 +42,7 @@ public class Stores extends BaseEntity {
     private LocalDateTime closedAt;
 
     @OneToMany(mappedBy = "store", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    private List<Deals> deals = new ArrayList<>();
+    private final List<Deals> deals = new ArrayList<>();
 
     private Stores(String name, Point location, String address,
                   String phoneNumber, LocalDateTime closedAt) {
