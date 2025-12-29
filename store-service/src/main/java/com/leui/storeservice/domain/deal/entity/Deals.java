@@ -51,11 +51,8 @@ public class Deals extends BaseEntity {
     @Column(nullable = false)
     private LocalDateTime pickupEndTime;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    private DealCategory dealCategory;
-
     private Deals(Stores store, String name, String description, int price, int discountPrice,
-                  int stockQuantity, DealsStatus dealsStatus, LocalDateTime pickupEndTime, DealCategory dealCategory) {
+                  int stockQuantity, DealsStatus dealsStatus, LocalDateTime pickupEndTime) {
         this.store = store;
         this.name = name;
         this.description = description;
@@ -64,10 +61,9 @@ public class Deals extends BaseEntity {
         this.stockQuantity = stockQuantity;
         this.dealsStatus = dealsStatus;
         this.pickupEndTime = pickupEndTime;
-        this.dealCategory = dealCategory;
     }
 
-    public static Deals create(DealCreateRequest request, Stores store, DealCategory dealCategory) {
+    public static Deals create(DealCreateRequest request, Stores store) {
         return new Deals(
                 store,
                 request.name(),
@@ -76,8 +72,7 @@ public class Deals extends BaseEntity {
                 request.discountPrice(),
                 request.stockQuantity(),
                 DealsStatus.ON_SALE,
-                request.pickupEndTime(),
-                dealCategory
+                request.pickupEndTime()
         );
     }
 
@@ -89,8 +84,7 @@ public class Deals extends BaseEntity {
             int discountPrice,
             int stockQuantity,
             DealsStatus dealsStatus,
-            LocalDateTime pickupEndTime,
-            DealCategory dealCategory
+            LocalDateTime pickupEndTime
     ) {
         return new Deals(
                 store,
@@ -100,8 +94,7 @@ public class Deals extends BaseEntity {
                 discountPrice,
                 stockQuantity,
                 dealsStatus,
-                pickupEndTime,
-                dealCategory
+                pickupEndTime
         );
     }
 
@@ -113,10 +106,6 @@ public class Deals extends BaseEntity {
         this.stockQuantity = request.stockQuantity();
         this.dealsStatus = request.dealsStatus();
         return this.id;
-    }
-
-    public void updateCategory(DealCategory dealCategory) {
-        this.dealCategory = dealCategory;
     }
 
     public void updateOnSale() {

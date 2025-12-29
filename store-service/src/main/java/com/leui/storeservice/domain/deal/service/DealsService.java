@@ -1,9 +1,7 @@
 package com.leui.storeservice.domain.deal.service;
 
 import com.leui.storeservice.domain.deal.dto.*;
-import com.leui.storeservice.domain.deal.entity.DealCategory;
 import com.leui.storeservice.domain.deal.entity.Deals;
-import com.leui.storeservice.domain.deal.repository.DealCategoryRepository;
 import com.leui.storeservice.domain.deal.repository.DealsRepository;
 import com.leui.storeservice.domain.store.entity.Stores;
 import com.leui.storeservice.domain.store.repository.StoresRepository;
@@ -21,7 +19,6 @@ import java.util.List;
 public class DealsService {
 
     private final DealsRepository dealsRepository;
-    private final DealCategoryRepository categoryRepository;
     private final StoresRepository storesRepository;
 
     public List<DealsDetailResponse> getDeals(Long storeId) {
@@ -37,12 +34,10 @@ public class DealsService {
 
     @Transactional
     public DealCreateResponse createDeal(Long storeId, DealCreateRequest request, MultipartFile image) {
-        DealCategory dealCategory = categoryRepository.getReferenceById(request.categoryId());
-
         Stores store = storesRepository.findById(storeId)
                 .orElseThrow(() -> new EntityNotFoundException("Store not found. id = " + storeId));
 
-        Deals deal = dealsRepository.save(Deals.create(request, store, dealCategory));
+        Deals deal = dealsRepository.save(Deals.create(request, store));
         return new DealCreateResponse(deal.getId());
     }
 

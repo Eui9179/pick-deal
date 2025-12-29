@@ -3,10 +3,8 @@ package com.leui.storeservice.domain.deal.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.leui.storeservice.common.util.LocationUtils;
 import com.leui.storeservice.domain.deal.dto.DealsDetailResponse;
-import com.leui.storeservice.domain.deal.entity.DealCategory;
 import com.leui.storeservice.domain.deal.entity.Deals;
 import com.leui.storeservice.domain.deal.entity.DealsStatus;
-import com.leui.storeservice.domain.deal.repository.DealCategoryRepository;
 import com.leui.storeservice.domain.deal.repository.DealsRepository;
 import com.leui.storeservice.domain.deal.service.DealsService;
 import com.leui.storeservice.domain.store.entity.Stores;
@@ -19,13 +17,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import java.time.LocalDateTime;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @PostgreSQLTestContainer
@@ -39,9 +33,6 @@ public class DealsControllerTest {
 
     @Autowired
     DealsRepository dealsRepository;
-
-    @Autowired
-    DealCategoryRepository dealCategoryRepository;
 
     @Autowired
     StoresRepository storesRepository;
@@ -81,8 +72,6 @@ public class DealsControllerTest {
 
         storesRepository.save(store);
 
-        DealCategory category = dealCategoryRepository.save(DealCategory.create("category"));
-
         Deals deals = Deals.create(
                 store,
                 "deal_name",
@@ -91,8 +80,7 @@ public class DealsControllerTest {
                 1,
                 1,
                 DealsStatus.ON_SALE,
-                LocalDateTime.now(),
-                category);
+                LocalDateTime.now());
 
         dealsRepository.save(deals);
     }
