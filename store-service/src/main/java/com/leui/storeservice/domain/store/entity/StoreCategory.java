@@ -20,11 +20,7 @@ public class StoreCategory extends BaseEntity {
     @Column(nullable = false)
     private String description;
 
-    public static StoreCategory create(String code, String desc) {
-        return new StoreCategory(code, desc);
-    }
-
-    private StoreCategory(String code, String description) {
+    public StoreCategory(String code, String description) {
         this.code = code;
         this.description = description;
     }

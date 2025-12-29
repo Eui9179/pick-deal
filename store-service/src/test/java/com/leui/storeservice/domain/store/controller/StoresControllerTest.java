@@ -46,7 +46,7 @@ public class StoresControllerTest {
     void setUp() {
         storesRepository.deleteAll();
         storeCategoryRepository.deleteAll();
-        category = storeCategoryRepository.save(StoreCategory.create("test code", "test desc"));
+        category = storeCategoryRepository.save(new StoreCategory("test code", "test desc"));
     }
 
     @Test
