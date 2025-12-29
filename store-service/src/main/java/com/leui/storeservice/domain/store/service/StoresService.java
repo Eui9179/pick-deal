@@ -37,6 +37,7 @@ public class StoresService {
     }
 
     public StoreInfoResponse getStoreInfo(Long id) {
+        // TODO 추후 이미지 추가
         return StoreInfoResponse.from(getStore(id));
     }
 
