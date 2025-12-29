@@ -32,7 +32,7 @@ public class DealsService {
     }
 
     public DealsDetailResponse getDealDetail(Long dealId) {
-        return DealsDetailResponse.from(getDealById(dealId));
+        return DealsDetailResponse.from(getDeal(dealId));
     }
 
     @Transactional
@@ -50,11 +50,11 @@ public class DealsService {
     public DealUpdateResponse updateDealContent(Long dealId, DealUpdateRequest request, MultipartFile image) {
         // TODO 이미지 업데이트
         // TODO Error 정의
-        Deals deal = getDealById(dealId);
+        Deals deal = getDeal(dealId);
         return new DealUpdateResponse(deal.updateContent(request));
     }
 
-    private Deals getDealById(Long dealId) {
+    private Deals getDeal(Long dealId) {
         return dealsRepository.findById(dealId)
                 .orElseThrow(() ->  new EntityNotFoundException("Deal not found. id = " + dealId));
     }

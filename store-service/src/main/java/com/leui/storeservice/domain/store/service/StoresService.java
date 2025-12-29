@@ -1,9 +1,9 @@
 package com.leui.storeservice.domain.store.service;
 
+import com.leui.storeservice.domain.store.dto.StoreFindRequest;
 import com.leui.storeservice.domain.store.dto.StoreInfoResponse;
 import com.leui.storeservice.domain.store.dto.StoreSaveRequest;
 import com.leui.storeservice.domain.store.dto.StoreUpdateRequest;
-import com.leui.storeservice.domain.store.dto.StoreFindRequest;
 import com.leui.storeservice.domain.store.entity.Stores;
 import com.leui.storeservice.domain.store.repository.StoresRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -26,8 +26,7 @@ public class StoresService {
     }
 
     public Long updateStore(Long id, StoreUpdateRequest request) {
-        Stores store = storesRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Stores entity not found. id:" + id));
+        Stores store = getStore(id);
         store.updateContent(request);
         return id;
     }
@@ -35,5 +34,14 @@ public class StoresService {
     public Long saveStore(StoreSaveRequest request) {
         // TODO image 저장
         return storesRepository.save(Stores.create(request)).getId();
+    }
+
+    public StoreInfoResponse getStoreInfo(Long id) {
+        return StoreInfoResponse.from(getStore(id));
+    }
+
+    private Stores getStore(Long id) {
+        return storesRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Stores entity not found. id:" + id));
     }
 }
