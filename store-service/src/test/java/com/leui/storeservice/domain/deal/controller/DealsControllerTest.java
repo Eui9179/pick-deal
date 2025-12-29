@@ -1,70 +1,75 @@
 package com.leui.storeservice.domain.deal.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.leui.storeservice.common.util.LocationUtils;
+import com.leui.storeservice.config.postgres.PostgreSQLTestContainer;
 import com.leui.storeservice.domain.deal.dto.DealsDetailResponse;
-import com.leui.storeservice.domain.deal.repository.DealCategoryRepository;
+import com.leui.storeservice.domain.deal.entity.Deals;
+import com.leui.storeservice.domain.deal.entity.DealsStatus;
 import com.leui.storeservice.domain.deal.repository.DealsRepository;
-import com.leui.storeservice.domain.deal.service.DealsService;
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
+import com.leui.storeservice.domain.store.entity.StoreCategory;
+import com.leui.storeservice.domain.store.entity.Stores;
+import com.leui.storeservice.domain.store.repository.StoreCategoryRepository;
+import com.leui.storeservice.domain.store.repository.StoresRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
-import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.assertj.core.api.Assertions.assertThat;
 
-@Transactional
-@SpringBootTest
-@AutoConfigureMockMvc
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@PostgreSQLTestContainer
 public class DealsControllerTest {
 
     @Autowired
-    MockMvc mvc;
-
-    @Autowired
-    DealsService dealsService;
+    TestRestTemplate restTemplate;
 
     @Autowired
     DealsRepository dealsRepository;
 
     @Autowired
-    DealCategoryRepository dealCategoryRepository;
+    StoresRepository storesRepository;
 
     @Autowired
-    ObjectMapper objectMapper;
-
-    @BeforeEach
-    void setUp() {
-    }
+    StoreCategoryRepository storeCategoryRepository;
 
     @Test
     @DisplayName("상품 단건 조회 테스트")
-    void getDealDetail() throws Exception {
-
+    void getDealDetail() {
         // given
-        Long id = 1L;
-        String uri = "/api/v1/deals/" + id;
+        StoreCategory category = storeCategoryRepository.save(new StoreCategory("test", "test"));
+
+        Stores store = storesRepository.save(new Stores(
+                "store_name",
+                LocationUtils.createPoint(1.1, 1.1),
+                "store_location",
+                "store_address",
+                LocalDateTime.now(),
+                category));
+
+        Deals deal = dealsRepository.save(new Deals(store,
+                "deal_name",
+                "deal_description",
+                1,
+                1,
+                1,
+                DealsStatus.ON_SALE,
+                LocalDateTime.now()));
+
+        String uri = "/api/v1/deals/" + deal.getId();
 
         // when
-        MockHttpServletRequestBuilder builder = get(uri).contentType(MediaType.APPLICATION_JSON);
+        ResponseEntity<DealsDetailResponse> response = restTemplate.getForEntity(uri, DealsDetailResponse.class);
 
         // then
-        MvcResult result = mvc.perform(builder)
-                .andExpect(status().isOk())
-                .andReturn();
-        DealsDetailResponse responseBody = objectMapper
-                .readValue(result.getResponse().getContentAsString(StandardCharsets.UTF_8), DealsDetailResponse.class);
-
-        Assertions.assertThat(responseBody.id()).isEqualTo(id);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody().id()).isEqualTo(deal.getId());
     }
 }

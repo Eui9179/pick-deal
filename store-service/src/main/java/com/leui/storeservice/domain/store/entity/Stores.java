@@ -1,20 +1,21 @@
 package com.leui.storeservice.domain.store.entity;
 
 import com.leui.storeservice.common.entity.BaseEntity;
+import com.leui.storeservice.common.util.LocationUtils;
 import com.leui.storeservice.domain.deal.entity.Deals;
+import com.leui.storeservice.domain.store.dto.StoreSaveRequest;
 import com.leui.storeservice.domain.store.dto.StoreUpdateRequest;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.locationtech.jts.geom.Point;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 @Entity
 public class Stores extends BaseEntity {
@@ -37,21 +38,29 @@ public class Stores extends BaseEntity {
 
     private LocalDateTime closedAt;
 
-    @OneToMany(mappedBy = "store")
-    private List<Deals> deals;
+    @OneToMany(mappedBy = "store", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private final List<Deals> deals = new ArrayList<>();
 
-    private Stores(String name, Point location, String address,
-                  String phoneNumber, LocalDateTime closedAt) {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private StoreCategory category;
+
+    public Stores(String name, Point location, String address, String phoneNumber, LocalDateTime closedAt, StoreCategory category) {
         this.name = name;
         this.location = location;
         this.address = address;
         this.phoneNumber = phoneNumber;
         this.closedAt = closedAt;
+        this.category = category;
     }
 
-    public static Stores create(String name, Point location, String address,
-                                String phoneNumber, LocalDateTime closedAt) {
-        return new Stores(name, location, address, phoneNumber, closedAt);
+    public Stores(StoreSaveRequest request, StoreCategory category) {
+        this.name = request.name();
+        this.location = LocationUtils.createPoint(request.x(), request.y());
+        this.address = request.address();
+        this.phoneNumber = request.phoneNumber();
+        this.closedAt = request.closedAt();
+        this.category = category;
     }
 
     public void updateContent(StoreUpdateRequest request) {

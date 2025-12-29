@@ -3,7 +3,6 @@ package com.leui.storeservice.domain.deal.dto;
 import java.time.LocalDateTime;
 
 public record DealCreateRequest(
-        Long storeId,
         Long categoryId,
         String name,
         String description,

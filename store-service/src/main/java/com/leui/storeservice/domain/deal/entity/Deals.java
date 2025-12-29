@@ -9,15 +9,12 @@ import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.SoftDelete;
 
 import java.time.LocalDateTime;
 
-//TODO 이미지 URL
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@SoftDelete
 public class Deals extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -51,11 +48,8 @@ public class Deals extends BaseEntity {
     @Column(nullable = false)
     private LocalDateTime pickupEndTime;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    private DealCategory dealCategory;
-
-    private Deals(Stores store, String name, String description, int price, int discountPrice,
-                  int stockQuantity, DealsStatus dealsStatus, LocalDateTime pickupEndTime, DealCategory dealCategory) {
+    public Deals(Stores store, String name, String description, int price, int discountPrice,
+                  int stockQuantity, DealsStatus dealsStatus, LocalDateTime pickupEndTime) {
         this.store = store;
         this.name = name;
         this.description = description;
@@ -64,45 +58,17 @@ public class Deals extends BaseEntity {
         this.stockQuantity = stockQuantity;
         this.dealsStatus = dealsStatus;
         this.pickupEndTime = pickupEndTime;
-        this.dealCategory = dealCategory;
     }
 
-    public static Deals create(DealCreateRequest request, Stores store, DealCategory dealCategory) {
-        return new Deals(
-                store,
-                request.name(),
-                request.description(),
-                request.price(),
-                request.discountPrice(),
-                request.stockQuantity(),
-                DealsStatus.ON_SALE,
-                request.pickupEndTime(),
-                dealCategory
-        );
-    }
-
-    public static Deals create(
-            Stores store,
-            String name,
-            String description,
-            int price,
-            int discountPrice,
-            int stockQuantity,
-            DealsStatus dealsStatus,
-            LocalDateTime pickupEndTime,
-            DealCategory dealCategory
-    ) {
-        return new Deals(
-                store,
-                name,
-                description,
-                price,
-                discountPrice,
-                stockQuantity,
-                dealsStatus,
-                pickupEndTime,
-                dealCategory
-        );
+    public Deals(DealCreateRequest request, Stores store) {
+        this.store = store;
+        this.name = request.name();
+        this.description = request.description();
+        this.price = request.price();
+        this.discountPrice = request.discountPrice();
+        this.stockQuantity = request.stockQuantity();
+        this.dealsStatus = DealsStatus.ON_SALE;
+        this.pickupEndTime = request.pickupEndTime();
     }
 
     public Long updateContent(DealUpdateRequest request) {
@@ -113,10 +79,6 @@ public class Deals extends BaseEntity {
         this.stockQuantity = request.stockQuantity();
         this.dealsStatus = request.dealsStatus();
         return this.id;
-    }
-
-    public void updateCategory(DealCategory dealCategory) {
-        this.dealCategory = dealCategory;
     }
 
     public void updateOnSale() {
