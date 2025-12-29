@@ -4,29 +4,26 @@ import com.leui.storeservice.domain.deal.dto.*;
 import com.leui.storeservice.domain.deal.service.DealsService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @RequiredArgsConstructor
+@RequestMapping("/api/v1")
 @RestController
-@RequestMapping("/api/v1/deals")
 public class DealsController {
 
     private final DealsService dealsService;
 
-    @GetMapping
-    public ResponseEntity<Slice<DealsDetailResponse>> getDeals(
-            @Valid @ModelAttribute DealsRequest dealsRequest,
-            Pageable pageable
-    ) {
-        return ResponseEntity.ok(dealsService.getDeals(dealsRequest, pageable));
+    @GetMapping("/stores/{storeId}/deals")
+    public ResponseEntity<List<DealsDetailResponse>> getDeals(@PathVariable Long storeId) {
+        return ResponseEntity.ok(dealsService.getDeals(storeId));
     }
 
-    @GetMapping("/{dealId}")
+    @GetMapping("/deals/{dealId}")
     public ResponseEntity<DealsDetailResponse> getDealDetail(@PathVariable Long dealId) {
         return ResponseEntity.ok(dealsService.getDealDetail(dealId));
     }

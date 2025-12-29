@@ -8,11 +8,11 @@ import com.leui.storeservice.domain.deal.repository.DealsRepository;
 import com.leui.storeservice.domain.store.entity.Stores;
 import com.leui.storeservice.domain.store.repository.StoresRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -23,10 +23,11 @@ public class DealsService {
     private final DealCategoryRepository categoryRepository;
     private final StoresRepository storesRepository;
 
-    public Slice<DealsDetailResponse> getDeals(DealsRequest dealsRequest, Pageable pageable) {
-        // TODO 위치 기반 검색 조건 추가
-        return dealsRepository.findByOrderByCreatedAtDesc(pageable)
-                .map(DealsDetailResponse::from);
+    public List<DealsDetailResponse> getDeals(Long storeId) {
+        return dealsRepository.findDealsByStoreIdOrderByCreatedAtDesc(storeId)
+                .stream()
+                .map(DealsDetailResponse::from)
+                .toList();
     }
 
     public DealsDetailResponse getDealDetail(Long dealId) {
@@ -37,7 +38,6 @@ public class DealsService {
 
     @Transactional
     public DealCreateResponse createDeal(DealCreateRequest request, MultipartFile image) {
-        // TODO 이벤트 발행, 이미지 저장
         DealCategory dealCategory = categoryRepository.getReferenceById(request.categoryId());
         Stores store = storesRepository.getReferenceById(request.storeId());
         Deals deal = Deals.create(request, store, dealCategory);
