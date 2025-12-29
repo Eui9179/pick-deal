@@ -11,19 +11,24 @@ import com.leui.storeservice.domain.store.entity.StoreCategory;
 import com.leui.storeservice.domain.store.entity.Stores;
 import com.leui.storeservice.domain.store.repository.StoreCategoryRepository;
 import com.leui.storeservice.domain.store.repository.StoresRepository;
-import com.leui.storeservice.testcommon.postgres.PostgreSQLTestContainer;
+import com.leui.storeservice.config.postgres.PostgreSQLTestContainer;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
 
+import static org.assertj.core.api.Assertions.*;
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @PostgreSQLTestContainer
 public class DealsControllerTest {
 
@@ -54,6 +59,7 @@ public class DealsControllerTest {
     @DisplayName("상품 단건 조회 테스트")
     void getDealDetail() {
         // given
+        // TODO 이 블록에서 리소스 저장
         Long id = 1L;
         String uri = "/api/v1/deals/" + id;
 

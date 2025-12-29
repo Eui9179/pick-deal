@@ -1,4 +1,4 @@
-package com.leui.storeservice.testcommon.postgres;
+package com.leui.storeservice.config.postgres;
 
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
@@ -11,14 +11,10 @@ public class PostgreSQLTestInitializer implements ApplicationContextInitializer<
     private static final PostgreSQLContainer<?> POSTGRES;
 
     static {
-        //noinspection resource
         POSTGRES = new PostgreSQLContainer<>(
                 DockerImageName
                         .parse("postgis/postgis:15-3.4")
-                        .asCompatibleSubstituteFor("postgres"))
-                .withDatabaseName("testdb")
-                .withUsername("postgres")
-                .withPassword("postgres");
+                        .asCompatibleSubstituteFor("postgres"));
         POSTGRES.start();
     }
 

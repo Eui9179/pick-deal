@@ -7,7 +7,7 @@ import com.leui.storeservice.domain.store.entity.StoreCategory;
 import com.leui.storeservice.domain.store.entity.Stores;
 import com.leui.storeservice.domain.store.repository.StoreCategoryRepository;
 import com.leui.storeservice.domain.store.repository.StoresRepository;
-import com.leui.storeservice.testcommon.postgres.PostgreSQLTestContainer;
+import com.leui.storeservice.config.postgres.PostgreSQLTestContainer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

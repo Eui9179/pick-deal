@@ -3,12 +3,11 @@ package com.leui.storeservice.domain.store.service;
 import com.leui.storeservice.common.util.LocationUtils;
 import com.leui.storeservice.domain.store.dto.StoreFindRequest;
 import com.leui.storeservice.domain.store.dto.StoreInfoResponse;
-import com.leui.storeservice.domain.store.dto.StoreUpdateRequest;
 import com.leui.storeservice.domain.store.entity.StoreCategory;
 import com.leui.storeservice.domain.store.entity.Stores;
 import com.leui.storeservice.domain.store.repository.StoreCategoryRepository;
 import com.leui.storeservice.domain.store.repository.StoresRepository;
-import com.leui.storeservice.testcommon.postgres.PostgreSQLTestContainer;
+import com.leui.storeservice.config.postgres.PostgreSQLTestContainer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +17,6 @@ import org.springframework.context.annotation.Import;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

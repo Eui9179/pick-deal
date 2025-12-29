@@ -1,4 +1,4 @@
-package com.leui.storeservice.testcommon.postgres;
+package com.leui.storeservice.config.postgres;
 
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
