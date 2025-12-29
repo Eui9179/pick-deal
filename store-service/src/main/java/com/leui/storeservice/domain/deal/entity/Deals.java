@@ -9,14 +9,12 @@ import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.SoftDelete;
 
 import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@SoftDelete
 public class Deals extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
