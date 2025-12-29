@@ -3,7 +3,7 @@ package com.leui.storeservice.domain.store.controller;
 import com.leui.storeservice.domain.store.dto.StoreInfoResponse;
 import com.leui.storeservice.domain.store.dto.StoreSaveRequest;
 import com.leui.storeservice.domain.store.dto.StoreUpdateRequest;
-import com.leui.storeservice.domain.store.dto.StoresRequest;
+import com.leui.storeservice.domain.store.dto.StoreFindRequest;
 import com.leui.storeservice.domain.store.service.StoresService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ public class StoresController {
     private final StoresService storesService;
 
     @GetMapping
-    public ResponseEntity<List<StoreInfoResponse>> getStores(@ModelAttribute StoresRequest request) {
+    public ResponseEntity<List<StoreInfoResponse>> getStores(@ModelAttribute StoreFindRequest request) {
         return ResponseEntity.ok(storesService.getNearStores(request));
     }
 

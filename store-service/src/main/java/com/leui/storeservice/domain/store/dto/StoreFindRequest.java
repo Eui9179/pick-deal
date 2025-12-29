@@ -1,6 +1,6 @@
 package com.leui.storeservice.domain.store.dto;
 
-public record StoresRequest(
+public record StoreFindRequest(
         Double x,
         Double y,
         int radius
