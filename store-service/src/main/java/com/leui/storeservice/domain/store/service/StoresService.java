@@ -35,13 +35,11 @@ public class StoresService {
     }
 
     public Long saveStore(StoreSaveRequest request) {
-        // TODO image 저장
         StoreCategory category = storeCategoryRepository.getReferenceById(request.categoryId());
         return storesRepository.save(new Stores(request, category)).getId();
     }
 
     public StoreInfoResponse getStoreInfo(Long id) {
-        // TODO 추후 이미지 추가
         return StoreInfoResponse.from(getStore(id));
     }
 

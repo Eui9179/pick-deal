@@ -9,7 +9,6 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -33,7 +32,7 @@ public class DealsService {
     }
 
     @Transactional
-    public DealCreateResponse createDeal(Long storeId, DealCreateRequest request, MultipartFile image) {
+    public DealCreateResponse createDeal(Long storeId, DealCreateRequest request) {
         Stores store = storesRepository.findById(storeId)
                 .orElseThrow(() -> new EntityNotFoundException("Store not found. id = " + storeId));
 
@@ -42,9 +41,7 @@ public class DealsService {
     }
 
     @Transactional
-    public DealUpdateResponse updateDealContent(Long dealId, DealUpdateRequest request, MultipartFile image) {
-        // TODO 이미지 업데이트
-        // TODO Error 정의
+    public DealUpdateResponse updateDealContent(Long dealId, DealUpdateRequest request) {
         Deals deal = getDeal(dealId);
         return new DealUpdateResponse(deal.updateContent(request));
     }

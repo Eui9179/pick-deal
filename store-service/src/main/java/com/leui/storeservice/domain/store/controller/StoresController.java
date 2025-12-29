@@ -7,10 +7,8 @@ import com.leui.storeservice.domain.store.dto.StoreUpdateRequest;
 import com.leui.storeservice.domain.store.service.StoresService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -31,11 +29,8 @@ public class StoresController {
         return ResponseEntity.ok(storesService.updateStore(id, request));
     }
 
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Long> saveStore(
-            @Valid @RequestPart("data") StoreSaveRequest request,
-            @RequestPart(value = "image", required = false) MultipartFile image
-    ) {
+    @PostMapping
+    public ResponseEntity<Long> saveStore(@Valid @RequestBody StoreSaveRequest request) {
         return ResponseEntity.ok(storesService.saveStore(request));
     }
 }

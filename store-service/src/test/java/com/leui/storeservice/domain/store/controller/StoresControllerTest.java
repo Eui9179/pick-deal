@@ -52,8 +52,6 @@ public class StoresControllerTest {
     @Test
     void testStoreSave() {
         //given
-        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-
         StoreSaveRequest saveRequest = new StoreSaveRequest(
                 "name1",
                 1.1,
@@ -63,15 +61,7 @@ public class StoresControllerTest {
                 LocalDateTime.now(),
                 category.getId());
 
-        HttpEntity<StoreSaveRequest> data = new HttpEntity<>(saveRequest);
-        body.add("data", data);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-
-        HttpEntity<?> request = new HttpEntity<>(body, headers);
-
-        ResponseEntity<Long> responseEntity = restTemplate.postForEntity("/api/v1/stores", request, Long.class);
+        ResponseEntity<Long> responseEntity = restTemplate.postForEntity("/api/v1/stores", saveRequest, Long.class);
 
         //then
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);

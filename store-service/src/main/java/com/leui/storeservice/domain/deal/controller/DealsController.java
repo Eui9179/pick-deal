@@ -4,10 +4,8 @@ import com.leui.storeservice.domain.deal.dto.*;
 import com.leui.storeservice.domain.deal.service.DealsService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -23,13 +21,12 @@ public class DealsController {
         return ResponseEntity.ok(dealsService.getDeals(storeId));
     }
 
-    @PostMapping(value = "/stores/{storeId}/deals", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping("/stores/{storeId}/deals")
     public ResponseEntity<DealCreateResponse> createDeal(
             @PathVariable Long storeId,
-            @Valid @RequestPart("data") DealCreateRequest request,
-            @RequestPart("image") MultipartFile image
+            @Valid @RequestBody DealCreateRequest request
     ) {
-        return ResponseEntity.ok(dealsService.createDeal(storeId, request, image));
+        return ResponseEntity.ok(dealsService.createDeal(storeId, request));
     }
 
     @GetMapping("/deals/{dealId}")
@@ -37,13 +34,12 @@ public class DealsController {
         return ResponseEntity.ok(dealsService.getDealDetail(dealId));
     }
 
-    @PatchMapping(value = "/deals/{dealId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PatchMapping("/deals/{dealId}")
     public ResponseEntity<DealUpdateResponse> updateDeal(
             @PathVariable Long dealId,
-            @Valid @RequestPart("data") DealUpdateRequest request,
-            @RequestPart("image") MultipartFile image
+            @Valid @RequestBody DealUpdateRequest request
     ) {
-        return ResponseEntity.ok(dealsService.updateDealContent(dealId, request, image));
+        return ResponseEntity.ok(dealsService.updateDealContent(dealId, request));
     }
 
 }
