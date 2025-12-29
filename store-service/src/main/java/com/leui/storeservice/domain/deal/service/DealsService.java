@@ -37,7 +37,7 @@ public class DealsService {
         Stores store = storesRepository.findById(storeId)
                 .orElseThrow(() -> new EntityNotFoundException("Store not found. id = " + storeId));
 
-        Deals deal = dealsRepository.save(Deals.create(request, store));
+        Deals deal = dealsRepository.save(new Deals(request, store));
         return new DealCreateResponse(deal.getId());
     }
 

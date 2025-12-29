@@ -85,7 +85,7 @@ public class DealsControllerTest {
 
         storesRepository.save(store);
 
-        Deals deals = Deals.create(
+        Deals deals = new Deals(
                 store,
                 "deal_name",
                 "deal_description",

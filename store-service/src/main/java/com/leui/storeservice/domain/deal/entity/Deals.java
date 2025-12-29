@@ -13,7 +13,6 @@ import org.hibernate.annotations.SoftDelete;
 
 import java.time.LocalDateTime;
 
-//TODO 이미지 URL
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
@@ -51,7 +50,7 @@ public class Deals extends BaseEntity {
     @Column(nullable = false)
     private LocalDateTime pickupEndTime;
 
-    private Deals(Stores store, String name, String description, int price, int discountPrice,
+    public Deals(Stores store, String name, String description, int price, int discountPrice,
                   int stockQuantity, DealsStatus dealsStatus, LocalDateTime pickupEndTime) {
         this.store = store;
         this.name = name;
@@ -63,39 +62,15 @@ public class Deals extends BaseEntity {
         this.pickupEndTime = pickupEndTime;
     }
 
-    public static Deals create(DealCreateRequest request, Stores store) {
-        return new Deals(
-                store,
-                request.name(),
-                request.description(),
-                request.price(),
-                request.discountPrice(),
-                request.stockQuantity(),
-                DealsStatus.ON_SALE,
-                request.pickupEndTime()
-        );
-    }
-
-    public static Deals create(
-            Stores store,
-            String name,
-            String description,
-            int price,
-            int discountPrice,
-            int stockQuantity,
-            DealsStatus dealsStatus,
-            LocalDateTime pickupEndTime
-    ) {
-        return new Deals(
-                store,
-                name,
-                description,
-                price,
-                discountPrice,
-                stockQuantity,
-                dealsStatus,
-                pickupEndTime
-        );
+    public Deals(DealCreateRequest request, Stores store) {
+        this.store = store;
+        this.name = request.name();
+        this.description = request.description();
+        this.price = request.price();
+        this.discountPrice = request.discountPrice();
+        this.stockQuantity = request.stockQuantity();
+        this.dealsStatus = DealsStatus.ON_SALE;
+        this.pickupEndTime = request.pickupEndTime();
     }
 
     public Long updateContent(DealUpdateRequest request) {
