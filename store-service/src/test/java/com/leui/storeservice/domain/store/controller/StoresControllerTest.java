@@ -82,15 +82,15 @@ public class StoresControllerTest {
     void testStoreFindNear() {
         //given
         // radius 100
-        storesRepository.save(Stores.create("name1_100", LocationUtils.createPoint(126.9725445, 37.5557536),
+        storesRepository.save(new Stores("name1_100", LocationUtils.createPoint(126.9725445, 37.5557536),
                 "address1_100", "phoneNumber1", LocalDateTime.now(), category));
-        storesRepository.save(Stores.create("name2_100", LocationUtils.createPoint(126.9736745, 37.5548556),
+        storesRepository.save(new Stores("name2_100", LocationUtils.createPoint(126.9736745, 37.5548556),
                 "address2_100", "phoneNumber2", LocalDateTime.now(), category));
-        storesRepository.save(Stores.create("name3_100", LocationUtils.createPoint(126.9717455, 37.5542206),
+        storesRepository.save(new Stores("name3_100", LocationUtils.createPoint(126.9717455, 37.5542206),
                 "address3_100", "phoneNumber3", LocalDateTime.now(), category));
 
         // radius 200
-        storesRepository.save(Stores.create("name1_200", LocationUtils.createPoint(126.9725445, 37.5566520),
+        storesRepository.save(new Stores("name1_200", LocationUtils.createPoint(126.9725445, 37.5566520),
                 "address1_200", "phoneNumber4", LocalDateTime.now(), category));
 
         URI uri = UriComponentsBuilder

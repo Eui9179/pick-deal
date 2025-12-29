@@ -37,7 +37,7 @@ public class StoresService {
     public Long saveStore(StoreSaveRequest request) {
         // TODO image 저장
         StoreCategory category = storeCategoryRepository.getReferenceById(request.categoryId());
-        return storesRepository.save(Stores.create(request, category)).getId();
+        return storesRepository.save(new Stores(request, category)).getId();
     }
 
     public StoreInfoResponse getStoreInfo(Long id) {

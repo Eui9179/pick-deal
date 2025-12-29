@@ -75,7 +75,7 @@ public class DealsControllerTest {
         storeCategoryRepository.deleteAll();
 
         StoreCategory category = storeCategoryRepository.save(StoreCategory.create("test code", "test desc"));
-        Stores store = Stores.create(
+        Stores store = new Stores(
                 "store_name",
                 LocationUtils.createPoint(1.1, 1.1),
                 "store_location",

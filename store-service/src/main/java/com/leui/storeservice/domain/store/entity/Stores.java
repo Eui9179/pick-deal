@@ -46,9 +46,7 @@ public class Stores extends BaseEntity {
     @JoinColumn(name = "category_id")
     private StoreCategory category;
 
-    @Builder
-    private Stores(String name, Point location, String address, String phoneNumber, LocalDateTime closedAt,
-                   StoreCategory category) {
+    public Stores(String name, Point location, String address, String phoneNumber, LocalDateTime closedAt, StoreCategory category) {
         this.name = name;
         this.location = location;
         this.address = address;
@@ -57,26 +55,13 @@ public class Stores extends BaseEntity {
         this.category = category;
     }
 
-    public static Stores create(String name, Point location, String address, String phoneNumber, LocalDateTime closedAt, StoreCategory category) {
-        return Stores.builder()
-                .name(name)
-                .location(location)
-                .address(address)
-                .phoneNumber(phoneNumber)
-                .closedAt(closedAt)
-                .category(category)
-                .build();
-    }
-
-    public static Stores create(StoreSaveRequest request, StoreCategory category) {
-        return Stores.builder()
-                .name(request.name())
-                .location(LocationUtils.createPoint(request.x(), request.y()))
-                .address(request.address())
-                .phoneNumber(request.phoneNumber())
-                .closedAt(request.closedAt())
-                .category(category)
-                .build();
+    public Stores(StoreSaveRequest request, StoreCategory category) {
+        this.name = request.name();
+        this.location = LocationUtils.createPoint(request.x(), request.y());
+        this.address = request.address();
+        this.phoneNumber = request.phoneNumber();
+        this.closedAt = request.closedAt();
+        this.category = category;
     }
 
     public void updateContent(StoreUpdateRequest request) {
