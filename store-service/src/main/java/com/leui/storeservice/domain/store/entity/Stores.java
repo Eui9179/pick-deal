@@ -7,6 +7,7 @@ import com.leui.storeservice.domain.store.dto.StoreSaveRequest;
 import com.leui.storeservice.domain.store.dto.StoreUpdateRequest;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.locationtech.jts.geom.Point;
@@ -41,28 +42,41 @@ public class Stores extends BaseEntity {
     @OneToMany(mappedBy = "store", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private final List<Deals> deals = new ArrayList<>();
 
-    private Stores(String name, Point location, String address,
-                  String phoneNumber, LocalDateTime closedAt) {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private StoreCategory category;
+
+    @Builder
+    private Stores(String name, Point location, String address, String phoneNumber, LocalDateTime closedAt,
+                   StoreCategory category) {
         this.name = name;
         this.location = location;
         this.address = address;
         this.phoneNumber = phoneNumber;
         this.closedAt = closedAt;
+        this.category = category;
     }
 
-    public static Stores create(String name, Point location, String address,
-                                String phoneNumber, LocalDateTime closedAt) {
-        return new Stores(name, location, address, phoneNumber, closedAt);
+    public static Stores create(String name, Point location, String address, String phoneNumber, LocalDateTime closedAt, StoreCategory category) {
+        return Stores.builder()
+                .name(name)
+                .location(location)
+                .address(address)
+                .phoneNumber(phoneNumber)
+                .closedAt(closedAt)
+                .category(category)
+                .build();
     }
 
-    public static Stores create(StoreSaveRequest request) {
-        return new Stores(
-                request.name(),
-                LocationUtils.createPoint(request.x(), request.y()),
-                request.address(),
-                request.phoneNumber(),
-                request.closedAt()
-        );
+    public static Stores create(StoreSaveRequest request, StoreCategory category) {
+        return Stores.builder()
+                .name(request.name())
+                .location(LocationUtils.createPoint(request.x(), request.y()))
+                .address(request.address())
+                .phoneNumber(request.phoneNumber())
+                .closedAt(request.closedAt())
+                .category(category)
+                .build();
     }
 
     public void updateContent(StoreUpdateRequest request) {

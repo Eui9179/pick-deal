@@ -7,7 +7,9 @@ import com.leui.storeservice.domain.deal.entity.Deals;
 import com.leui.storeservice.domain.deal.entity.DealsStatus;
 import com.leui.storeservice.domain.deal.repository.DealsRepository;
 import com.leui.storeservice.domain.deal.service.DealsService;
+import com.leui.storeservice.domain.store.entity.StoreCategory;
 import com.leui.storeservice.domain.store.entity.Stores;
+import com.leui.storeservice.domain.store.repository.StoreCategoryRepository;
 import com.leui.storeservice.domain.store.repository.StoresRepository;
 import com.leui.storeservice.testcommon.postgres.PostgreSQLTestContainer;
 import org.assertj.core.api.Assertions;
@@ -38,6 +40,9 @@ public class DealsControllerTest {
     StoresRepository storesRepository;
 
     @Autowired
+    StoreCategoryRepository storeCategoryRepository;
+
+    @Autowired
     ObjectMapper objectMapper;
 
     @BeforeEach
@@ -48,7 +53,6 @@ public class DealsControllerTest {
     @Test
     @DisplayName("상품 단건 조회 테스트")
     void getDealDetail() {
-
         // given
         Long id = 1L;
         String uri = "/api/v1/deals/" + id;
@@ -62,13 +66,16 @@ public class DealsControllerTest {
 
     private void setupData() {
         storesRepository.deleteAll();
+        storeCategoryRepository.deleteAll();
 
+        StoreCategory category = storeCategoryRepository.save(StoreCategory.create("test code", "test desc"));
         Stores store = Stores.create(
                 "store_name",
                 LocationUtils.createPoint(1.1, 1.1),
                 "store_location",
                 "store_address",
-                LocalDateTime.now());
+                LocalDateTime.now(),
+                category);
 
         storesRepository.save(store);
 

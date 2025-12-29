@@ -4,7 +4,9 @@ import com.leui.storeservice.common.util.LocationUtils;
 import com.leui.storeservice.domain.store.dto.StoreFindRequest;
 import com.leui.storeservice.domain.store.dto.StoreInfoResponse;
 import com.leui.storeservice.domain.store.dto.StoreUpdateRequest;
+import com.leui.storeservice.domain.store.entity.StoreCategory;
 import com.leui.storeservice.domain.store.entity.Stores;
+import com.leui.storeservice.domain.store.repository.StoreCategoryRepository;
 import com.leui.storeservice.domain.store.repository.StoresRepository;
 import com.leui.storeservice.testcommon.postgres.PostgreSQLTestContainer;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,22 +34,34 @@ class StoresServiceTest {
     @Autowired
     StoresRepository repository;
 
+    @Autowired
+    StoreCategoryRepository storeCategoryRepository;
+
     @BeforeEach
     void setUp() {
         repository.deleteAll();
+        storeCategoryRepository.deleteAll();
 
+        StoreCategory category = storeCategoryRepository.save(StoreCategory.create("test code", "test desc"));
         // 1. radius = 100m
-        repository.save(Stores.create("name1_100", LocationUtils.createPoint(126.9725445, 37.5557536), "address1_100", "phoneNumber1", LocalDateTime.now()));
-        repository.save(Stores.create("name2_100", LocationUtils.createPoint(126.9736745, 37.5548556), "address2_100", "phoneNumber2", LocalDateTime.now()));
-        repository.save(Stores.create("name3_100", LocationUtils.createPoint(126.9717455, 37.5542206), "address3_100", "phoneNumber3", LocalDateTime.now()));
+        repository.save(Stores.create("name1_100", LocationUtils.createPoint(126.9725445, 37.5557536),
+                "address1_100", "phoneNumber1", LocalDateTime.now(), category));
+        repository.save(Stores.create("name2_100", LocationUtils.createPoint(126.9736745, 37.5548556),
+                "address2_100", "phoneNumber2", LocalDateTime.now(), category));
+        repository.save(Stores.create("name3_100", LocationUtils.createPoint(126.9717455, 37.5542206),
+                "address3_100", "phoneNumber3", LocalDateTime.now(), category));
 
         // 2. radius = 200m
-        repository.save(Stores.create("name1_200", LocationUtils.createPoint(126.9725445, 37.5566520), "address1_200", "phoneNumber4", LocalDateTime.now()));
-        repository.save(Stores.create("name2_200", LocationUtils.createPoint(126.9748045, 37.5548556), "address2_200", "phoneNumber5", LocalDateTime.now()));
-        repository.save(Stores.create("name3_200", LocationUtils.createPoint(126.9711460, 37.5535900), "address3_200", "phoneNumber6", LocalDateTime.now()));
+        repository.save(Stores.create("name1_200", LocationUtils.createPoint(126.9725445, 37.5566520),
+                "address1_200", "phoneNumber4", LocalDateTime.now(), category));
+        repository.save(Stores.create("name2_200", LocationUtils.createPoint(126.9748045, 37.5548556),
+                "address2_200", "phoneNumber5", LocalDateTime.now(), category));
+        repository.save(Stores.create("name3_200", LocationUtils.createPoint(126.9711460, 37.5535900),
+                "address3_200", "phoneNumber6", LocalDateTime.now(), category));
 
         // 3. radius = 300
-        repository.save(Stores.create("name1_300", LocationUtils.createPoint(126.9725445, 37.5575500), "address1_300", "phoneNumber7", LocalDateTime.now()));
+        repository.save(Stores.create("name1_300", LocationUtils.createPoint(126.9725445, 37.5575500),
+                "address1_300", "phoneNumber7", LocalDateTime.now(), category));
     }
 
     @Test

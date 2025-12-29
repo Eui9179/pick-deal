@@ -4,7 +4,9 @@ import com.leui.storeservice.domain.store.dto.StoreFindRequest;
 import com.leui.storeservice.domain.store.dto.StoreInfoResponse;
 import com.leui.storeservice.domain.store.dto.StoreSaveRequest;
 import com.leui.storeservice.domain.store.dto.StoreUpdateRequest;
+import com.leui.storeservice.domain.store.entity.StoreCategory;
 import com.leui.storeservice.domain.store.entity.Stores;
+import com.leui.storeservice.domain.store.repository.StoreCategoryRepository;
 import com.leui.storeservice.domain.store.repository.StoresRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,7 @@ import java.util.List;
 public class StoresService {
 
     private final StoresRepository storesRepository;
+    private final StoreCategoryRepository storeCategoryRepository;
 
     public List<StoreInfoResponse> getNearStores(StoreFindRequest request) {
         return storesRepository.findNear(request.x(), request.y(), request.radius())
@@ -33,7 +36,8 @@ public class StoresService {
 
     public Long saveStore(StoreSaveRequest request) {
         // TODO image 저장
-        return storesRepository.save(Stores.create(request)).getId();
+        StoreCategory category = storeCategoryRepository.getReferenceById(request.categoryId());
+        return storesRepository.save(Stores.create(request, category)).getId();
     }
 
     public StoreInfoResponse getStoreInfo(Long id) {

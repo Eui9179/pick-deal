@@ -3,7 +3,9 @@ package com.leui.storeservice.domain.store.controller;
 import com.leui.storeservice.common.util.LocationUtils;
 import com.leui.storeservice.domain.store.dto.StoreInfoResponse;
 import com.leui.storeservice.domain.store.dto.StoreSaveRequest;
+import com.leui.storeservice.domain.store.entity.StoreCategory;
 import com.leui.storeservice.domain.store.entity.Stores;
+import com.leui.storeservice.domain.store.repository.StoreCategoryRepository;
 import com.leui.storeservice.domain.store.repository.StoresRepository;
 import com.leui.storeservice.testcommon.postgres.PostgreSQLTestContainer;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,8 +37,16 @@ public class StoresControllerTest {
     @Autowired
     StoresRepository storesRepository;
 
+    @Autowired
+    StoreCategoryRepository storeCategoryRepository;
+
+    StoreCategory category;
+
     @BeforeEach
     void setUp() {
+        storesRepository.deleteAll();
+        storeCategoryRepository.deleteAll();
+        category = storeCategoryRepository.save(StoreCategory.create("test code", "test desc"));
     }
 
     @Test
@@ -44,8 +54,15 @@ public class StoresControllerTest {
         //given
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
 
-        StoreSaveRequest saveRequest = new StoreSaveRequest("name1", 1.1, 1.1, "address1",
-                "010-1234-1234", LocalDateTime.now());
+        StoreSaveRequest saveRequest = new StoreSaveRequest(
+                "name1",
+                1.1,
+                1.1,
+                "address1",
+                "010-1234-1234",
+                LocalDateTime.now(),
+                category.getId());
+
         HttpEntity<StoreSaveRequest> data = new HttpEntity<>(saveRequest);
         body.add("data", data);
 
@@ -65,12 +82,17 @@ public class StoresControllerTest {
     void testStoreFindNear() {
         //given
         // radius 100
-        storesRepository.save(Stores.create("name1_100", LocationUtils.createPoint(126.9725445, 37.5557536), "address1_100", "phoneNumber1", LocalDateTime.now()));
-        storesRepository.save(Stores.create("name2_100", LocationUtils.createPoint(126.9736745, 37.5548556), "address2_100", "phoneNumber2", LocalDateTime.now()));
-        storesRepository.save(Stores.create("name3_100", LocationUtils.createPoint(126.9717455, 37.5542206), "address3_100", "phoneNumber3", LocalDateTime.now()));
+        storesRepository.save(Stores.create("name1_100", LocationUtils.createPoint(126.9725445, 37.5557536),
+                "address1_100", "phoneNumber1", LocalDateTime.now(), category));
+        storesRepository.save(Stores.create("name2_100", LocationUtils.createPoint(126.9736745, 37.5548556),
+                "address2_100", "phoneNumber2", LocalDateTime.now(), category));
+        storesRepository.save(Stores.create("name3_100", LocationUtils.createPoint(126.9717455, 37.5542206),
+                "address3_100", "phoneNumber3", LocalDateTime.now(), category));
 
         // radius 200
-        storesRepository.save(Stores.create("name1_200", LocationUtils.createPoint(126.9725445, 37.5566520), "address1_200", "phoneNumber4", LocalDateTime.now()));
+        storesRepository.save(Stores.create("name1_200", LocationUtils.createPoint(126.9725445, 37.5566520),
+                "address1_200", "phoneNumber4", LocalDateTime.now(), category));
+
         URI uri = UriComponentsBuilder
                 .fromPath("/api/v1/stores")
                 .queryParam("x", 126.9725445)
