@@ -15,6 +15,7 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -41,8 +42,8 @@ public class Stores extends BaseEntity {
 
     private LocalDateTime closedAt;
 
-    @OneToMany(mappedBy = "store")
-    private List<Deals> deals;
+    @OneToMany(mappedBy = "store", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Deals> deals = new ArrayList<>();
 
     private Stores(String name, Point location, String address,
                   String phoneNumber, LocalDateTime closedAt) {
