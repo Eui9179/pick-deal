@@ -1,10 +1,10 @@
 package com.leui.storeservice.domain.deal.service;
 
 import com.leui.storeservice.domain.deal.dto.*;
-import com.leui.storeservice.domain.deal.entity.Deals;
-import com.leui.storeservice.domain.deal.repository.DealsRepository;
-import com.leui.storeservice.domain.store.entity.Stores;
-import com.leui.storeservice.domain.store.repository.StoresRepository;
+import com.leui.storeservice.domain.deal.entity.Deal;
+import com.leui.storeservice.domain.deal.repository.DealRepository;
+import com.leui.storeservice.domain.store.entity.Store;
+import com.leui.storeservice.domain.store.repository.StoreRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,39 +15,39 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Service
-public class DealsService {
+public class DealService {
 
-    private final DealsRepository dealsRepository;
-    private final StoresRepository storesRepository;
+    private final DealRepository dealRepository;
+    private final StoreRepository storeRepository;
 
-    public List<DealsDetailResponse> getDeals(Long storeId) {
-        return dealsRepository.findDealsByStoreIdOrderByCreatedAtDesc(storeId)
+    public List<DealDetailResponse> getDeals(Long storeId) {
+        return dealRepository.findDealsByStoreIdOrderByCreatedAtDesc(storeId)
                 .stream()
-                .map(DealsDetailResponse::from)
+                .map(DealDetailResponse::from)
                 .toList();
     }
 
-    public DealsDetailResponse getDealDetail(Long dealId) {
-        return DealsDetailResponse.from(getDeal(dealId));
+    public DealDetailResponse getDealDetail(Long dealId) {
+        return DealDetailResponse.from(getDeal(dealId));
     }
 
     @Transactional
     public DealCreateResponse createDeal(Long storeId, DealCreateRequest request) {
-        Stores store = storesRepository.findById(storeId)
+        Store store = storeRepository.findById(storeId)
                 .orElseThrow(() -> new EntityNotFoundException("Store not found. id = " + storeId));
 
-        Deals deal = dealsRepository.save(new Deals(request, store));
+        Deal deal = dealRepository.save(new Deal(request, store));
         return new DealCreateResponse(deal.getId());
     }
 
     @Transactional
     public DealUpdateResponse updateDealContent(Long dealId, DealUpdateRequest request) {
-        Deals deal = getDeal(dealId);
+        Deal deal = getDeal(dealId);
         return new DealUpdateResponse(deal.updateContent(request));
     }
 
-    private Deals getDeal(Long dealId) {
-        return dealsRepository.findById(dealId)
+    private Deal getDeal(Long dealId) {
+        return dealRepository.findById(dealId)
                 .orElseThrow(() ->  new EntityNotFoundException("Deal not found. id = " + dealId));
     }
 }

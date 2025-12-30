@@ -4,7 +4,7 @@ import com.leui.storeservice.domain.store.dto.StoreFindRequest;
 import com.leui.storeservice.domain.store.dto.StoreInfoResponse;
 import com.leui.storeservice.domain.store.dto.StoreSaveRequest;
 import com.leui.storeservice.domain.store.dto.StoreUpdateRequest;
-import com.leui.storeservice.domain.store.service.StoresService;
+import com.leui.storeservice.domain.store.service.StoreService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,22 +15,22 @@ import java.util.List;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/stores")
-public class StoresController {
+public class StoreController {
 
-    private final StoresService storesService;
+    private final StoreService storeService;
 
     @GetMapping
     public ResponseEntity<List<StoreInfoResponse>> getStores(@ModelAttribute StoreFindRequest request) {
-        return ResponseEntity.ok(storesService.getNearStores(request));
+        return ResponseEntity.ok(storeService.getNearStores(request));
     }
 
     @PatchMapping("/{id}")
     public ResponseEntity<Long> updateStore(@PathVariable Long id, StoreUpdateRequest request) {
-        return ResponseEntity.ok(storesService.updateStore(id, request));
+        return ResponseEntity.ok(storeService.updateStore(id, request));
     }
 
     @PostMapping
     public ResponseEntity<Long> saveStore(@Valid @RequestBody StoreSaveRequest request) {
-        return ResponseEntity.ok(storesService.saveStore(request));
+        return ResponseEntity.ok(storeService.saveStore(request));
     }
 }

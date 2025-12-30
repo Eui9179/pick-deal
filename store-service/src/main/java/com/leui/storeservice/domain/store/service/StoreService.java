@@ -5,9 +5,9 @@ import com.leui.storeservice.domain.store.dto.StoreInfoResponse;
 import com.leui.storeservice.domain.store.dto.StoreSaveRequest;
 import com.leui.storeservice.domain.store.dto.StoreUpdateRequest;
 import com.leui.storeservice.domain.store.entity.StoreCategory;
-import com.leui.storeservice.domain.store.entity.Stores;
+import com.leui.storeservice.domain.store.entity.Store;
 import com.leui.storeservice.domain.store.repository.StoreCategoryRepository;
-import com.leui.storeservice.domain.store.repository.StoresRepository;
+import com.leui.storeservice.domain.store.repository.StoreRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,35 +16,35 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Service
-public class StoresService {
+public class StoreService {
 
-    private final StoresRepository storesRepository;
+    private final StoreRepository storeRepository;
     private final StoreCategoryRepository storeCategoryRepository;
 
     public List<StoreInfoResponse> getNearStores(StoreFindRequest request) {
-        return storesRepository.findNear(request.x(), request.y(), request.radius())
+        return storeRepository.findNear(request.x(), request.y(), request.radius())
                 .stream()
                 .map(StoreInfoResponse::from)
                 .toList();
     }
 
     public Long updateStore(Long id, StoreUpdateRequest request) {
-        Stores store = getStore(id);
+        Store store = getStore(id);
         store.updateContent(request);
         return id;
     }
 
     public Long saveStore(StoreSaveRequest request) {
         StoreCategory category = storeCategoryRepository.getReferenceById(request.categoryId());
-        return storesRepository.save(new Stores(request, category)).getId();
+        return storeRepository.save(new Store(request, category)).getId();
     }
 
     public StoreInfoResponse getStoreInfo(Long id) {
         return StoreInfoResponse.from(getStore(id));
     }
 
-    private Stores getStore(Long id) {
-        return storesRepository.findById(id)
+    private Store getStore(Long id) {
+        return storeRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Stores entity not found. id:" + id));
     }
 }

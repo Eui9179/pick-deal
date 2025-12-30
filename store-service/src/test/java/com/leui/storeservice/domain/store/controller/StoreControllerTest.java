@@ -5,9 +5,9 @@ import com.leui.storeservice.config.postgres.PostgreSQLTestContainer;
 import com.leui.storeservice.domain.store.dto.StoreInfoResponse;
 import com.leui.storeservice.domain.store.dto.StoreSaveRequest;
 import com.leui.storeservice.domain.store.entity.StoreCategory;
-import com.leui.storeservice.domain.store.entity.Stores;
+import com.leui.storeservice.domain.store.entity.Store;
 import com.leui.storeservice.domain.store.repository.StoreCategoryRepository;
-import com.leui.storeservice.domain.store.repository.StoresRepository;
+import com.leui.storeservice.domain.store.repository.StoreRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,13 +29,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @PostgreSQLTestContainer
-public class StoresControllerTest {
+public class StoreControllerTest {
 
     @Autowired
     TestRestTemplate restTemplate;
 
     @Autowired
-    StoresRepository storesRepository;
+    StoreRepository storeRepository;
 
     @Autowired
     StoreCategoryRepository storeCategoryRepository;
@@ -44,7 +44,7 @@ public class StoresControllerTest {
 
     @BeforeEach
     void setUp() {
-        storesRepository.deleteAll();
+        storeRepository.deleteAll();
         storeCategoryRepository.deleteAll();
         category = storeCategoryRepository.save(new StoreCategory("test code", "test desc"));
     }
@@ -72,15 +72,15 @@ public class StoresControllerTest {
     void testStoreFindNear() {
         //given
         // radius 100
-        storesRepository.save(new Stores("name1_100", LocationUtils.createPoint(126.9725445, 37.5557536),
+        storeRepository.save(new Store("name1_100", LocationUtils.createPoint(126.9725445, 37.5557536),
                 "address1_100", "phoneNumber1", LocalDateTime.now(), category));
-        storesRepository.save(new Stores("name2_100", LocationUtils.createPoint(126.9736745, 37.5548556),
+        storeRepository.save(new Store("name2_100", LocationUtils.createPoint(126.9736745, 37.5548556),
                 "address2_100", "phoneNumber2", LocalDateTime.now(), category));
-        storesRepository.save(new Stores("name3_100", LocationUtils.createPoint(126.9717455, 37.5542206),
+        storeRepository.save(new Store("name3_100", LocationUtils.createPoint(126.9717455, 37.5542206),
                 "address3_100", "phoneNumber3", LocalDateTime.now(), category));
 
         // radius 200
-        storesRepository.save(new Stores("name1_200", LocationUtils.createPoint(126.9725445, 37.5566520),
+        storeRepository.save(new Store("name1_200", LocationUtils.createPoint(126.9725445, 37.5566520),
                 "address1_200", "phoneNumber4", LocalDateTime.now(), category));
 
         URI uri = UriComponentsBuilder

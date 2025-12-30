@@ -2,14 +2,14 @@ package com.leui.storeservice.domain.deal.controller;
 
 import com.leui.storeservice.common.util.LocationUtils;
 import com.leui.storeservice.config.postgres.PostgreSQLTestContainer;
-import com.leui.storeservice.domain.deal.dto.DealsDetailResponse;
-import com.leui.storeservice.domain.deal.entity.Deals;
-import com.leui.storeservice.domain.deal.entity.DealsStatus;
-import com.leui.storeservice.domain.deal.repository.DealsRepository;
+import com.leui.storeservice.domain.deal.dto.DealDetailResponse;
+import com.leui.storeservice.domain.deal.entity.Deal;
+import com.leui.storeservice.domain.deal.entity.DealStatus;
+import com.leui.storeservice.domain.deal.repository.DealRepository;
 import com.leui.storeservice.domain.store.entity.StoreCategory;
-import com.leui.storeservice.domain.store.entity.Stores;
+import com.leui.storeservice.domain.store.entity.Store;
 import com.leui.storeservice.domain.store.repository.StoreCategoryRepository;
-import com.leui.storeservice.domain.store.repository.StoresRepository;
+import com.leui.storeservice.domain.store.repository.StoreRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,16 +26,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @PostgreSQLTestContainer
-public class DealsControllerTest {
+public class DealControllerTest {
 
     @Autowired
     TestRestTemplate restTemplate;
 
     @Autowired
-    DealsRepository dealsRepository;
+    DealRepository dealRepository;
 
     @Autowired
-    StoresRepository storesRepository;
+    StoreRepository storeRepository;
 
     @Autowired
     StoreCategoryRepository storeCategoryRepository;
@@ -46,7 +46,7 @@ public class DealsControllerTest {
         // given
         StoreCategory category = storeCategoryRepository.save(new StoreCategory("test", "test"));
 
-        Stores store = storesRepository.save(new Stores(
+        Store store = storeRepository.save(new Store(
                 "store_name",
                 LocationUtils.createPoint(1.1, 1.1),
                 "store_location",
@@ -54,19 +54,19 @@ public class DealsControllerTest {
                 LocalDateTime.now(),
                 category));
 
-        Deals deal = dealsRepository.save(new Deals(store,
+        Deal deal = dealRepository.save(new Deal(store,
                 "deal_name",
                 "deal_description",
                 1,
                 1,
                 1,
-                DealsStatus.ON_SALE,
+                DealStatus.ON_SALE,
                 LocalDateTime.now()));
 
         String uri = "/api/v1/deals/" + deal.getId();
 
         // when
-        ResponseEntity<DealsDetailResponse> response = restTemplate.getForEntity(uri, DealsDetailResponse.class);
+        ResponseEntity<DealDetailResponse> response = restTemplate.getForEntity(uri, DealDetailResponse.class);
 
         // then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);

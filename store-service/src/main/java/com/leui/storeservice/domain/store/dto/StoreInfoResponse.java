@@ -1,6 +1,6 @@
 package com.leui.storeservice.domain.store.dto;
 
-import com.leui.storeservice.domain.store.entity.Stores;
+import com.leui.storeservice.domain.store.entity.Store;
 
 import java.time.LocalDateTime;
 
@@ -14,7 +14,7 @@ public record StoreInfoResponse(
         LocalDateTime closedAt
 ) {
 
-    public static StoreInfoResponse from(Stores store) {
+    public static StoreInfoResponse from(Store store) {
         return new StoreInfoResponse(
                 store.getId(),
                 store.getName(),
