@@ -1,6 +1,6 @@
 package com.leui.storeservice.domain.deal.dto;
 
-import com.leui.storeservice.domain.deal.entity.DealsStatus;
+import com.leui.storeservice.domain.deal.entity.DealStatus;
 
 import java.time.LocalDateTime;
 
@@ -13,6 +13,6 @@ public record DealUpdateRequest(
         int discountPrice,
         int stockQuantity,
         LocalDateTime pickupEndTime,
-        DealsStatus dealsStatus
+        DealStatus dealStatus
 ) {
 }

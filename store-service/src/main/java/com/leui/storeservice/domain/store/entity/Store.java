@@ -2,7 +2,7 @@ package com.leui.storeservice.domain.store.entity;
 
 import com.leui.storeservice.common.entity.BaseEntity;
 import com.leui.storeservice.common.util.LocationUtils;
-import com.leui.storeservice.domain.deal.entity.Deals;
+import com.leui.storeservice.domain.deal.entity.Deal;
 import com.leui.storeservice.domain.store.dto.StoreSaveRequest;
 import com.leui.storeservice.domain.store.dto.StoreUpdateRequest;
 import jakarta.persistence.*;
@@ -18,7 +18,7 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Entity
-public class Stores extends BaseEntity {
+public class Store extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,13 +39,13 @@ public class Stores extends BaseEntity {
     private LocalDateTime closedAt;
 
     @OneToMany(mappedBy = "store", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    private final List<Deals> deals = new ArrayList<>();
+    private final List<Deal> deals = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private StoreCategory category;
 
-    public Stores(String name, Point location, String address, String phoneNumber, LocalDateTime closedAt, StoreCategory category) {
+    public Store(String name, Point location, String address, String phoneNumber, LocalDateTime closedAt, StoreCategory category) {
         this.name = name;
         this.location = location;
         this.address = address;
@@ -54,7 +54,7 @@ public class Stores extends BaseEntity {
         this.category = category;
     }
 
-    public Stores(StoreSaveRequest request, StoreCategory category) {
+    public Store(StoreSaveRequest request, StoreCategory category) {
         this.name = request.name();
         this.location = LocationUtils.createPoint(request.x(), request.y());
         this.address = request.address();

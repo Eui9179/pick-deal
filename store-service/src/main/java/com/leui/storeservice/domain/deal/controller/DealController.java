@@ -1,7 +1,7 @@
 package com.leui.storeservice.domain.deal.controller;
 
 import com.leui.storeservice.domain.deal.dto.*;
-import com.leui.storeservice.domain.deal.service.DealsService;
+import com.leui.storeservice.domain.deal.service.DealService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -12,13 +12,13 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1")
 @RestController
-public class DealsController {
+public class DealController {
 
-    private final DealsService dealsService;
+    private final DealService dealService;
 
     @GetMapping("/stores/{storeId}/deals")
-    public ResponseEntity<List<DealsDetailResponse>> getDeals(@PathVariable Long storeId) {
-        return ResponseEntity.ok(dealsService.getDeals(storeId));
+    public ResponseEntity<List<DealDetailResponse>> getDeals(@PathVariable Long storeId) {
+        return ResponseEntity.ok(dealService.getDeals(storeId));
     }
 
     @PostMapping("/stores/{storeId}/deals")
@@ -26,12 +26,12 @@ public class DealsController {
             @PathVariable Long storeId,
             @Valid @RequestBody DealCreateRequest request
     ) {
-        return ResponseEntity.ok(dealsService.createDeal(storeId, request));
+        return ResponseEntity.ok(dealService.createDeal(storeId, request));
     }
 
     @GetMapping("/deals/{dealId}")
-    public ResponseEntity<DealsDetailResponse> getDealDetail(@PathVariable Long dealId) {
-        return ResponseEntity.ok(dealsService.getDealDetail(dealId));
+    public ResponseEntity<DealDetailResponse> getDealDetail(@PathVariable Long dealId) {
+        return ResponseEntity.ok(dealService.getDealDetail(dealId));
     }
 
     @PatchMapping("/deals/{dealId}")
@@ -39,7 +39,7 @@ public class DealsController {
             @PathVariable Long dealId,
             @Valid @RequestBody DealUpdateRequest request
     ) {
-        return ResponseEntity.ok(dealsService.updateDealContent(dealId, request));
+        return ResponseEntity.ok(dealService.updateDealContent(dealId, request));
     }
 
 }
