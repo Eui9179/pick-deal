@@ -10,6 +10,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
@@ -33,10 +34,7 @@ public class Deal extends BaseEntity {
     private String description;
 
     @Column(nullable = false)
-    private int price;
-
-    @Column(nullable = false)
-    private int discountPrice;
+    private BigDecimal price;
 
     @Column(nullable = false)
     private int stockQuantity;
@@ -48,13 +46,12 @@ public class Deal extends BaseEntity {
     @Column(nullable = false)
     private LocalDateTime pickupEndTime;
 
-    public Deal(Store store, String name, String description, int price, int discountPrice,
+    public Deal(Store store, String name, String description, BigDecimal price,
                 int stockQuantity, DealStatus dealStatus, LocalDateTime pickupEndTime) {
         this.store = store;
         this.name = name;
         this.description = description;
         this.price = price;
-        this.discountPrice = discountPrice;
         this.stockQuantity = stockQuantity;
         this.dealStatus = dealStatus;
         this.pickupEndTime = pickupEndTime;
@@ -65,7 +62,6 @@ public class Deal extends BaseEntity {
         this.name = request.name();
         this.description = request.description();
         this.price = request.price();
-        this.discountPrice = request.discountPrice();
         this.stockQuantity = request.stockQuantity();
         this.dealStatus = DealStatus.ON_SALE;
         this.pickupEndTime = request.pickupEndTime();
@@ -75,7 +71,6 @@ public class Deal extends BaseEntity {
         this.name = request.name();
         this.description = request.description();
         this.price = request.price();
-        this.discountPrice = request.discountPrice();
         this.stockQuantity = request.stockQuantity();
         this.dealStatus = request.dealStatus();
         return this.id;
