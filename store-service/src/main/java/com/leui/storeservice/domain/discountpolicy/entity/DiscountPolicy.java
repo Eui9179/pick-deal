@@ -36,7 +36,7 @@ public class DiscountPolicy extends BaseEntity {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private DiscountStrategy discountStrategy;
+    private DiscountType discountType;
 
     public DiscountPolicy(Deal deal, int discountIntervalMinutes, BigDecimal maxDiscountRate, BigDecimal discountRatePerInterval) {
         this.deal = deal;
