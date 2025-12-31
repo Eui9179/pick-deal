@@ -3,6 +3,7 @@ package com.leui.storeservice.domain.deal.entity;
 import com.leui.storeservice.common.entity.BaseEntity;
 import com.leui.storeservice.domain.deal.dto.DealCreateRequest;
 import com.leui.storeservice.domain.deal.dto.DealUpdateRequest;
+import com.leui.storeservice.domain.discountpolicy.entity.DiscountPolicy;
 import com.leui.storeservice.domain.store.entity.Store;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
@@ -45,6 +46,9 @@ public class Deal extends BaseEntity {
 
     @Column(nullable = false)
     private LocalDateTime pickupEndTime;
+
+    @OneToOne(mappedBy = "deal")
+    private DiscountPolicy discountPolicy;
 
     public Deal(Store store, String name, String description, BigDecimal price,
                 int stockQuantity, DealStatus dealStatus, LocalDateTime pickupEndTime) {

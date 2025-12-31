@@ -2,6 +2,7 @@ package com.leui.storeservice.domain.discountpolicy.entity;
 
 import com.leui.storeservice.common.entity.BaseEntity;
 import com.leui.storeservice.domain.deal.entity.Deal;
+import com.leui.storeservice.domain.discountpolicy.strategy.DiscountType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -9,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -19,29 +21,34 @@ public class DiscountPolicy extends BaseEntity {
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(nullable = false, updatable = false)
+    @JoinColumn(name = "deal_id", nullable = false, updatable = false)
     private Deal deal;
+
+    @Setter
+    @Column(nullable = false)
+    private LocalDateTime startAt;
 
     @Setter
     @Column(nullable = false)
     private int discountIntervalMinutes;
 
     @Setter
-    @Column(nullable = false, precision = 4, scale = 3) // 0.0000 ~ 0.9999 허용 0.25 0.025
-    private BigDecimal maxDiscountRate;
+    @Column(nullable = false, precision = 4, scale = 3)
+    private BigDecimal maxDiscountValue;
 
     @Setter
-    @Column(nullable = false, precision = 4, scale = 3)
-    private BigDecimal discountRatePerInterval;
+    @Column(nullable = false)
+    private BigDecimal discountValue;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private DiscountType discountType;
 
-    public DiscountPolicy(Deal deal, int discountIntervalMinutes, BigDecimal maxDiscountRate, BigDecimal discountRatePerInterval) {
+    public DiscountPolicy(Deal deal, int discountIntervalMinutes, BigDecimal maxDiscountValue, BigDecimal discountValue) {
         this.deal = deal;
         this.discountIntervalMinutes = discountIntervalMinutes;
-        this.maxDiscountRate = maxDiscountRate;
-        this.discountRatePerInterval = discountRatePerInterval;
+        this.maxDiscountValue = maxDiscountValue;
+        this.discountValue = discountValue;
     }
+
 }
