@@ -10,7 +10,7 @@ import java.util.List;
 public interface StoreRepository extends JpaRepository<Store, Long> {
     @Query(value = """
         SELECT *
-        FROM stores
+        FROM store
         WHERE ST_DWithin(
             location,
             ST_SetSRID(ST_MakePoint(:x, :y), 4326)::geography,

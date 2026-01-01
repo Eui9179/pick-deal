@@ -10,6 +10,7 @@ import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -47,7 +48,7 @@ public class Deal extends BaseEntity {
     @Column(nullable = false)
     private LocalDateTime pickupEndTime;
 
-    @OneToOne(mappedBy = "deal")
+    @OneToOne(mappedBy = "deal", cascade = CascadeType.ALL, orphanRemoval = true)
     private DiscountPolicy discountPolicy;
 
     public Deal(Store store, String name, String description, BigDecimal price,
@@ -61,14 +62,9 @@ public class Deal extends BaseEntity {
         this.pickupEndTime = pickupEndTime;
     }
 
-    public Deal(DealCreateRequest request, Store store) {
-        this.store = store;
-        this.name = request.name();
-        this.description = request.description();
-        this.price = request.price();
-        this.stockQuantity = request.stockQuantity();
-        this.dealStatus = DealStatus.ON_SALE;
-        this.pickupEndTime = request.pickupEndTime();
+    public Deal(Store store, DealCreateRequest request) {
+        this(store, request.name(), request.description(), request.price(), request.stockQuantity(),DealStatus.ON_SALE,
+                request.pickupEndTime());
     }
 
     public Long updateContent(DealUpdateRequest request) {
@@ -90,5 +86,12 @@ public class Deal extends BaseEntity {
 
     public void updateClosed() {
         this.dealStatus = DealStatus.CLOSED;
+    }
+
+    public void setDiscountPolicy(DiscountPolicy discountPolicy) {
+        this.discountPolicy = discountPolicy;
+        if (discountPolicy != null) {
+            discountPolicy.setDeal(this);
+        }
     }
 }

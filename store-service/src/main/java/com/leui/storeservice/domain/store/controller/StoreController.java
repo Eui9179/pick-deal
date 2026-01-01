@@ -31,6 +31,6 @@ public class StoreController {
 
     @PostMapping
     public ResponseEntity<Long> saveStore(@Valid @RequestBody StoreSaveRequest request) {
-        return ResponseEntity.ok(storeService.saveStore(request));
+        return ResponseEntity.ok(storeService.create(request).getId());
     }
 }

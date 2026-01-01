@@ -4,6 +4,7 @@ import com.leui.storeservice.domain.deal.dto.*;
 import com.leui.storeservice.domain.deal.entity.Deal;
 import com.leui.storeservice.domain.deal.repository.DealRepository;
 import com.leui.storeservice.domain.discountpolicy.calculator.DiscountCalculator;
+import com.leui.storeservice.domain.discountpolicy.entity.DiscountPolicy;
 import com.leui.storeservice.domain.store.entity.Store;
 import com.leui.storeservice.domain.store.repository.StoreRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -39,7 +40,12 @@ public class DealService {
         Store store = storeRepository.findById(storeId)
                 .orElseThrow(() -> new EntityNotFoundException("Store not found. id = " + storeId));
 
-        Deal deal = dealRepository.save(new Deal(request, store));
+        Deal deal = new Deal(store, request);
+        DiscountPolicy policy = new DiscountPolicy(deal, request.policyCreateRequest());
+        deal.setDiscountPolicy(policy);
+
+        dealRepository.save(new Deal(store, request));
+
         return new DealCreateResponse(deal.getId());
     }
 
@@ -49,8 +55,9 @@ public class DealService {
         return new DealUpdateResponse(deal.updateContent(request));
     }
 
-    private Deal getDeal(Long dealId) {
+    public Deal getDeal(Long dealId) {
         return dealRepository.findById(dealId)
                 .orElseThrow(() ->  new EntityNotFoundException("Deal not found. id = " + dealId));
     }
+
 }

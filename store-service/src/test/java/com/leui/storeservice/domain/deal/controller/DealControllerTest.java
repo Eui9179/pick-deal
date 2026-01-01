@@ -6,6 +6,8 @@ import com.leui.storeservice.domain.deal.dto.DealDetailResponse;
 import com.leui.storeservice.domain.deal.entity.Deal;
 import com.leui.storeservice.domain.deal.entity.DealStatus;
 import com.leui.storeservice.domain.deal.repository.DealRepository;
+import com.leui.storeservice.domain.discountpolicy.entity.DiscountPolicy;
+import com.leui.storeservice.domain.discountpolicy.entity.DiscountType;
 import com.leui.storeservice.domain.store.entity.StoreCategory;
 import com.leui.storeservice.domain.store.entity.Store;
 import com.leui.storeservice.domain.store.repository.StoreCategoryRepository;
@@ -55,14 +57,27 @@ public class DealControllerTest {
                 LocalDateTime.now(),
                 category));
 
-        Deal deal = dealRepository.save(new Deal(
+        Deal deal = new Deal(
                 store,
                 "deal_name",
                 "deal_description",
                 BigDecimal.ONE,
                 1,
                 DealStatus.ON_SALE,
-                LocalDateTime.now()));
+                LocalDateTime.now());
+
+        DiscountPolicy policy = new DiscountPolicy(
+                deal,
+                LocalDateTime.now(),
+                10,
+                BigDecimal.ONE,
+                BigDecimal.ONE,
+                DiscountType.AMOUNT
+        );
+
+        deal.setDiscountPolicy(policy);
+
+        dealRepository.save(deal);
 
         String uri = "/api/v1/deals/" + deal.getId();
 

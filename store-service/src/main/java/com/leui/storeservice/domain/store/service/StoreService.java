@@ -34,16 +34,16 @@ public class StoreService {
         return id;
     }
 
-    public Long saveStore(StoreSaveRequest request) {
+    public Store create(StoreSaveRequest request) {
         StoreCategory category = storeCategoryRepository.getReferenceById(request.categoryId());
-        return storeRepository.save(new Store(request, category)).getId();
+        return storeRepository.save(new Store(request, category));
     }
 
     public StoreInfoResponse getStoreInfo(Long id) {
         return StoreInfoResponse.from(getStore(id));
     }
 
-    private Store getStore(Long id) {
+    public Store getStore(Long id) {
         return storeRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Stores entity not found. id:" + id));
     }

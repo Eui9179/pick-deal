@@ -67,6 +67,8 @@ public class DiscountCalculatorTest {
                 type
         );
 
+        deal.setDiscountPolicy(policy);
+
         //when
         BigDecimal discountPrice = discountCalculator.calculate(deal);
 
@@ -106,6 +108,8 @@ public class DiscountCalculatorTest {
                 type
         );
 
+        deal.setDiscountPolicy(policy);
+
         //when
         BigDecimal discountPrice = discountCalculator.calculate(deal);
 
@@ -144,6 +148,8 @@ public class DiscountCalculatorTest {
                 discountAmount,
                 type
         );
+
+        deal.setDiscountPolicy(policy);
 
         //when
         BigDecimal discountPrice = discountCalculator.calculate(deal);
@@ -187,6 +193,8 @@ public class DiscountCalculatorTest {
                 discountAmount,
                 type
         );
+
+        deal.setDiscountPolicy(policy);
 
         //when
         BigDecimal discountPrice = discountCalculator.calculate(deal);

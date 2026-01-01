@@ -2,6 +2,7 @@ package com.leui.storeservice.domain.discountpolicy.entity;
 
 import com.leui.storeservice.common.entity.BaseEntity;
 import com.leui.storeservice.domain.deal.entity.Deal;
+import com.leui.storeservice.domain.discountpolicy.dto.DiscountPolicyCreateRequest;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -16,9 +17,11 @@ import java.time.LocalDateTime;
 @Entity
 public class DiscountPolicy extends BaseEntity {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Setter
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "deal_id", nullable = false, updatable = false)
     private Deal deal;
@@ -51,5 +54,10 @@ public class DiscountPolicy extends BaseEntity {
         this.maxDiscountValue = maxDiscountValue;
         this.discountValue = discountValue;
         this.discountType = discountType;
+    }
+
+    public DiscountPolicy(Deal deal, DiscountPolicyCreateRequest request) {
+        this(deal, request.startAt(), request.discountIntervalMinutes(), request.maxDiscountValue(),
+                request.discountValue(), request.discountType());
     }
 }
