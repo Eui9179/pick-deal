@@ -1,4 +1,4 @@
-package com.leui.storeservice.domain.discountpolicy.strategy;
+package com.leui.storeservice.domain.discountpolicy.calculator;
 
 import com.leui.storeservice.common.util.LocationUtils;
 import com.leui.storeservice.domain.deal.entity.Deal;
