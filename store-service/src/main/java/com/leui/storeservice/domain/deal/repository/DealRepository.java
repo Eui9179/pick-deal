@@ -15,5 +15,12 @@ public interface DealRepository extends JpaRepository<Deal, Long> {
             where deal.store.id = :storeId
             order by deal.createdAt desc
             """)
-    List<Deal> findAllWithDiscountPolicyByStoreId(Long storeId);
+    List<Deal> findAllByStoreIdWithDiscountPolicy(Long storeId);
+
+    @Query("""
+            select deal from Deal deal
+            join fetch deal.discountPolicy
+            where deal.id = :dealId
+            """)
+    Deal findByIdWithDiscountPolicy(Long dealId);
 }

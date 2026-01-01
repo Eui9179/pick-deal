@@ -24,14 +24,14 @@ public class DealService {
     private final DiscountCalculator calculator;
 
     public List<DealDetailResponse> getDeals(Long storeId) {
-        return dealRepository.findAllWithDiscountPolicyByStoreId(storeId)
+        return dealRepository.findAllByStoreIdWithDiscountPolicy(storeId)
                 .stream()
                 .map(deal -> DealDetailResponse.from(deal, calculator.calculate(deal)))
                 .toList();
     }
 
     public DealDetailResponse getDealDetail(Long dealId) {
-        Deal deal = getDeal(dealId);
+        Deal deal = dealRepository.findByIdWithDiscountPolicy(dealId);
         return DealDetailResponse.from(deal, calculator.calculate(deal));
     }
 

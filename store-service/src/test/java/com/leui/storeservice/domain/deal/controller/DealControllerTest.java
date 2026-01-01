@@ -66,12 +66,13 @@ public class DealControllerTest {
                 DealStatus.ON_SALE,
                 LocalDateTime.now());
 
+        BigDecimal discountValue = BigDecimal.ONE;
         DiscountPolicy policy = new DiscountPolicy(
                 deal,
                 LocalDateTime.now(),
                 10,
                 BigDecimal.ONE,
-                BigDecimal.ONE,
+                discountValue,
                 DiscountType.AMOUNT
         );
 
@@ -87,5 +88,6 @@ public class DealControllerTest {
         // then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody().id()).isEqualTo(deal.getId());
+        assertThat(response.getBody().discountValue().doubleValue()).isEqualTo(BigDecimal.ONE.doubleValue());
     }
 }
