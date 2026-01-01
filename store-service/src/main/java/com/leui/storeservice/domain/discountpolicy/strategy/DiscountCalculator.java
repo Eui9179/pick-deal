@@ -2,11 +2,13 @@ package com.leui.storeservice.domain.discountpolicy.strategy;
 
 import com.leui.storeservice.domain.deal.entity.Deal;
 import com.leui.storeservice.domain.discountpolicy.entity.DiscountPolicy;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
+@Component
 public class DiscountCalculator {
 
     public BigDecimal calculate(Deal deal, DiscountPolicy policy) {
