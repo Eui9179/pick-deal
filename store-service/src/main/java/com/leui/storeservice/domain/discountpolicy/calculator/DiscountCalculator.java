@@ -5,6 +5,7 @@ import com.leui.storeservice.domain.discountpolicy.entity.DiscountPolicy;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
@@ -34,7 +35,7 @@ public class DiscountCalculator {
 
         BigDecimal applyPercent = BigDecimal.ONE.subtract(discountPercent);
 
-        return originPrice.multiply(applyPercent);
+        return originPrice.multiply(applyPercent).setScale(0, RoundingMode.DOWN);
     }
 
     private BigDecimal calculateAmount(BigDecimal originPrice, DiscountPolicy discountPolicy, long discountCount) {
@@ -44,7 +45,7 @@ public class DiscountCalculator {
         if (discountAmount.compareTo(maxDiscountAmount) > 0)
             return originPrice.subtract(maxDiscountAmount);
 
-        return originPrice.subtract(discountAmount);
+        return originPrice.subtract(discountAmount).setScale(0, RoundingMode.DOWN);
     }
 
     /**
