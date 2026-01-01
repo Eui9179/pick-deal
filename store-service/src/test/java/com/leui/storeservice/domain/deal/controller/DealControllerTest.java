@@ -19,6 +19,7 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -54,11 +55,11 @@ public class DealControllerTest {
                 LocalDateTime.now(),
                 category));
 
-        Deal deal = dealRepository.save(new Deal(store,
+        Deal deal = dealRepository.save(new Deal(
+                store,
                 "deal_name",
                 "deal_description",
-                1,
-                1,
+                BigDecimal.ONE,
                 1,
                 DealStatus.ON_SALE,
                 LocalDateTime.now()));

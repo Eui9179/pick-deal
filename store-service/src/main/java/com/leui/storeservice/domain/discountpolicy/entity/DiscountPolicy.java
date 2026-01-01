@@ -2,7 +2,6 @@ package com.leui.storeservice.domain.discountpolicy.entity;
 
 import com.leui.storeservice.common.entity.BaseEntity;
 import com.leui.storeservice.domain.deal.entity.Deal;
-import com.leui.storeservice.domain.discountpolicy.strategy.DiscountType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -44,11 +43,13 @@ public class DiscountPolicy extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private DiscountType discountType;
 
-    public DiscountPolicy(Deal deal, int discountIntervalMinutes, BigDecimal maxDiscountValue, BigDecimal discountValue) {
+    public DiscountPolicy(Deal deal, LocalDateTime startAt, int discountIntervalMinutes, BigDecimal maxDiscountValue,
+                          BigDecimal discountValue, DiscountType discountType) {
         this.deal = deal;
+        this.startAt = startAt;
         this.discountIntervalMinutes = discountIntervalMinutes;
         this.maxDiscountValue = maxDiscountValue;
         this.discountValue = discountValue;
+        this.discountType = discountType;
     }
-
 }

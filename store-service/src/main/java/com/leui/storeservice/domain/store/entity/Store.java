@@ -45,7 +45,8 @@ public class Store extends BaseEntity {
     @JoinColumn(name = "category_id")
     private StoreCategory category;
 
-    public Store(String name, Point location, String address, String phoneNumber, LocalDateTime closedAt, StoreCategory category) {
+    public Store(String name, Point location, String address, String phoneNumber,
+                 LocalDateTime closedAt, StoreCategory category) {
         this.name = name;
         this.location = location;
         this.address = address;
