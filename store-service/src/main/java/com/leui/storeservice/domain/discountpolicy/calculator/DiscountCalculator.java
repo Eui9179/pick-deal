@@ -12,7 +12,8 @@ import java.time.LocalDateTime;
 @Component
 public class DiscountCalculator {
 
-    public BigDecimal calculate(Deal deal, DiscountPolicy policy) {
+    public BigDecimal calculate(Deal deal) {
+        DiscountPolicy policy = deal.getDiscountPolicy();
         long discountCount = calculateDiscountCount(policy.getStartAt(), policy.getDiscountIntervalMinutes());
 
         if (discountCount < 0) return deal.getPrice();

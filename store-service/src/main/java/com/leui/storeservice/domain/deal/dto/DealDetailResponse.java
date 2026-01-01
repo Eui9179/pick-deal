@@ -12,18 +12,22 @@ public record DealDetailResponse(
         String name,
         String description,
         BigDecimal price,
+        BigDecimal discountPrice,
+        BigDecimal discountValue,
         int stockQuantity,
         DealStatus dealStatus,
         LocalDateTime pickupEndTime
 ) {
 
-    public static DealDetailResponse from(Deal deal) {
+    public static DealDetailResponse from(Deal deal, BigDecimal discountPrice) {
         return new DealDetailResponse(
                 deal.getId(),
                 deal.getStore().getId(),
                 deal.getName(),
                 deal.getDescription(),
                 deal.getPrice(),
+                discountPrice,
+                deal.getDiscountPolicy().getDiscountValue(),
                 deal.getStockQuantity(),
                 deal.getDealStatus(),
                 deal.getPickupEndTime()

@@ -68,7 +68,7 @@ public class DiscountCalculatorTest {
         );
 
         //when
-        BigDecimal discountPrice = discountCalculator.calculate(deal, policy);
+        BigDecimal discountPrice = discountCalculator.calculate(deal);
 
         //then
         assertThat(discountPrice).isEqualTo(BigDecimal.valueOf(7000));
@@ -107,7 +107,7 @@ public class DiscountCalculatorTest {
         );
 
         //when
-        BigDecimal discountPrice = discountCalculator.calculate(deal, policy);
+        BigDecimal discountPrice = discountCalculator.calculate(deal);
 
         //then
         assertThat(discountPrice).isEqualTo(BigDecimal.valueOf(7000));
@@ -146,7 +146,7 @@ public class DiscountCalculatorTest {
         );
 
         //when
-        BigDecimal discountPrice = discountCalculator.calculate(deal, policy);
+        BigDecimal discountPrice = discountCalculator.calculate(deal);
 
         //then
         BigDecimal then = new BigDecimal("7000");
@@ -189,7 +189,7 @@ public class DiscountCalculatorTest {
         );
 
         //when
-        BigDecimal discountPrice = discountCalculator.calculate(deal, policy);
+        BigDecimal discountPrice = discountCalculator.calculate(deal);
 
         //then
         BigDecimal then = new BigDecimal("7000");
