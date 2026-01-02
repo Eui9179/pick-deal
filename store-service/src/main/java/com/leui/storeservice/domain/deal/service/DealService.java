@@ -41,7 +41,7 @@ public class DealService {
                 .orElseThrow(() -> new EntityNotFoundException("Store not found. id = " + storeId));
 
         Deal deal = new Deal(store, request);
-        DiscountPolicy policy = new DiscountPolicy(deal, request.policyCreateRequest());
+        DiscountPolicy policy = new DiscountPolicy(deal, request.discountPolicy());
         deal.setDiscountPolicy(policy);
 
         dealRepository.save(new Deal(store, request));

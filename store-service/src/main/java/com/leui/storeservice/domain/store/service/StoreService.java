@@ -2,7 +2,7 @@ package com.leui.storeservice.domain.store.service;
 
 import com.leui.storeservice.domain.store.dto.StoreFindRequest;
 import com.leui.storeservice.domain.store.dto.StoreInfoResponse;
-import com.leui.storeservice.domain.store.dto.StoreSaveRequest;
+import com.leui.storeservice.domain.store.dto.StoreCreateRequest;
 import com.leui.storeservice.domain.store.dto.StoreUpdateRequest;
 import com.leui.storeservice.domain.store.entity.Store;
 import com.leui.storeservice.domain.store.entity.StoreCategory;
@@ -34,7 +34,7 @@ public class StoreService {
         return id;
     }
 
-    public Store create(StoreSaveRequest request) {
+    public Store create(StoreCreateRequest request) {
         StoreCategory category = storeCategoryRepository.getReferenceById(request.categoryId());
         return storeRepository.save(new Store(request, category));
     }

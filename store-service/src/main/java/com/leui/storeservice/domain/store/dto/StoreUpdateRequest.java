@@ -1,10 +1,10 @@
 package com.leui.storeservice.domain.store.dto;
 
-import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 public record StoreUpdateRequest(
         String name,
         String phoneNumber,
-        LocalDateTime closedAt
+        LocalTime closedAt
 ) {
 }
