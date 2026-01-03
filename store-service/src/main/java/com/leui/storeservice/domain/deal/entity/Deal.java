@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 @Entity
 public class Deal extends BaseEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @JoinColumn(name = "store_id", nullable = false)

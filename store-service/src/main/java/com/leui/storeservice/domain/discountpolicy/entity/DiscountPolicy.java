@@ -35,7 +35,7 @@ public class DiscountPolicy extends BaseEntity {
     private int discountIntervalMinutes;
 
     @Setter
-    @Column(nullable = false, precision = 4, scale = 3)
+    @Column(nullable = false)
     private BigDecimal maxDiscountValue;
 
     @Setter
