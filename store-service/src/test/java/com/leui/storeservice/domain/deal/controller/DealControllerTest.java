@@ -23,6 +23,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -54,7 +55,7 @@ public class DealControllerTest {
                 LocationUtils.createPoint(1.1, 1.1),
                 "store_location",
                 "store_address",
-                LocalDateTime.now(),
+                LocalTime.now(),
                 category));
 
         Deal deal = new Deal(

@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -30,7 +31,7 @@ public class DiscountCalculatorTest {
                 LocationUtils.createPoint(0.0, 0.0),
                 "address",
                 "phoneNumber",
-                LocalDateTime.now(),
+                LocalTime.now(),
                 new StoreCategory("code", "desc")
         );
     }
