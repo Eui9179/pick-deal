@@ -58,4 +58,7 @@ public class DealService {
                 .orElseThrow(() ->  new EntityNotFoundException("Deal not found. id = " + dealId));
     }
 
+    public DealStockDecreaseResponse decreaseStock(Long id, DealStockDecreaseRequest request) {
+        return new DealStockDecreaseResponse();
+    }
 }
