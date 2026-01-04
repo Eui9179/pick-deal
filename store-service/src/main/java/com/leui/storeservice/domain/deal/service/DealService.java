@@ -5,7 +5,6 @@ import com.leui.storeservice.domain.deal.entity.Deal;
 import com.leui.storeservice.domain.deal.repository.DealRepository;
 import com.leui.storeservice.domain.discountpolicy.calculator.DiscountCalculator;
 import com.leui.storeservice.domain.discountpolicy.entity.DiscountPolicy;
-import com.leui.storeservice.domain.discountpolicy.repository.DiscountPolicyRepository;
 import com.leui.storeservice.domain.store.entity.Store;
 import com.leui.storeservice.domain.store.repository.StoreRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -22,7 +21,6 @@ public class DealService {
 
     private final DealRepository dealRepository;
     private final StoreRepository storeRepository;
-    private final DiscountPolicyRepository discountPolicyRepository;
     private final DiscountCalculator calculator;
 
     public List<DealDetailResponse> getDeals(Long storeId) {
