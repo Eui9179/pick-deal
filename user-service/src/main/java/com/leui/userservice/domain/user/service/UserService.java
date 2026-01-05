@@ -16,7 +16,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     public Long createUser(UserCreateRequest request) {
-        User user = new User(request.email(), passwordEncoder.encode(request.password()));
+        User user = new User(request.email(), passwordEncoder.encode(request.password()), request.role());
         return userRepository.save(user).getId();
     }
 
