@@ -1,18 +1,24 @@
 package com.leui.userservice.domain.auth.jwt;
 
 import com.leui.userservice.domain.auth.exception.NotAuthorizationException;
+import com.leui.userservice.domain.user.entity.Role;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
-import java.util.Base64;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
+@Getter
+@Component
 public class JwtProvider {
 
     @Value("${auth.jwt.expiration-time.access-token}")
@@ -21,38 +27,59 @@ public class JwtProvider {
     @Value("${auth.jwt.expiration-time.refresh-token}")
     private long refreshTokenExpireTime;
 
-    @Value("${auth.jwt.secret-key}")
-    private String secretKey;
+    private final SecretKey key;
 
     private final String TOKEN_KEY = "jwt";
 
-    public final String GRANT_TYPE = "Bearer ";
+    private final String GRANT_TYPE = "Bearer ";
 
-    public String generateAccessToken(String subject) {
-        return generateToken(subject, accessTokenExpireTime);
+    public JwtProvider(@Value("${auth.jwt.secret-key}") String secret) {
+        this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateRefreshToken(String subject) {
-        return generateToken(subject, refreshTokenExpireTime);
+    public String generateAccessToken(Long userId, Role role) {
+        return generateAccessToken(String.valueOf(userId), role);
     }
 
-    private String generateToken(String subject, Long expired) {
+    public String generateAccessToken(String subject, Role role) {
+        return generateToken(subject, role, accessTokenExpireTime);
+    }
+
+    public String generateRefreshToken(Long userId, Role role) {
+        return generateRefreshToken(String.valueOf(userId), role);
+    }
+
+    public String generateRefreshToken(String subject, Role role) {
+        return generateToken(subject, role, refreshTokenExpireTime);
+    }
+
+    public Role extractRole(String jwt) {
+        String role = extractClaims(jwt).get("role", String.class);
+        return Role.valueOf(role);
+    }
+
+    public Claims extractClaims(String jwt) {
+        return Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(jwt)
+                .getPayload();
+    }
+
+    private String generateToken(String subject, Role role, Long expired) {
         return Jwts.builder()
                 .subject(subject)
+                .claim("role", role.name())
                 .expiration(new Date(System.currentTimeMillis() + expired))
                 .issuedAt(new Date())
-                .signWith(getSecretKey())
+                .signWith(key)
                 .compact();
-    }
-
-    private SecretKey getSecretKey() {
-        return Keys.hmacShaKeyFor(Base64.getDecoder().decode(secretKey));
     }
 
     public String extractSubject(String jwt) {
         try {
             return Jwts.parser()
-                    .verifyWith(getSecretKey())
+                    .verifyWith(key)
                     .build()
                     .parseSignedClaims(jwt)
                     .getPayload()
@@ -77,7 +104,7 @@ public class JwtProvider {
     public String extractSubjectIgnoreExpiration(String jwt) {
         try {
             return Jwts.parser()
-                    .verifyWith(getSecretKey())
+                    .verifyWith(key)
                     .build()
                     .parseSignedClaims(jwt)
                     .getPayload()
@@ -89,7 +116,7 @@ public class JwtProvider {
 
     public void validateJwt(String jwt) {
         Jwts.parser()
-                .verifyWith(getSecretKey())
+                .verifyWith(key)
                 .build()
                 .parseSignedClaims(jwt)
                 .getPayload()
