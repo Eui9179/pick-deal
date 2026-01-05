@@ -5,10 +5,7 @@ import com.leui.userservice.domain.auth.dto.TokenResponse;
 import com.leui.userservice.domain.auth.service.AuthService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
@@ -18,7 +15,12 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public TokenResponse login(@RequestBody LoginRequest req, HttpServletResponse response) {
+    public TokenResponse login( HttpServletResponse response, @RequestBody LoginRequest req) {
         return authService.login(req, response);
+    }
+
+    @PostMapping("/refresh")
+    public TokenResponse refresh( HttpServletResponse response, @CookieValue("refreshToken") String refreshToken) {
+        return authService.refresh(response, refreshToken);
     }
 }

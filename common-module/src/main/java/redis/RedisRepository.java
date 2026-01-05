@@ -3,7 +3,7 @@ package redis;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
-import java.util.concurrent.TimeUnit;
+import java.time.Duration;
 
 public class RedisRepository {
 
@@ -19,29 +19,17 @@ public class RedisRepository {
         valueOperations.set(key, value);
     }
 
-    public void putWithExpirationDays(String key, String value, long expire) {
-        putWithExpiration(key, value, expire, TimeUnit.DAYS);
-    }
-
-    public void putWithExpirationHours(String key, String value, long expire) {
-        putWithExpiration(key, value, expire, TimeUnit.HOURS);
-    }
-
-    public void putWithExpirationMinutes(String key, String value, long expire) {
-        putWithExpiration(key, value, expire, TimeUnit.MINUTES);
-    }
-
-    public void putWithExpirationSeconds(String key, String value, long expire) {
-        putWithExpiration(key, value, expire, TimeUnit.SECONDS);
-    }
-
-    public void putWithExpiration(String key, String value, long expire, TimeUnit timeUnit) {
+    public void putWithExpiration(String key, String value, Duration duration) {
         valueOperations.set(key, value);
-        redisTemplate.expire(key, expire, timeUnit);
+        redisTemplate.expire(key, duration);
     }
 
     public String get(String key) {
         return valueOperations.get(key);
+    }
+
+    public boolean hasKey(String key) {
+        return redisTemplate.hasKey(key);
     }
 
     public String delete(String key) {
