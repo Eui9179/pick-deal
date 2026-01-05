@@ -1,5 +1,5 @@
 plugins {
-    id 'pickdeal-java'
+    id 'pickdeal-springboot'
 }
 
 group = 'com.leui'
@@ -12,6 +12,7 @@ repositories {
 dependencies {
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
+    implementation 'org.springframework.data:spring-data-redis'
 }
 
 test {
