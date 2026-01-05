@@ -1,0 +1,6 @@
+auth:
+  jwt:
+    secret-key: secret-key
+    expiration-time:
+      access-token: 5 # minutes
+      refresh-token: 15 # days
