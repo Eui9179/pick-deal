@@ -1,7 +1,5 @@
 plugins {
-	id 'org.springframework.boot' version '3.5.8'
-	id 'io.spring.dependency-management' version '1.1.7'
-	id 'pickdeal-java'
+	id 'pickdeal-springboot'
 }
 
 group = 'com.leui'
@@ -27,7 +25,6 @@ dependencies {
 	runtimeOnly 'org.postgresql:postgresql'
 	runtimeOnly 'com.h2database:h2'
 
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.testcontainers:junit-jupiter'
 	testImplementation 'org.testcontainers:postgresql'
 	testImplementation 'org.testcontainers:testcontainers'
