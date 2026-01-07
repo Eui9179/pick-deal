@@ -43,7 +43,7 @@ public class AuthService {
     }
 
     public TokenResponse refresh(HttpServletResponse response, String refreshToken) {
-        if (accessTokenProvider.validateJwt(refreshToken) && !redisRepository.hasKey("refresh:" + refreshToken)) {
+        if (!accessTokenProvider.validateJwt(refreshToken) && !redisRepository.hasKey("refresh:" + refreshToken)) {
             String subject = accessTokenProvider.extractSubjectIgnoreExpiration(refreshToken);
             throw new BadCredentialsException("Refresh Token is expired. User id = " + subject);
         }

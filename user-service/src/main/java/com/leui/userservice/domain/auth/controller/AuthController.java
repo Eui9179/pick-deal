@@ -24,7 +24,6 @@ public class AuthController {
     @PostMapping("/refresh")
     public ResponseEntity<TokenResponse> refresh(
             HttpServletResponse response,
-            @RequestHeader("Authorization") String authorization,
             @CookieValue("refreshToken") String refreshToken
     ) {
         return ResponseEntity.ok(authService.refresh(response, refreshToken));
