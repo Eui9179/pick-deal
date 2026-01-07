@@ -1,6 +1,7 @@
 package com.leui.userservice.domain.auth.jwt;
 
 import com.leui.userservice.domain.user.entity.Role;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +17,9 @@ import java.util.Map;
 @Component
 public class AccessTokenProvider extends JwtProvider {
 
-    public AccessTokenProvider(@Value("${auth.jwt.secret-key}") String secret) {
+    public AccessTokenProvider(
+            @Value("${auth.jwt.secret-key}") String secret
+    ) {
         super(secret);
     }
 
@@ -27,6 +30,8 @@ public class AccessTokenProvider extends JwtProvider {
     private long refreshTokenExpireTime;
 
     private final String TOKEN_KEY = "jwt";
+
+    public final static String GRANT_TYPE = "Bearer ";
 
     public String generateAccessToken(Long id, Role role) {
         return generateToken(
@@ -55,6 +60,17 @@ public class AccessTokenProvider extends JwtProvider {
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     }
 
+    public void expireRefreshTokenInCookie(HttpServletResponse response) {
+        ResponseCookie deleteCookie = ResponseCookie.from("refreshToken", "")
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("strict")
+                .path("/auth/refresh")
+                .maxAge(0)
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, deleteCookie.toString());
+    }
+
 
     public Role extractRole(String jwt) {
         String role = getClaimValue(jwt, "role");
@@ -65,4 +81,11 @@ public class AccessTokenProvider extends JwtProvider {
         return Long.parseLong(extractSubject(jwt));
     }
 
+    public String extractJwt(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith(GRANT_TYPE)) {
+            return null;
+        }
+        return authHeader.substring(7);
+    }
 }
