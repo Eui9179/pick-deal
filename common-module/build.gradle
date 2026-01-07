@@ -6,7 +6,7 @@ group = 'com.leui'
 version = '0.0.1'
 
 dependencies {
+    implementation 'org.springframework.data:spring-data-redis'
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
-    implementation 'org.springframework.data:spring-data-redis'
 }

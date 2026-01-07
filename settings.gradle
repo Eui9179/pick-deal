@@ -3,4 +3,5 @@ rootProject.name = 'pickdeal'
 include 'store-service'
 include 'order-service'
 include 'common-module'
+include 'user-service'
 
