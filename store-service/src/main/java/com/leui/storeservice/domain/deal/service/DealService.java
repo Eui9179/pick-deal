@@ -20,8 +20,11 @@ import java.util.List;
 public class DealService {
 
     private final DealRepository dealRepository;
-    private final StoreRepository storeRepository;
     private final DiscountCalculator calculator;
+    
+    public Deal create(Deal deal) {
+        return dealRepository.save(deal);
+    }
 
     public List<DealDetailResponse> getDeals(Long storeId) {
         return dealRepository.findAllByStoreIdWithDiscountPolicy(storeId)
@@ -33,18 +36,6 @@ public class DealService {
     public DealDetailResponse getDealDetail(Long dealId) {
         Deal deal = dealRepository.findByIdWithDiscountPolicy(dealId);
         return DealDetailResponse.from(deal, calculator.calculate(deal));
-    }
-
-    @Transactional
-    public DealCreateResponse createDeal(Long storeId, DealCreateRequest request) {
-        Store store = storeRepository.findById(storeId)
-                .orElseThrow(() -> new EntityNotFoundException("Store not found. id = " + storeId));
-
-        Deal deal = new Deal(store, request);
-        DiscountPolicy policy = new DiscountPolicy(deal, request.discountPolicy());
-        deal.setDiscountPolicy(policy);
-
-        return new DealCreateResponse(dealRepository.save(deal).getId());
     }
 
     @Transactional

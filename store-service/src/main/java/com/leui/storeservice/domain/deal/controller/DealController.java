@@ -1,5 +1,6 @@
 package com.leui.storeservice.domain.deal.controller;
 
+import com.leui.storeservice.common.facade.StoreDealFacade;
 import com.leui.storeservice.domain.deal.dto.*;
 import com.leui.storeservice.domain.deal.service.DealService;
 import jakarta.validation.Valid;
@@ -15,6 +16,7 @@ import java.util.List;
 public class DealController {
 
     private final DealService dealService;
+    private final StoreDealFacade storeDealFacade;
 
     @GetMapping("/stores/{storeId}/deals")
     public ResponseEntity<List<DealDetailResponse>> getDeals(@PathVariable Long storeId) {
@@ -26,7 +28,7 @@ public class DealController {
             @PathVariable Long storeId,
             @Valid @RequestBody DealCreateRequest request
     ) {
-        return ResponseEntity.ok(dealService.createDeal(storeId, request));
+        return ResponseEntity.ok(storeDealFacade.createDeal(storeId, request));
     }
 
     @GetMapping("/deals/{dealId}")
