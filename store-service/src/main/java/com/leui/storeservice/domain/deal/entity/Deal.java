@@ -3,13 +3,16 @@ package com.leui.storeservice.domain.deal.entity;
 import com.leui.storeservice.common.entity.BaseEntity;
 import com.leui.storeservice.domain.deal.dto.DealCreateRequest;
 import com.leui.storeservice.domain.deal.dto.DealUpdateRequest;
+import com.leui.storeservice.domain.discountpolicy.entity.DiscountPolicy;
 import com.leui.storeservice.domain.store.entity.Store;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
@@ -17,7 +20,7 @@ import java.time.LocalDateTime;
 @Entity
 public class Deal extends BaseEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @JoinColumn(name = "store_id", nullable = false)
@@ -33,10 +36,7 @@ public class Deal extends BaseEntity {
     private String description;
 
     @Column(nullable = false)
-    private int price;
-
-    @Column(nullable = false)
-    private int discountPrice;
+    private BigDecimal price;
 
     @Column(nullable = false)
     private int stockQuantity;
@@ -48,34 +48,29 @@ public class Deal extends BaseEntity {
     @Column(nullable = false)
     private LocalDateTime pickupEndTime;
 
-    public Deal(Store store, String name, String description, int price, int discountPrice,
+    @OneToOne(mappedBy = "deal", cascade = CascadeType.ALL, orphanRemoval = true)
+    private DiscountPolicy discountPolicy;
+
+    public Deal(Store store, String name, String description, BigDecimal price,
                 int stockQuantity, DealStatus dealStatus, LocalDateTime pickupEndTime) {
         this.store = store;
         this.name = name;
         this.description = description;
         this.price = price;
-        this.discountPrice = discountPrice;
         this.stockQuantity = stockQuantity;
         this.dealStatus = dealStatus;
         this.pickupEndTime = pickupEndTime;
     }
 
-    public Deal(DealCreateRequest request, Store store) {
-        this.store = store;
-        this.name = request.name();
-        this.description = request.description();
-        this.price = request.price();
-        this.discountPrice = request.discountPrice();
-        this.stockQuantity = request.stockQuantity();
-        this.dealStatus = DealStatus.ON_SALE;
-        this.pickupEndTime = request.pickupEndTime();
+    public Deal(Store store, DealCreateRequest request) {
+        this(store, request.name(), request.description(), request.price(), request.stockQuantity(),DealStatus.ON_SALE,
+                request.pickupEndTime());
     }
 
     public Long updateContent(DealUpdateRequest request) {
         this.name = request.name();
         this.description = request.description();
         this.price = request.price();
-        this.discountPrice = request.discountPrice();
         this.stockQuantity = request.stockQuantity();
         this.dealStatus = request.dealStatus();
         return this.id;
@@ -91,5 +86,12 @@ public class Deal extends BaseEntity {
 
     public void updateClosed() {
         this.dealStatus = DealStatus.CLOSED;
+    }
+
+    public void setDiscountPolicy(DiscountPolicy discountPolicy) {
+        this.discountPolicy = discountPolicy;
+        if (discountPolicy != null) {
+            discountPolicy.setDeal(this);
+        }
     }
 }

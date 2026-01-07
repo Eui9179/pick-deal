@@ -2,7 +2,7 @@ package com.leui.storeservice.domain.store.controller;
 
 import com.leui.storeservice.domain.store.dto.StoreFindRequest;
 import com.leui.storeservice.domain.store.dto.StoreInfoResponse;
-import com.leui.storeservice.domain.store.dto.StoreSaveRequest;
+import com.leui.storeservice.domain.store.dto.StoreCreateRequest;
 import com.leui.storeservice.domain.store.dto.StoreUpdateRequest;
 import com.leui.storeservice.domain.store.service.StoreService;
 import jakarta.validation.Valid;
@@ -30,7 +30,7 @@ public class StoreController {
     }
 
     @PostMapping
-    public ResponseEntity<Long> saveStore(@Valid @RequestBody StoreSaveRequest request) {
-        return ResponseEntity.ok(storeService.saveStore(request));
+    public ResponseEntity<Long> saveStore(@Valid @RequestBody StoreCreateRequest request) {
+        return ResponseEntity.ok(storeService.create(request).getId());
     }
 }

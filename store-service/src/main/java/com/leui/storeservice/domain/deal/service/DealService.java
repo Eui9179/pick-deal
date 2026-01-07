@@ -3,6 +3,8 @@ package com.leui.storeservice.domain.deal.service;
 import com.leui.storeservice.domain.deal.dto.*;
 import com.leui.storeservice.domain.deal.entity.Deal;
 import com.leui.storeservice.domain.deal.repository.DealRepository;
+import com.leui.storeservice.domain.discountpolicy.calculator.DiscountCalculator;
+import com.leui.storeservice.domain.discountpolicy.entity.DiscountPolicy;
 import com.leui.storeservice.domain.store.entity.Store;
 import com.leui.storeservice.domain.store.repository.StoreRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -18,26 +20,22 @@ import java.util.List;
 public class DealService {
 
     private final DealRepository dealRepository;
-    private final StoreRepository storeRepository;
+    private final DiscountCalculator calculator;
+    
+    public Deal create(Deal deal) {
+        return dealRepository.save(deal);
+    }
 
     public List<DealDetailResponse> getDeals(Long storeId) {
-        return dealRepository.findDealsByStoreIdOrderByCreatedAtDesc(storeId)
+        return dealRepository.findAllByStoreIdWithDiscountPolicy(storeId)
                 .stream()
-                .map(DealDetailResponse::from)
+                .map(deal -> DealDetailResponse.from(deal, calculator.calculate(deal)))
                 .toList();
     }
 
     public DealDetailResponse getDealDetail(Long dealId) {
-        return DealDetailResponse.from(getDeal(dealId));
-    }
-
-    @Transactional
-    public DealCreateResponse createDeal(Long storeId, DealCreateRequest request) {
-        Store store = storeRepository.findById(storeId)
-                .orElseThrow(() -> new EntityNotFoundException("Store not found. id = " + storeId));
-
-        Deal deal = dealRepository.save(new Deal(request, store));
-        return new DealCreateResponse(deal.getId());
+        Deal deal = dealRepository.findByIdWithDiscountPolicy(dealId);
+        return DealDetailResponse.from(deal, calculator.calculate(deal));
     }
 
     @Transactional
@@ -46,8 +44,12 @@ public class DealService {
         return new DealUpdateResponse(deal.updateContent(request));
     }
 
-    private Deal getDeal(Long dealId) {
+    public Deal getDeal(Long dealId) {
         return dealRepository.findById(dealId)
                 .orElseThrow(() ->  new EntityNotFoundException("Deal not found. id = " + dealId));
+    }
+
+    public DealStockDecreaseResponse decreaseStock(Long id, DealStockDecreaseRequest request) {
+        return new DealStockDecreaseResponse();
     }
 }

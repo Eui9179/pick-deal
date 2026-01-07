@@ -6,6 +6,8 @@ import com.leui.storeservice.domain.deal.dto.DealDetailResponse;
 import com.leui.storeservice.domain.deal.entity.Deal;
 import com.leui.storeservice.domain.deal.entity.DealStatus;
 import com.leui.storeservice.domain.deal.repository.DealRepository;
+import com.leui.storeservice.domain.discountpolicy.entity.DiscountPolicy;
+import com.leui.storeservice.domain.discountpolicy.entity.DiscountType;
 import com.leui.storeservice.domain.store.entity.StoreCategory;
 import com.leui.storeservice.domain.store.entity.Store;
 import com.leui.storeservice.domain.store.repository.StoreCategoryRepository;
@@ -19,7 +21,9 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -51,17 +55,31 @@ public class DealControllerTest {
                 LocationUtils.createPoint(1.1, 1.1),
                 "store_location",
                 "store_address",
-                LocalDateTime.now(),
+                LocalTime.now(),
                 category));
 
-        Deal deal = dealRepository.save(new Deal(store,
+        Deal deal = new Deal(
+                store,
                 "deal_name",
                 "deal_description",
-                1,
-                1,
+                BigDecimal.ONE,
                 1,
                 DealStatus.ON_SALE,
-                LocalDateTime.now()));
+                LocalDateTime.now());
+
+        BigDecimal discountValue = BigDecimal.ONE;
+        DiscountPolicy policy = new DiscountPolicy(
+                deal,
+                LocalDateTime.now(),
+                10,
+                BigDecimal.ONE,
+                discountValue,
+                DiscountType.AMOUNT
+        );
+
+        deal.setDiscountPolicy(policy);
+
+        dealRepository.save(deal);
 
         String uri = "/api/v1/deals/" + deal.getId();
 
@@ -71,5 +89,6 @@ public class DealControllerTest {
         // then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody().id()).isEqualTo(deal.getId());
+        assertThat(response.getBody().discountValue().doubleValue()).isEqualTo(BigDecimal.ONE.doubleValue());
     }
 }

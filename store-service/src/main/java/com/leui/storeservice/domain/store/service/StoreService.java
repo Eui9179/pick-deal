@@ -2,10 +2,10 @@ package com.leui.storeservice.domain.store.service;
 
 import com.leui.storeservice.domain.store.dto.StoreFindRequest;
 import com.leui.storeservice.domain.store.dto.StoreInfoResponse;
-import com.leui.storeservice.domain.store.dto.StoreSaveRequest;
+import com.leui.storeservice.domain.store.dto.StoreCreateRequest;
 import com.leui.storeservice.domain.store.dto.StoreUpdateRequest;
-import com.leui.storeservice.domain.store.entity.StoreCategory;
 import com.leui.storeservice.domain.store.entity.Store;
+import com.leui.storeservice.domain.store.entity.StoreCategory;
 import com.leui.storeservice.domain.store.repository.StoreCategoryRepository;
 import com.leui.storeservice.domain.store.repository.StoreRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -34,16 +34,16 @@ public class StoreService {
         return id;
     }
 
-    public Long saveStore(StoreSaveRequest request) {
+    public Store create(StoreCreateRequest request) {
         StoreCategory category = storeCategoryRepository.getReferenceById(request.categoryId());
-        return storeRepository.save(new Store(request, category)).getId();
+        return storeRepository.save(new Store(request, category));
     }
 
     public StoreInfoResponse getStoreInfo(Long id) {
         return StoreInfoResponse.from(getStore(id));
     }
 
-    private Store getStore(Long id) {
+    public Store getStore(Long id) {
         return storeRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Stores entity not found. id:" + id));
     }

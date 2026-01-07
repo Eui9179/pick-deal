@@ -3,9 +3,9 @@ package com.leui.storeservice.domain.store.controller;
 import com.leui.storeservice.common.util.LocationUtils;
 import com.leui.storeservice.config.postgres.PostgreSQLTestContainer;
 import com.leui.storeservice.domain.store.dto.StoreInfoResponse;
-import com.leui.storeservice.domain.store.dto.StoreSaveRequest;
-import com.leui.storeservice.domain.store.entity.StoreCategory;
+import com.leui.storeservice.domain.store.dto.StoreCreateRequest;
 import com.leui.storeservice.domain.store.entity.Store;
+import com.leui.storeservice.domain.store.entity.StoreCategory;
 import com.leui.storeservice.domain.store.repository.StoreCategoryRepository;
 import com.leui.storeservice.domain.store.repository.StoreRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,7 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
-import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,13 +52,13 @@ public class StoreControllerTest {
     @Test
     void testStoreSave() {
         //given
-        StoreSaveRequest saveRequest = new StoreSaveRequest(
+        StoreCreateRequest saveRequest = new StoreCreateRequest(
                 "name1",
                 1.1,
                 1.1,
                 "address1",
                 "010-1234-1234",
-                LocalDateTime.now(),
+                LocalTime.now(),
                 category.getId());
 
         ResponseEntity<Long> responseEntity = restTemplate.postForEntity("/api/v1/stores", saveRequest, Long.class);
@@ -73,15 +73,15 @@ public class StoreControllerTest {
         //given
         // radius 100
         storeRepository.save(new Store("name1_100", LocationUtils.createPoint(126.9725445, 37.5557536),
-                "address1_100", "phoneNumber1", LocalDateTime.now(), category));
+                "address1_100", "phoneNumber1", LocalTime.now(), category));
         storeRepository.save(new Store("name2_100", LocationUtils.createPoint(126.9736745, 37.5548556),
-                "address2_100", "phoneNumber2", LocalDateTime.now(), category));
+                "address2_100", "phoneNumber2", LocalTime.now(), category));
         storeRepository.save(new Store("name3_100", LocationUtils.createPoint(126.9717455, 37.5542206),
-                "address3_100", "phoneNumber3", LocalDateTime.now(), category));
+                "address3_100", "phoneNumber3", LocalTime.now(), category));
 
         // radius 200
         storeRepository.save(new Store("name1_200", LocationUtils.createPoint(126.9725445, 37.5566520),
-                "address1_200", "phoneNumber4", LocalDateTime.now(), category));
+                "address1_200", "phoneNumber4", LocalTime.now(), category));
 
         URI uri = UriComponentsBuilder
                 .fromPath("/api/v1/stores")

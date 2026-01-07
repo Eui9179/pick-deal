@@ -3,6 +3,7 @@ package com.leui.storeservice.domain.store.dto;
 import com.leui.storeservice.domain.store.entity.Store;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 public record StoreInfoResponse(
         Long id,
@@ -11,7 +12,7 @@ public record StoreInfoResponse(
         Double y,
         String address,
         String phoneNumber,
-        LocalDateTime closedAt
+        LocalTime closedAt
 ) {
 
     public static StoreInfoResponse from(Store store) {

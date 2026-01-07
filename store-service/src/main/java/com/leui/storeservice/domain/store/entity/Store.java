@@ -3,7 +3,7 @@ package com.leui.storeservice.domain.store.entity;
 import com.leui.storeservice.common.entity.BaseEntity;
 import com.leui.storeservice.common.util.LocationUtils;
 import com.leui.storeservice.domain.deal.entity.Deal;
-import com.leui.storeservice.domain.store.dto.StoreSaveRequest;
+import com.leui.storeservice.domain.store.dto.StoreCreateRequest;
 import com.leui.storeservice.domain.store.dto.StoreUpdateRequest;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -11,7 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.locationtech.jts.geom.Point;
 
-import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,7 +36,7 @@ public class Store extends BaseEntity {
     @Column(nullable = false, length = 30, unique = true)
     private String phoneNumber;
 
-    private LocalDateTime closedAt;
+    private LocalTime closedAt;
 
     @OneToMany(mappedBy = "store", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private final List<Deal> deals = new ArrayList<>();
@@ -45,7 +45,8 @@ public class Store extends BaseEntity {
     @JoinColumn(name = "category_id")
     private StoreCategory category;
 
-    public Store(String name, Point location, String address, String phoneNumber, LocalDateTime closedAt, StoreCategory category) {
+    public Store(String name, Point location, String address, String phoneNumber,
+                 LocalTime closedAt, StoreCategory category) {
         this.name = name;
         this.location = location;
         this.address = address;
@@ -54,7 +55,7 @@ public class Store extends BaseEntity {
         this.category = category;
     }
 
-    public Store(StoreSaveRequest request, StoreCategory category) {
+    public Store(StoreCreateRequest request, StoreCategory category) {
         this.name = request.name();
         this.location = LocationUtils.createPoint(request.x(), request.y());
         this.address = request.address();

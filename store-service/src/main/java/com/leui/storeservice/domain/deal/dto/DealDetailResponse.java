@@ -3,6 +3,7 @@ package com.leui.storeservice.domain.deal.dto;
 import com.leui.storeservice.domain.deal.entity.Deal;
 import com.leui.storeservice.domain.deal.entity.DealStatus;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public record DealDetailResponse(
@@ -10,21 +11,23 @@ public record DealDetailResponse(
         Long storeId,
         String name,
         String description,
-        int price,
-        int discountPrice,
+        BigDecimal price,
+        BigDecimal discountPrice,
+        BigDecimal discountValue,
         int stockQuantity,
         DealStatus dealStatus,
         LocalDateTime pickupEndTime
 ) {
 
-    public static DealDetailResponse from(Deal deal) {
+    public static DealDetailResponse from(Deal deal, BigDecimal discountPrice) {
         return new DealDetailResponse(
                 deal.getId(),
                 deal.getStore().getId(),
                 deal.getName(),
                 deal.getDescription(),
                 deal.getPrice(),
-                deal.getDiscountPrice(),
+                discountPrice,
+                deal.getDiscountPolicy().getDiscountValue(),
                 deal.getStockQuantity(),
                 deal.getDealStatus(),
                 deal.getPickupEndTime()
