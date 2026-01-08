@@ -17,9 +17,7 @@ import java.util.Map;
 @Component
 public class AccessTokenProvider extends JwtProvider {
 
-    public AccessTokenProvider(
-            @Value("${auth.jwt.secret-key}") String secret
-    ) {
+    public AccessTokenProvider(@Value("${auth.jwt.secret-key}") String secret) {
         super(secret);
     }
 

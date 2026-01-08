@@ -24,9 +24,10 @@ public class AuthController {
     @PostMapping("/refresh")
     public ResponseEntity<TokenResponse> refresh(
             HttpServletResponse response,
+            @RequestHeader("Authorization") String authorization,
             @CookieValue("refreshToken") String refreshToken
     ) {
-        return ResponseEntity.ok(authService.refresh(response, refreshToken));
+        return ResponseEntity.ok(authService.refresh(response, parseAccessToken(authorization), refreshToken));
     }
 
     @PostMapping("/logout")
@@ -34,9 +35,12 @@ public class AuthController {
             HttpServletResponse response,
             @RequestHeader("Authorization") String authorization
     ) {
-        String jwt = authorization.replace(AccessTokenProvider.GRANT_TYPE, "");
-        authService.logout(response, jwt);
+        authService.logout(response, parseAccessToken(authorization));
         return ResponseEntity.ok().build();
+    }
+
+    private String parseAccessToken(String authorization) {
+        return authorization.replace(AccessTokenProvider.GRANT_TYPE, "");
     }
 
 }
