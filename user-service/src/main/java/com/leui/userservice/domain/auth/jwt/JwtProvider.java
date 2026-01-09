@@ -24,8 +24,6 @@ public class JwtProvider {
 
     private final SecretKey key;
 
-    private final String GRANT_TYPE = "Bearer ";
-
     public JwtProvider(String secret) {
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
@@ -63,14 +61,6 @@ public class JwtProvider {
         } catch (ExpiredJwtException e) {
             throw new NotAuthorizationException(e.getMessage(), e.getClaims().getSubject());
         }
-    }
-
-    public String extractJwt(HttpServletRequest request) {
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader == null || !authHeader.startsWith(GRANT_TYPE)) {
-            return null;
-        }
-        return authHeader.substring(7);
     }
 
     public String extractSubjectIgnoreExpiration(String jwt) {
