@@ -1,4 +1,4 @@
-package com.leui.orderservice.dto;
+package com.leui.orderservice.domain.order.dto;
 
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.Min;

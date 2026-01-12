@@ -1,10 +1,10 @@
-package com.leui.orderservice.controller;
+package com.leui.orderservice.domain.order.controller;
 
-import com.leui.orderservice.dto.OrderCreateRequest;
-import com.leui.orderservice.dto.OrderCreateResponse;
-import com.leui.orderservice.dto.OrderDetailResponse;
-import com.leui.orderservice.dto.OrderStatusResponse;
-import com.leui.orderservice.service.OrdersService;
+import com.leui.orderservice.domain.order.dto.OrderCreateRequest;
+import com.leui.orderservice.domain.order.dto.OrderCreateResponse;
+import com.leui.orderservice.domain.order.dto.OrderDetailResponse;
+import com.leui.orderservice.domain.order.dto.OrderStatusResponse;
+import com.leui.orderservice.domain.order.service.OrdersService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

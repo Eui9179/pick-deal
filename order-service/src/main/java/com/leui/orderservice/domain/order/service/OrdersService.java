@@ -1,10 +1,10 @@
-package com.leui.orderservice.service;
+package com.leui.orderservice.domain.order.service;
 
-import com.leui.orderservice.dto.OrderCreateRequest;
-import com.leui.orderservice.dto.OrderCreateResponse;
-import com.leui.orderservice.dto.OrderDetailResponse;
-import com.leui.orderservice.dto.OrderStatusResponse;
-import com.leui.orderservice.entity.OrderStatus;
+import com.leui.orderservice.domain.order.dto.OrderCreateRequest;
+import com.leui.orderservice.domain.order.dto.OrderCreateResponse;
+import com.leui.orderservice.domain.order.dto.OrderDetailResponse;
+import com.leui.orderservice.domain.order.dto.OrderStatusResponse;
+import com.leui.orderservice.domain.order.entity.OrderStatus;
 import org.springframework.stereotype.Service;
 
 @Service
