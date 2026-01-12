@@ -1,24 +1,17 @@
-package com.leui.userservice.domain.auth.jwt;
+package jwt;
 
-import com.leui.userservice.domain.auth.exception.NotAuthorizationException;
-import com.leui.userservice.domain.user.entity.Role;
+import exception.NotAuthorizationException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.Getter;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Map;
 
-// TODO move to common
 @Getter
 public class JwtProvider {
 
