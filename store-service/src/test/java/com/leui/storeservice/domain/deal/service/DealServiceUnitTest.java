@@ -2,12 +2,9 @@ package com.leui.storeservice.domain.deal.service;
 
 import com.leui.storeservice.domain.deal.dto.DealStockDecreaseRequest;
 import com.leui.storeservice.domain.deal.dto.DealStockDecreaseResponse;
-import com.leui.storeservice.domain.deal.entity.Deal;
 import com.leui.storeservice.domain.deal.repository.DealRepository;
-import com.leui.storeservice.domain.discountpolicy.calculator.DiscountCalculator;
 import com.leui.storeservice.domain.exception.OutOfStock;
 import jakarta.persistence.EntityNotFoundException;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
