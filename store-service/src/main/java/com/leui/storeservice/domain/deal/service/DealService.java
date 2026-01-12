@@ -5,6 +5,7 @@ import com.leui.storeservice.domain.deal.entity.Deal;
 import com.leui.storeservice.domain.deal.repository.DealRepository;
 import com.leui.storeservice.domain.discountpolicy.calculator.DiscountCalculator;
 import com.leui.storeservice.domain.discountpolicy.entity.DiscountPolicy;
+import com.leui.storeservice.domain.exception.OutOfStockException;
 import com.leui.storeservice.domain.store.entity.Store;
 import com.leui.storeservice.domain.store.repository.StoreRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -50,6 +51,10 @@ public class DealService {
     }
 
     public DealStockDecreaseResponse decreaseStock(Long id, DealStockDecreaseRequest request) {
+        int stockQuatity = dealRepository.decreaseStockQuantity(id, request.quatity());
+        if (stockQuatity == 0) {
+            throw new OutOfStockException("Out of Stock. id: " + id);
+        }
         return new DealStockDecreaseResponse();
     }
 }

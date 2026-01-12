@@ -26,4 +26,12 @@ public interface DealRepository extends JpaRepository<Deal, Long> {
             """)
     Deal findByIdWithDiscountPolicy(Long dealId);
 
+    @Modifying(clearAutomatically = true)
+    @Query("""
+        update Deal d set d.stockQuantity = d.stockQuantity - :quantity
+        where d.id = :dealId
+        and d.stockQuantity >= :quantity
+        """)
+    int decreaseStockQuantity(Long dealId, int quantity);
+
 }
