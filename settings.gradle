@@ -5,4 +5,5 @@ include 'order-service'
 include 'common-module'
 include 'user-service'
 include 'eureka-server'
+include 'api-gateway'
 
