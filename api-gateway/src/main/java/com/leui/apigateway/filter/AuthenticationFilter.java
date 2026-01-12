@@ -1,26 +1,57 @@
 package com.leui.apigateway.filter;
 
+import io.jsonwebtoken.Claims;
+import jwt.JwtProvider;
 import org.apache.http.HttpHeaders;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
-import org.springframework.cloud.gateway.filter.GatewayFilterChain;
+import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Mono;
+import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.stereotype.Component;
 
+@Component
+public class AuthenticationFilter extends AbstractGatewayFilterFactory<AuthenticationFilter.Config> {
 
-public class AuthenticationFilter implements GatewayFilter {
+    private final JwtProvider jwtProvider;
+
+    public AuthenticationFilter(JwtProvider jwtProvider) {
+        super(Config.class);
+        this.jwtProvider = jwtProvider;
+    }
+
     @Override
-    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        String authorization = exchange.getRequest()
-                .getHeaders()
-                .getFirst(HttpHeaders.AUTHORIZATION);
+    public GatewayFilter apply(Config config) {
+        return (exchange, chain) -> {
+            String authorization = exchange.getRequest()
+                    .getHeaders()
+                    .getFirst(HttpHeaders.AUTHORIZATION);
 
-        if (authorization.startsWith("Bearer ")) {
-            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-            return exchange.getResponse().setComplete();
-        }
+            if (!authorization.startsWith("Bearer ")) {
+                exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+                return exchange.getResponse().setComplete();
+            }
 
-        return chain.filter(exchange);
+            String token = authorization.substring(7);
 
+            if (jwtProvider.validateJwt(token)) {
+                exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+                return exchange.getResponse().setComplete();
+            }
+
+            Claims claims = jwtProvider.getClaim(token);
+            String userId = claims.getSubject();
+            String role = claims.get("role", String.class);
+
+            ServerHttpRequest request = exchange.getRequest()
+                    .mutate()
+                    .header("X-User-Id", userId)
+                    .header("X-User-Role", role)
+                    .build();
+
+            return chain.filter(exchange.mutate().request(request).build());
+        };
+    }
+
+    public static class Config {
     }
 }

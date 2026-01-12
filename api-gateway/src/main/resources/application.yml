@@ -10,6 +10,8 @@ spring:
           httpclient:
             connect-timeout: 3000
             response-timeout: 5s
+  profiles:
+    active: local
 server:
   port: 8888
 eureka:
