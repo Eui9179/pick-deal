@@ -26,7 +26,13 @@ public interface DealRepository extends JpaRepository<Deal, Long> {
             """)
     Deal findByIdWithDiscountPolicy(Long dealId);
 
-    @Modifying(clearAutomatically = true)
+    /**
+     * 재고 감소
+     * @param dealId 리소스 id
+     * @param quantity 재고 감소 수량
+     * @return 변경된 재고 수량, 0: 업데이트 안 됨, 오류 상황
+     */
+    @Modifying
     @Query("""
         update Deal d set d.stockQuantity = d.stockQuantity - :quantity
         where d.id = :dealId
