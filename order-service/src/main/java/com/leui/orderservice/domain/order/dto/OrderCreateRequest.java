@@ -11,7 +11,7 @@ public record OrderCreateRequest(
         Long storeId,
 
         @NotNull
-        Long productId,
+        Long dealId,
 
         @Min(value = 1, message = "Quantity must be at least one.")
         int quantity,
