@@ -1,4 +1,4 @@
 package com.leui.storeservice.domain.deal.dto;
 
-public class DealStockDecreaseRequest {
+public record DealStockDecreaseRequest(int quatity) {
 }
