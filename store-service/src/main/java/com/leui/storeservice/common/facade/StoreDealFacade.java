@@ -7,7 +7,6 @@ import com.leui.storeservice.domain.deal.service.DealService;
 import com.leui.storeservice.domain.discountpolicy.entity.DiscountPolicy;
 import com.leui.storeservice.domain.store.entity.Store;
 import com.leui.storeservice.domain.store.service.StoreService;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;

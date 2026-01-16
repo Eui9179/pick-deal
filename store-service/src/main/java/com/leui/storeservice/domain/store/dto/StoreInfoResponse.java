@@ -2,7 +2,6 @@ package com.leui.storeservice.domain.store.dto;
 
 import com.leui.storeservice.domain.store.entity.Store;
 
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 public record StoreInfoResponse(

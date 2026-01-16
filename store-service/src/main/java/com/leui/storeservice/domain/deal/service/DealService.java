@@ -4,9 +4,7 @@ import com.leui.storeservice.domain.deal.dto.*;
 import com.leui.storeservice.domain.deal.entity.Deal;
 import com.leui.storeservice.domain.deal.repository.DealRepository;
 import com.leui.storeservice.domain.discountpolicy.calculator.DiscountCalculator;
-import com.leui.storeservice.domain.discountpolicy.entity.DiscountPolicy;
-import com.leui.storeservice.domain.store.entity.Store;
-import com.leui.storeservice.domain.store.repository.StoreRepository;
+import com.leui.storeservice.domain.exception.OutOfStock;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -49,7 +47,15 @@ public class DealService {
                 .orElseThrow(() ->  new EntityNotFoundException("Deal not found. id = " + dealId));
     }
 
+    @Transactional
     public DealStockDecreaseResponse decreaseStock(Long id, DealStockDecreaseRequest request) {
-        return new DealStockDecreaseResponse();
+        int stockQuatity = dealRepository.decreaseStockQuantity(id, request.quatity());
+        if (stockQuatity == 0) {
+            if (!dealRepository.existsById(id)) {
+                throw new EntityNotFoundException("Deal Not Found. id: " + id);
+            }
+            throw new OutOfStock("Out of Stock. id: " + id);
+        }
+        return new DealStockDecreaseResponse(stockQuatity);
     }
 }
