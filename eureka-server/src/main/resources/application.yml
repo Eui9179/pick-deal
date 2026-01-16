@@ -1,7 +1,7 @@
 server:
-  port: 8090
+  port: 8761
 spring:
   profiles:
     active: local
   application:
-    name: store-service
+    name: eureka-server

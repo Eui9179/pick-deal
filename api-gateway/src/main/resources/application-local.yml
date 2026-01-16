@@ -1,0 +1,6 @@
+auth:
+  jwt:
+    secret-key: YmFzZTY0LWVuY29kZWQtMjU2Yml0LXNlY3JldA
+    expiration-time:
+      access-token: 5 # minutes
+      refresh-token: 15 # days
