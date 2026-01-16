@@ -1,4 +1,4 @@
-package com.leui.userservice.domain.auth.exception;
+package exception;
 
 public class NotAuthorizationException extends RuntimeException {
     public NotAuthorizationException(String message, String subject) {

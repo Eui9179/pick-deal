@@ -3,6 +3,7 @@ package com.leui.userservice.domain.auth.jwt;
 import com.leui.userservice.domain.user.entity.Role;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jwt.JwtProvider;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,13 +14,12 @@ import org.springframework.stereotype.Component;
 import java.time.Duration;
 import java.util.Map;
 
+@RequiredArgsConstructor
 @Getter
 @Component
-public class AccessTokenProvider extends JwtProvider {
+public class AccessTokenProvider {
 
-    public AccessTokenProvider(@Value("${auth.jwt.secret-key}") String secret) {
-        super(secret);
-    }
+    private final JwtProvider jwtProvider;
 
     @Value("${auth.jwt.expiration-time.access-token}")
     private long accessTokenExpireTime;
@@ -32,7 +32,7 @@ public class AccessTokenProvider extends JwtProvider {
     public final static String GRANT_TYPE = "Bearer ";
 
     public String generateAccessToken(Long id, Role role) {
-        return generateToken(
+        return jwtProvider.generateToken(
                 String.valueOf(id),
                 accessTokenExpireTime,
                 Map.of("role", role.name())
@@ -40,7 +40,7 @@ public class AccessTokenProvider extends JwtProvider {
     }
 
     public String generateRefreshToken(Long id, Role role) {
-        return generateToken(
+        return jwtProvider.generateToken(
                 String.valueOf(id),
                 refreshTokenExpireTime,
                 Map.of("role", role.name())
@@ -71,12 +71,12 @@ public class AccessTokenProvider extends JwtProvider {
 
 
     public Role extractRole(String jwt) {
-        String role = getClaimValue(jwt, "role");
+        String role = jwtProvider.getClaimValue(jwt, "role");
         return Role.valueOf(role);
     }
 
     public Long extractUserId(String jwt) {
-        return Long.parseLong(extractSubject(jwt));
+        return Long.parseLong(jwtProvider.extractSubject(jwt));
     }
 
     public String extractJwt(HttpServletRequest request) {
