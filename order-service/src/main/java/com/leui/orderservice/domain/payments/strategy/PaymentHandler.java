@@ -2,7 +2,6 @@ package com.leui.orderservice.domain.payments.strategy;
 
 import com.leui.orderservice.domain.payments.dto.PaymentReadyPayload;
 import com.leui.orderservice.domain.payments.entity.PaymentProvider;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;

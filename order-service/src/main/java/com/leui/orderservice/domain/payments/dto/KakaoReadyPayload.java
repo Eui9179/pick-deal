@@ -10,11 +10,11 @@ import lombok.Setter;
 @Getter
 @Setter
 public class KakaoReadyPayload {
-    String tid;
-    String nextRedirectAppUrl;
-    String nextRedirectMobileUrl;
-    String nextRedirectPcUrl;
-    String androidAppScheme;
-    String iosAppScheme;
+    private String tid;
+    private String nextRedirectAppUrl;
+    private String nextRedirectMobileUrl;
+    private String nextRedirectPcUrl;
+    private String androidAppScheme;
+    private String iosAppScheme;
 }
 
