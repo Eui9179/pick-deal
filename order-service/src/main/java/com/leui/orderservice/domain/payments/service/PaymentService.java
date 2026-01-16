@@ -4,7 +4,7 @@ import com.leui.orderservice.domain.payments.dto.PaymentConfirmRequest;
 import com.leui.orderservice.domain.payments.dto.PaymentConfirmResponse;
 import com.leui.orderservice.domain.payments.dto.PaymentReadyRequest;
 import com.leui.orderservice.domain.payments.dto.PaymentReadyResponse;
-import com.leui.orderservice.domain.payments.entity.PaymentProvider;
+import com.leui.orderservice.domain.payments.strategy.ConfirmResult;
 import com.leui.orderservice.domain.payments.strategy.PaymentProviderHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,7 +20,7 @@ public class PaymentService {
     }
 
     public PaymentConfirmResponse confirmPayment(PaymentConfirmRequest request) {
-        paymentProviderHandler.confirm(request);
-        return new PaymentConfirmResponse(PaymentProvider.KAKAO);
+        ConfirmResult result = paymentProviderHandler.confirm(request);
+        return new PaymentConfirmResponse(result.getProvider());
     }
 }

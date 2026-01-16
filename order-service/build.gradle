@@ -1,5 +1,6 @@
 plugins {
 	id 'pickdeal-springboot'
+	id 'pickdeal-springcloud'
 }
 
 group = 'com.leui'
