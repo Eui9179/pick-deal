@@ -2,10 +2,7 @@ package com.leui.orderservice.domain.payments.dto;
 
 import com.leui.orderservice.domain.payments.entity.PaymentProvider;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 @Getter
-@RequiredArgsConstructor
-public abstract class PaymentReadyResponse {
-    private final PaymentProvider provider;
+public record PaymentConfirmResponse(PaymentProvider provider) {
 }

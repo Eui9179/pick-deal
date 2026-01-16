@@ -4,10 +4,11 @@ import com.leui.orderservice.domain.payments.entity.PaymentProvider;
 
 import java.math.BigDecimal;
 
-public record PaymentReadyRequest(
-        Long dealId,
-        Long userId,
-        BigDecimal amount,
-        PaymentProvider provider
+public record PaymentConfirmRequest(
+        PaymentProvider provider,
+        String paymentKey,
+        String orderId,
+        BigDecimal amount
 ) {
+
 }

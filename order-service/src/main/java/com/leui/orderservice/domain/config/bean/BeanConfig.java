@@ -1,6 +1,6 @@
 package com.leui.orderservice.domain.config.bean;
 
-import com.leui.orderservice.domain.payments.strategy.PaymentHandler;
+import com.leui.orderservice.domain.payments.strategy.PaymentProviderHandler;
 import com.leui.orderservice.domain.payments.strategy.kakao.KakaoPaymentStrategy;
 import com.leui.orderservice.domain.payments.strategy.toss.TossPaymentStrategy;
 import org.springframework.context.annotation.Bean;
@@ -12,8 +12,8 @@ import java.util.List;
 public class BeanConfig {
 
     @Bean
-    public PaymentHandler paymentHandler() {
-        return new PaymentHandler(List.of(
+    public PaymentProviderHandler paymentHandler() {
+        return new PaymentProviderHandler(List.of(
                 new TossPaymentStrategy(),
                 new KakaoPaymentStrategy()
         ));
