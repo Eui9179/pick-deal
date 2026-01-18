@@ -1,10 +1,10 @@
 package com.leui.storeservice.domain.deal.service;
 
-import com.leui.storeservice.domain.deal.dto.*;
 import com.leui.storeservice.domain.deal.entity.Deal;
 import com.leui.storeservice.domain.deal.repository.DealRepository;
 import com.leui.storeservice.domain.discountpolicy.calculator.DiscountCalculator;
 import com.leui.storeservice.domain.exception.OutOfStock;
+import dto.store.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,7 +19,7 @@ public class DealService {
 
     private final DealRepository dealRepository;
     private final DiscountCalculator calculator;
-    
+
     public Deal create(Deal deal) {
         return dealRepository.save(deal);
     }
@@ -27,13 +27,35 @@ public class DealService {
     public List<DealDetailResponse> getDeals(Long storeId) {
         return dealRepository.findAllByStoreIdWithDiscountPolicy(storeId)
                 .stream()
-                .map(deal -> DealDetailResponse.from(deal, calculator.calculate(deal)))
+                .map(deal -> new DealDetailResponse(
+                        deal.getId(),
+                        deal.getStore().getId(),
+                        deal.getName(),
+                        deal.getDescription(),
+                        deal.getPrice(),
+                        calculator.calculate(deal),
+                        deal.getDiscountPolicy().getDiscountValue(),
+                        deal.getStockQuantity(),
+                        deal.getDealStatus(),
+                        deal.getPickupEndTime()
+                ))
                 .toList();
     }
 
     public DealDetailResponse getDealDetail(Long dealId) {
         Deal deal = dealRepository.findByIdWithDiscountPolicy(dealId);
-        return DealDetailResponse.from(deal, calculator.calculate(deal));
+        return DealDetailResponse.from(
+                deal.getId(),
+                deal.getStore().getId(),
+                deal.getName(),
+                deal.getDescription(),
+                deal.getPrice(),
+                calculator.calculate(deal),
+                deal.getDiscountPolicy().getDiscountValue(),
+                deal.getStockQuantity(),
+                deal.getDealStatus(),
+                deal.getPickupEndTime()
+        );
     }
 
     @Transactional
@@ -44,7 +66,7 @@ public class DealService {
 
     public Deal getDeal(Long dealId) {
         return dealRepository.findById(dealId)
-                .orElseThrow(() ->  new EntityNotFoundException("Deal not found. id = " + dealId));
+                .orElseThrow(() -> new EntityNotFoundException("Deal not found. id = " + dealId));
     }
 
     @Transactional

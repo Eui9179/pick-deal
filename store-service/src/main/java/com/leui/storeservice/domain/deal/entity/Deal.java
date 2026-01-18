@@ -1,10 +1,11 @@
 package com.leui.storeservice.domain.deal.entity;
 
 import com.leui.storeservice.common.entity.BaseEntity;
-import com.leui.storeservice.domain.deal.dto.DealCreateRequest;
-import com.leui.storeservice.domain.deal.dto.DealUpdateRequest;
+import dto.store.DealCreateRequest;
+import dto.store.DealUpdateRequest;
 import com.leui.storeservice.domain.discountpolicy.entity.DiscountPolicy;
 import com.leui.storeservice.domain.store.entity.Store;
+import enumtype.DealStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;

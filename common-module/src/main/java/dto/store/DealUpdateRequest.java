@@ -1,6 +1,7 @@
-package com.leui.storeservice.domain.deal.dto;
+package dto.store;
 
-import com.leui.storeservice.domain.deal.entity.DealStatus;
+
+import enumtype.DealStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

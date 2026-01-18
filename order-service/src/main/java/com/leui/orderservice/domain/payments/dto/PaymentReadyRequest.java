@@ -6,7 +6,6 @@ import java.math.BigDecimal;
 
 public record PaymentReadyRequest(
         Long dealId,
-        Long userId,
         BigDecimal amount,
         PaymentProvider provider
 ) {

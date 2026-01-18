@@ -1,4 +1,4 @@
-package com.leui.storeservice.domain.deal.entity;
+package enumtype;
 
 public enum DealStatus {
     ON_SALE, SOLD_OUT, CLOSED

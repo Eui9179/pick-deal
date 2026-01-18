@@ -5,10 +5,7 @@ import com.leui.orderservice.domain.payments.dto.PaymentReadyResponse;
 import com.leui.orderservice.domain.payments.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
@@ -18,8 +15,11 @@ public class PaymentsController {
     private final PaymentService paymentService;
 
     @PostMapping("/ready")
-    public ResponseEntity<PaymentReadyResponse> ready(@RequestBody PaymentReadyRequest request) {
-        return ResponseEntity.ok(paymentService.readyPayment(request));
+    public ResponseEntity<PaymentReadyResponse> ready(
+            @RequestBody PaymentReadyRequest request,
+            @RequestHeader("x-user-id") Long userId
+    ) {
+        return ResponseEntity.ok(paymentService.readyPayment(request, userId));
     }
 
 }

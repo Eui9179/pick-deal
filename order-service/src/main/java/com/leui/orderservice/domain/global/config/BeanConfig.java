@@ -1,7 +1,7 @@
-package com.leui.orderservice.domain.config.bean;
+package com.leui.orderservice.domain.global.config;
 
-import com.leui.orderservice.domain.payments.strategy.PaymentProviderHandler;
-import com.leui.orderservice.domain.payments.strategy.toss.TossPaymentStrategy;
+import com.leui.orderservice.domain.payments.provider.PaymentProviderHandler;
+import com.leui.orderservice.domain.payments.provider.toss.strategy.TossPaymentStrategy;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

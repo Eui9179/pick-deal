@@ -1,4 +1,4 @@
-package com.leui.storeservice.domain.deal.dto;
+package dto.store;
 
 public record DealUpdateResponse(Long dealId) {
 }

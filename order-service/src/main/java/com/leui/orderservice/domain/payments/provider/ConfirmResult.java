@@ -1,7 +1,7 @@
-package com.leui.orderservice.domain.payments.strategy;
+package com.leui.orderservice.domain.payments.provider;
 
 import com.leui.orderservice.domain.payments.entity.PaymentProvider;
-import com.leui.orderservice.domain.payments.strategy.toss.TossConfirmResponse;
+import com.leui.orderservice.domain.payments.provider.toss.dto.TossConfirmResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

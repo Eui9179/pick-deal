@@ -1,4 +1,4 @@
-package com.leui.storeservice.domain.discountpolicy.entity;
+package enumtype;
 
 import lombok.extern.slf4j.Slf4j;
 

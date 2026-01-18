@@ -2,9 +2,9 @@ package com.leui.storeservice.domain.discountpolicy.calculator;
 
 import com.leui.storeservice.common.util.LocationUtils;
 import com.leui.storeservice.domain.deal.entity.Deal;
-import com.leui.storeservice.domain.deal.entity.DealStatus;
+import enumtype.DealStatus;
 import com.leui.storeservice.domain.discountpolicy.entity.DiscountPolicy;
-import com.leui.storeservice.domain.discountpolicy.entity.DiscountType;
+import enumtype.DiscountType;
 import com.leui.storeservice.domain.store.entity.Store;
 import com.leui.storeservice.domain.store.entity.StoreCategory;
 import org.junit.jupiter.api.BeforeEach;

@@ -1,4 +1,4 @@
-package com.leui.orderservice.domain.payments.strategy.toss;
+package com.leui.orderservice.domain.payments.provider.toss.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

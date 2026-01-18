@@ -1,4 +1,4 @@
-package com.leui.orderservice.domain.payments.strategy;
+package com.leui.orderservice.domain.payments.provider;
 
 import com.leui.orderservice.domain.payments.dto.PaymentReadyResponse;
 import com.leui.orderservice.domain.payments.dto.PaymentReadyRequest;
@@ -21,7 +21,7 @@ public class PaymentProviderHandler {
                 ));
     }
 
-    public PaymentReadyResponse readey(PaymentReadyRequest request) {
+    public PaymentReadyResponse ready(PaymentReadyRequest request) {
         return strategeis.get(request.provider())
                 .ready(request);
     }

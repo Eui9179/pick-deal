@@ -1,8 +1,8 @@
 package com.leui.storeservice.domain.deal.controller;
 
 import com.leui.storeservice.common.facade.StoreDealFacade;
-import com.leui.storeservice.domain.deal.dto.*;
 import com.leui.storeservice.domain.deal.service.DealService;
+import dto.store.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

@@ -1,4 +1,4 @@
-package com.leui.orderservice.domain.payments.strategy;
+package com.leui.orderservice.domain.payments.provider;
 
 import com.leui.orderservice.domain.payments.dto.PaymentFailPayload;
 import com.leui.orderservice.domain.payments.dto.PaymentReadyRequest;
