@@ -1,7 +1,7 @@
 package com.leui.orderservice.domain.payments.dto.provider;
 
 import com.leui.orderservice.domain.payments.dto.PaymentReadyResponse;
-import com.leui.orderservice.domain.payments.entity.PaymentProvider;
+import enumtype.PaymentProvider;
 import lombok.Getter;
 import lombok.Setter;
 

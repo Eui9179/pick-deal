@@ -3,7 +3,7 @@ package com.leui.orderservice.domain.payments.service;
 import com.leui.orderservice.domain.payments.dto.PaymentConfirmResponse;
 import com.leui.orderservice.domain.payments.dto.PaymentReadyRequest;
 import com.leui.orderservice.domain.payments.dto.PaymentReadyResponse;
-import com.leui.orderservice.domain.payments.entity.PaymentProvider;
+import enumtype.PaymentProvider;
 import com.leui.orderservice.domain.payments.provider.ConfirmResult;
 import com.leui.orderservice.domain.payments.provider.PaymentProviderHandler;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +13,7 @@ import java.util.Map;
 
 @RequiredArgsConstructor
 @Service
-public class PaymentService {
+public class OrderPaymentService {
 
     private final PaymentProviderHandler paymentProviderHandler;
 
@@ -21,8 +21,7 @@ public class PaymentService {
         return paymentProviderHandler.ready(request, userId);
     }
 
-    public PaymentConfirmResponse confirmPayment(PaymentProvider provider, Map<String, Object> request) {
-        ConfirmResult result = paymentProviderHandler.confirm(provider, request);
-        return new PaymentConfirmResponse(result.getProvider()); // TODO 리턴 데이터 처리
+    public ConfirmResult confirmPayment(PaymentProvider provider, Map<String, Object> param) {
+        return paymentProviderHandler.confirm(provider, param);
     }
 }

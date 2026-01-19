@@ -1,15 +1,22 @@
 package com.leui.orderservice.domain.payments.provider;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.leui.orderservice.domain.payments.dto.PaymentFailPayload;
 import com.leui.orderservice.domain.payments.dto.PaymentReadyRequest;
 import com.leui.orderservice.domain.payments.dto.PaymentReadyResponse;
-import com.leui.orderservice.domain.payments.entity.PaymentProvider;
+import enumtype.PaymentProvider;
 
 import java.util.Map;
 
-public interface PaymentStrategy {
+public interface PaymentStrategy<T> {
     PaymentReadyResponse ready(PaymentReadyRequest request, Long userId);
-    ConfirmResult confirm(Map<String, Object> request);
+    ConfirmResult confirm(T param);
     PaymentFailPayload fail();
     PaymentProvider support();
+    Class<T> paramType();
+
+    default ConfirmResult confirm(ObjectMapper mapper, Map<String, Object> param) {
+        T dto = mapper.convertValue(param, paramType());
+        return confirm(dto);
+    }
 }

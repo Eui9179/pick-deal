@@ -8,9 +8,6 @@ import java.time.LocalDateTime;
 
 public record OrderCreateRequest(
         @NotNull
-        Long storeId,
-
-        @NotNull
         Long dealId,
 
         @Min(value = 1, message = "Quantity must be at least one.")

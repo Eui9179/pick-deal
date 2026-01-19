@@ -4,7 +4,7 @@ import com.leui.orderservice.domain.order.dto.OrderCreateRequest;
 import com.leui.orderservice.domain.order.dto.OrderCreateResponse;
 import com.leui.orderservice.domain.order.dto.OrderDetailResponse;
 import com.leui.orderservice.domain.order.dto.OrderStatusResponse;
-import com.leui.orderservice.domain.order.service.OrdersService;
+import com.leui.orderservice.domain.order.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/orders")
 public class OrdersController {
 
-    private final OrdersService ordersService;
+    private final OrderService ordersService;
 
     @PostMapping
     public ResponseEntity<OrderCreateResponse> createOrder(@Valid @RequestBody OrderCreateRequest orderCreateRequest) {

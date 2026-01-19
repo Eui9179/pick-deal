@@ -1,18 +1,22 @@
 package com.leui.orderservice.domain.payments.provider;
 
-import com.leui.orderservice.domain.payments.entity.PaymentProvider;
-import com.leui.orderservice.domain.payments.dto.provider.TossConfirmResponse;
+import enumtype.PaymentProvider;
+import enumtype.ConfirmStatus;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @AllArgsConstructor
-@Builder
+@NoArgsConstructor
 public class ConfirmResult {
     private PaymentProvider provider;
+    private ConfirmStatus status;
 
-    public static ConfirmResult from(TossConfirmResponse tossConfirmResponse) {
-        return null;
+    public static ConfirmResult from(PaymentProvider provider, String status) {
+        return switch (provider) {
+            case TOSS -> new ConfirmResult(provider, ConfirmStatus.from(status));
+            case KAKAO -> new ConfirmResult(provider, ConfirmStatus.from(status));
+        };
     }
 }
