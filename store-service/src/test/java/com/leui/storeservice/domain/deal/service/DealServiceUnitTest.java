@@ -3,7 +3,7 @@ package com.leui.storeservice.domain.deal.service;
 import dto.store.DealStockDecreaseRequest;
 import dto.store.DealStockDecreaseResponse;
 import com.leui.storeservice.domain.deal.repository.DealRepository;
-import com.leui.storeservice.domain.exception.OutOfStock;
+import exception.OutOfStock;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

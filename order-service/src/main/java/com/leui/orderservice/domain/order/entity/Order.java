@@ -41,4 +41,9 @@ public class Order extends BaseEntity {
         this.provider = provider;
         this.status = OrderStatus.READY;
     }
+
+    public void setErrorStatus(OrderStatus status, String failDescription) {
+        this.status = status;
+        this.failDescription = failDescription;
+    }
 }

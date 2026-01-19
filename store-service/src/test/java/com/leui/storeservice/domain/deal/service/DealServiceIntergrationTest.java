@@ -8,7 +8,7 @@ import com.leui.storeservice.domain.deal.entity.Deal;
 import enumtype.DealStatus;
 import com.leui.storeservice.domain.deal.repository.DealRepository;
 import com.leui.storeservice.domain.discountpolicy.calculator.DiscountCalculator;
-import com.leui.storeservice.domain.exception.OutOfStock;
+import exception.OutOfStock;
 import com.leui.storeservice.domain.store.entity.Store;
 import com.leui.storeservice.domain.store.entity.StoreCategory;
 import com.leui.storeservice.domain.store.repository.StoreCategoryRepository;

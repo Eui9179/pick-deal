@@ -7,10 +7,13 @@ import com.leui.orderservice.domain.order.service.OrderService;
 import com.leui.orderservice.domain.payments.dto.PaymentReadyResponse;
 import com.leui.orderservice.domain.payments.provider.ConfirmResult;
 import com.leui.orderservice.domain.payments.provider.PaymentProviderHandler;
+import com.leui.orderservice.global.exception.OrderCreateException;
 import com.leui.orderservice.global.feignclient.StoreDealFeignClient;
 import dto.store.DealStockDecreaseRequest;
 import enumtype.PaymentProvider;
+import exception.OutOfStock;
 import feign.FeignException;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,13 +33,10 @@ public class OrderPaymentService {
         Order order = orderService.createOrder(userId, request);
         try {
             storeDealFeignClient.decreaseDealStock(request.dealId(), new DealStockDecreaseRequest(request.quantity()));
-        } catch (FeignException.NotFound e) {
-            order.setStatus(OrderStatus.FAIL);
-            order.setFailDescription("Deal entity not found.");
-        } catch (FeignException.Conflict e) {
-            order.setStatus(OrderStatus.FAIL);
-            order.setFailDescription("Out of Stock.");
-            throw new RuntimeException(); // TODO
+            order.setStatus(OrderStatus.READY);
+        } catch (FeignException.NotFound | FeignException.Conflict e) {
+            order.setErrorStatus(OrderStatus.FAIL, e.getMessage());
+            throw new OrderCreateException(e.getMessage());
         }
         return paymentProviderHandler.ready(request, order.getId(), userId);
     }

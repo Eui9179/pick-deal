@@ -1,6 +1,6 @@
 package com.leui.storeservice.common.exception;
 
-import com.leui.storeservice.domain.exception.OutOfStock;
+import exception.OutOfStock;
 import exception.ErrorResponse;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -21,7 +21,6 @@ public class GlobalExceptionHandler {
                         .message(e.getMessage())
                         .build());
     }
-    @ResponseStatus(value = HttpStatus.CONFLICT, reason = "Out of Stock")
 
     @ExceptionHandler(OutOfStock.class)
     public ResponseEntity<ErrorResponse> handlerOutOfStock(OutOfStock e) {

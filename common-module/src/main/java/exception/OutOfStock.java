@@ -1,4 +1,4 @@
-package com.leui.storeservice.domain.exception;
+package exception;
 
 public class OutOfStock extends RuntimeException {
     public OutOfStock(String message) {
