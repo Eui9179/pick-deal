@@ -1,13 +1,14 @@
 package com.leui.orderservice.domain.payments.controller;
 
-import com.leui.orderservice.domain.payments.dto.PaymentReadyRequest;
-import com.leui.orderservice.domain.payments.dto.PaymentReadyResponse;
 import com.leui.orderservice.domain.payments.provider.ConfirmResult;
-import com.leui.orderservice.domain.payments.service.OrderPaymentService;
+import com.leui.orderservice.domain.facade.OrderPaymentService;
 import enumtype.PaymentProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
@@ -17,14 +18,6 @@ import java.util.Map;
 public class PaymentController {
 
     private final OrderPaymentService orderPaymentService;
-
-    @PostMapping("/ready")
-    public ResponseEntity<PaymentReadyResponse> ready(
-            @RequestBody PaymentReadyRequest request,
-            @RequestHeader("x-user-id") Long userId
-    ) {
-        return ResponseEntity.ok(orderPaymentService.readyPayment(request, userId));
-    }
 
     @GetMapping("/toss/success")
     public ResponseEntity<ConfirmResult> confirm(@ModelAttribute Map<String, Object> param) {

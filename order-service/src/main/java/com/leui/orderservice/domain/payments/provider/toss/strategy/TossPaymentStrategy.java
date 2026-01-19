@@ -1,11 +1,10 @@
 package com.leui.orderservice.domain.payments.provider.toss.strategy;
 
+import com.leui.orderservice.domain.order.dto.OrderCreateRequest;
 import com.leui.orderservice.domain.payments.dto.PaymentFailPayload;
-import com.leui.orderservice.domain.payments.dto.PaymentReadyRequest;
 import com.leui.orderservice.domain.payments.dto.PaymentReadyResponse;
 import com.leui.orderservice.domain.payments.dto.provider.TossConfirmResponse;
 import com.leui.orderservice.domain.payments.dto.provider.TossReadyPayload;
-import enumtype.PaymentProvider;
 import com.leui.orderservice.domain.payments.provider.ConfirmResult;
 import com.leui.orderservice.domain.payments.provider.PaymentStrategy;
 import com.leui.orderservice.domain.payments.provider.toss.feignclient.TossPaymentClient;
@@ -14,6 +13,7 @@ import com.leui.orderservice.global.feignclient.UserFeignClient;
 import dto.payment.TossSuccessParam;
 import dto.store.DealDetailResponse;
 import dto.user.UserDetailResponse;
+import enumtype.PaymentProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -36,26 +36,27 @@ public class TossPaymentStrategy implements PaymentStrategy<TossSuccessParam> {
     private final StoreDealFeignClient feignClient;
 
     @Override
-    public PaymentReadyResponse ready(PaymentReadyRequest request, Long userId) {
+    public PaymentReadyResponse ready(OrderCreateRequest request, String orderId, Long userId) {
         DealDetailResponse dealDetail = feignClient.getDealDetail(request.dealId());
         if (!request.amount().equals(dealDetail.discountPrice())) {
             throw new RuntimeException("Mount is not equal. " +
                     "Input amount = " + request.amount() +
                     "Actual amount = " + dealDetail.discountPrice());
         }
+
         UserDetailResponse userDetail = userFeignClient.getUserDetail(userId);
 
-        return new TossReadyPayload(request.orderId(),
+        return new TossReadyPayload(
+                orderId,
                 baseUrl + "/api/v1/payments/toss/confirm",
-                baseUrl + "/api/v1/payments/fail",
+                baseUrl + "/api/v1/payments/toss/fail",
                 userDetail.eamil(),
                 userDetail.eamil());
     }
 
     @Override
     public ConfirmResult confirm(TossSuccessParam param) {
-        String authorization = Base64
-                .getEncoder()
+        String authorization = Base64.getEncoder()
                 .encodeToString((secretKey + ":").getBytes(StandardCharsets.UTF_8));
         TossConfirmResponse response = tossPaymentClient.confirmPayment(authorization, param);
         return ConfirmResult.from(support(), response.status());

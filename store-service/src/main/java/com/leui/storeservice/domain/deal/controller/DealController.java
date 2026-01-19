@@ -44,11 +44,4 @@ public class DealController {
         return ResponseEntity.ok(dealService.updateDealContent(dealId, request));
     }
 
-    @PatchMapping("/{id}/stock")
-    public ResponseEntity<DealStockDecreaseResponse> decreaseDealStock(
-            @PathVariable Long id,
-            @RequestBody DealStockDecreaseRequest request
-    ) {
-        return ResponseEntity.ok(dealService.decreaseStock(id, request));
-    }
 }

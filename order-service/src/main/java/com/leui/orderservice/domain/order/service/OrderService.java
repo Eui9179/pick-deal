@@ -10,6 +10,7 @@ import com.leui.orderservice.domain.order.repository.OrderRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
@@ -22,8 +23,9 @@ public class OrderService {
                 .orElseThrow(() -> new EntityNotFoundException("Order Not Found. id: " + id));
     }
 
-    public OrderCreateResponse createOrder(OrderCreateRequest orderCreateRequest) {
-        return new OrderCreateResponse(1L);
+    public Order createOrder(Long userId, OrderCreateRequest request) {
+        Order order = new Order(userId, request.dealId(), request.quantity(), request.provider());
+        return orderRepository.save(order);
     }
 
     public OrderDetailResponse getOrderDetail(Long orderId) {

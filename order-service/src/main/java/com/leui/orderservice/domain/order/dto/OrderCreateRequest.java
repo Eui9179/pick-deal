@@ -1,9 +1,11 @@
 package com.leui.orderservice.domain.order.dto;
 
+import enumtype.PaymentProvider;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public record OrderCreateRequest(
@@ -15,6 +17,12 @@ public record OrderCreateRequest(
 
         @NotNull
         @FutureOrPresent
-        LocalDateTime pickupTime
+        LocalDateTime pickupTime,
+
+        @NotNull
+        BigDecimal amount,
+
+        @NotNull
+        PaymentProvider provider
 ) {
 }

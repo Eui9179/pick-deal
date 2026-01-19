@@ -45,7 +45,7 @@ public class AuthService {
 
     public TokenResponse refresh(HttpServletResponse response, String accessToken, String refreshToken) {
         if (validAccessToken(accessToken, refreshToken)) {
-            String subject = accessTokenProvider.extractSubjectIgnoreExpiration(refreshToken);
+            String subject = accessTokenProvider.getJwtProvider().extractSubjectIgnoreExpiration(refreshToken);
             throw new BadCredentialsException("Refresh Token is expired. User id = " + subject);
         }
 
@@ -77,7 +77,7 @@ public class AuthService {
 
     private boolean validAccessToken(String accessToken, String refreshToken) {
         return !redisRepository.hasKey(blockKeyPrefix + accessToken) &&
-                accessTokenProvider.validateJwt(refreshToken) &&
+                accessTokenProvider.getJwtProvider().validateJwt(refreshToken) &&
                 redisRepository.hasKey("refresh:" + refreshToken);
     }
 }

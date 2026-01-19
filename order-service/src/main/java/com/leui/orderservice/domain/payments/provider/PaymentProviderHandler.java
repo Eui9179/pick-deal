@@ -1,7 +1,7 @@
 package com.leui.orderservice.domain.payments.provider;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.leui.orderservice.domain.payments.dto.PaymentReadyRequest;
+import com.leui.orderservice.domain.order.dto.OrderCreateRequest;
 import com.leui.orderservice.domain.payments.dto.PaymentReadyResponse;
 import enumtype.PaymentProvider;
 
@@ -25,9 +25,9 @@ public class PaymentProviderHandler {
                 ));
     }
 
-    public PaymentReadyResponse ready(PaymentReadyRequest request, Long userId) {
+    public PaymentReadyResponse ready(OrderCreateRequest request, String orderId, Long userId) {
         return strategeis.get(request.provider())
-                .ready(request, userId);
+                .ready(request, orderId, userId);
     }
 
     public ConfirmResult confirm(PaymentProvider provider, Map<String, Object> param) {
