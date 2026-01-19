@@ -29,10 +29,13 @@ public class TossPaymentStrategy implements PaymentStrategy {
     @Value("${toss.secret-key}")
     private String secretKey;
 
+    @Value("${gateway.base-url}")
+    private String baseUrl;
+
     private final TossPaymentClient tossPaymentClient;
     private final UserFeignClient userFeignClient;
 
-    private StoreDealFeignClient feignClient;
+    private final StoreDealFeignClient feignClient;
 
 
     @Override
@@ -47,8 +50,8 @@ public class TossPaymentStrategy implements PaymentStrategy {
         UserDetailResponse userDetail = userFeignClient.getUserDetail(userId);
 
         return new TossReadyPayload(UUID.randomUUID().toString(),
-                "",
-                "",
+                baseUrl + "/api/v1/payments/toss/confirm",
+                baseUrl + "/api/v1/payments/fail",
                 userDetail.eamil(),
                 userDetail.eamil());
     }
