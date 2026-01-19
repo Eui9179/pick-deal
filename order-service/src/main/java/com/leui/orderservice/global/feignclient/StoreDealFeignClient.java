@@ -1,4 +1,4 @@
-package com.leui.orderservice.domain.global.feignclient;
+package com.leui.orderservice.global.feignclient;
 
 import dto.store.DealDetailResponse;
 import org.springframework.cloud.openfeign.FeignClient;

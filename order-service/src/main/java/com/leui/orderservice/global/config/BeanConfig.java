@@ -1,4 +1,4 @@
-package com.leui.orderservice.domain.global.config;
+package com.leui.orderservice.global.config;
 
 import com.leui.orderservice.domain.payments.provider.PaymentProviderHandler;
 import com.leui.orderservice.domain.payments.provider.toss.strategy.TossPaymentStrategy;

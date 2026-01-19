@@ -1,7 +1,6 @@
 package com.leui.orderservice.domain.payments.provider.toss.strategy;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.leui.orderservice.domain.global.feignclient.StoreDealFeignClient;
+import com.leui.orderservice.global.feignclient.StoreDealFeignClient;
 import com.leui.orderservice.domain.payments.dto.PaymentFailPayload;
 import com.leui.orderservice.domain.payments.dto.PaymentReadyRequest;
 import com.leui.orderservice.domain.payments.dto.PaymentReadyResponse;
