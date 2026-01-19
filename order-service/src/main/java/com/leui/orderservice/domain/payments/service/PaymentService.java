@@ -17,8 +17,8 @@ public class PaymentService {
 
     private final PaymentProviderHandler paymentProviderHandler;
 
-    public PaymentReadyResponse readyPayment(PaymentReadyRequest request) {
-        return paymentProviderHandler.ready(request);
+    public PaymentReadyResponse readyPayment(PaymentReadyRequest request, Long userId) {
+        return paymentProviderHandler.ready(request, userId);
     }
 
     public PaymentConfirmResponse confirmPayment(PaymentProvider provider, Map<String, Object> request) {

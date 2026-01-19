@@ -1,6 +1,7 @@
-package com.leui.userservice.domain.user.dto;
+package dto.user;
 
-import com.leui.userservice.domain.user.entity.Role;
+
+import enumtype.Role;
 
 public record UserCreateRequest(
         String email,

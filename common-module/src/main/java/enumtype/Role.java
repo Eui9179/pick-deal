@@ -1,4 +1,4 @@
-package com.leui.userservice.domain.user.entity;
+package enumtype;
 
 public enum Role {
     USER,

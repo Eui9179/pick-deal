@@ -21,9 +21,9 @@ public class PaymentProviderHandler {
                 ));
     }
 
-    public PaymentReadyResponse ready(PaymentReadyRequest request) {
+    public PaymentReadyResponse ready(PaymentReadyRequest request, Long userId) {
         return strategeis.get(request.provider())
-                .ready(request);
+                .ready(request, userId);
     }
 
     public ConfirmResult confirm(PaymentProvider provider, Map<String, Object> request) {

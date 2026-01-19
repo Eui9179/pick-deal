@@ -3,7 +3,7 @@ package com.leui.userservice.domain.auth.service;
 import com.leui.userservice.domain.auth.dto.LoginRequest;
 import com.leui.userservice.domain.auth.dto.TokenResponse;
 import com.leui.userservice.domain.auth.jwt.AccessTokenProvider;
-import com.leui.userservice.domain.user.entity.Role;
+import enumtype.Role;
 import com.leui.userservice.domain.user.entity.User;
 import com.leui.userservice.domain.user.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;

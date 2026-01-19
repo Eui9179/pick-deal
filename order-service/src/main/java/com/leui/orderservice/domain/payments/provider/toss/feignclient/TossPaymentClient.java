@@ -1,6 +1,6 @@
 package com.leui.orderservice.domain.payments.provider.toss.feignclient;
 
-import com.leui.orderservice.domain.payments.provider.toss.dto.TossConfirmResponse;
+import com.leui.orderservice.domain.payments.dto.provider.TossConfirmResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

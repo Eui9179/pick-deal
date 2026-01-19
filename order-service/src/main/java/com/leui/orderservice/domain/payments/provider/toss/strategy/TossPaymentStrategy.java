@@ -1,15 +1,18 @@
 package com.leui.orderservice.domain.payments.provider.toss.strategy;
 
+import com.leui.orderservice.domain.payments.dto.provider.TossReadyPayload;
 import com.leui.orderservice.global.feignclient.StoreDealFeignClient;
 import com.leui.orderservice.domain.payments.dto.PaymentFailPayload;
 import com.leui.orderservice.domain.payments.dto.PaymentReadyRequest;
 import com.leui.orderservice.domain.payments.dto.PaymentReadyResponse;
 import com.leui.orderservice.domain.payments.entity.PaymentProvider;
-import com.leui.orderservice.domain.payments.provider.toss.dto.TossConfirmResponse;
+import com.leui.orderservice.domain.payments.dto.provider.TossConfirmResponse;
 import com.leui.orderservice.domain.payments.provider.toss.feignclient.TossPaymentClient;
 import com.leui.orderservice.domain.payments.provider.ConfirmResult;
 import com.leui.orderservice.domain.payments.provider.PaymentStrategy;
+import com.leui.orderservice.global.feignclient.UserFeignClient;
 import dto.store.DealDetailResponse;
+import dto.user.UserDetailResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -17,6 +20,7 @@ import org.springframework.stereotype.Component;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @Component
@@ -26,18 +30,27 @@ public class TossPaymentStrategy implements PaymentStrategy {
     private String secretKey;
 
     private final TossPaymentClient tossPaymentClient;
+    private final UserFeignClient userFeignClient;
 
     private StoreDealFeignClient feignClient;
 
 
     @Override
-    public PaymentReadyResponse ready(PaymentReadyRequest request) {
-        // 주문 가격 검증
-        // 상품 이름
+    public PaymentReadyResponse ready(PaymentReadyRequest request, Long userId) {
+
         DealDetailResponse dealDetail = feignClient.getDealDetail(request.dealId());
-        // TODO
-        // 주문자 이름
-        return null;
+        if (!request.amount().equals(dealDetail.discountPrice())) {
+            throw new RuntimeException("Mount is not equal. " +
+                    "Input amount = " + request.amount() +
+                    "Actual amount = " + dealDetail.discountPrice());
+        }
+        UserDetailResponse userDetail = userFeignClient.getUserDetail(userId);
+
+        return new TossReadyPayload(UUID.randomUUID().toString(),
+                "",
+                "",
+                userDetail.eamil(),
+                userDetail.eamil());
     }
 
     @Override
