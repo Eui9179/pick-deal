@@ -1,6 +1,6 @@
 package com.leui.orderservice.domain.order.dto;
 
-import com.leui.orderservice.domain.order.entity.OrderStatus;
+import enumtype.OrderStatus;
 
 public record OrderStatusResponse(Long orderId, OrderStatus status) {
 }

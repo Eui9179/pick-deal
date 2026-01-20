@@ -3,7 +3,7 @@ package com.leui.storeservice.domain.deal.service;
 import dto.store.DealStockDecreaseRequest;
 import dto.store.DealStockDecreaseResponse;
 import com.leui.storeservice.domain.deal.repository.DealRepository;
-import exception.OutOfStock;
+import exception.OutOfStockException;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -53,7 +53,7 @@ public class DealServiceUnitTest {
         doReturn(true).when(dealRepository).existsById(any());
 
         //when
-        assertThrows(OutOfStock.class, () -> dealService.decreaseStock(id, request));
+        assertThrows(OutOfStockException.class, () -> dealService.decreaseStock(id, request));
     }
 
     @Test

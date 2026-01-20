@@ -1,6 +1,7 @@
 package com.leui.orderservice.domain.order.entity;
 
 import com.leui.orderservice.global.entity.BaseEntity;
+import enumtype.OrderStatus;
 import enumtype.PaymentProvider;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -39,7 +40,7 @@ public class Order extends BaseEntity {
         this.dealId = dealId;
         this.quantity = quantity;
         this.provider = provider;
-        this.status = OrderStatus.READY;
+        this.status = OrderStatus.ORDER_READY;
     }
 
     public void setErrorStatus(OrderStatus status, String failDescription) {

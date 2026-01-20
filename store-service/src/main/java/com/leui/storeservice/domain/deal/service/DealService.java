@@ -3,7 +3,7 @@ package com.leui.storeservice.domain.deal.service;
 import com.leui.storeservice.domain.deal.entity.Deal;
 import com.leui.storeservice.domain.deal.repository.DealRepository;
 import com.leui.storeservice.domain.discountpolicy.calculator.DiscountCalculator;
-import exception.OutOfStock;
+import exception.OutOfStockException;
 import dto.store.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -76,7 +76,7 @@ public class DealService {
             if (!dealRepository.existsById(id)) {
                 throw new EntityNotFoundException("Deal Not Found. id: " + id);
             }
-            throw new OutOfStock("Out of Stock. id: " + id);
+            throw new OutOfStockException("Out of Stock. id: " + id);
         }
         return new DealStockDecreaseResponse(stockQuantity);
     }

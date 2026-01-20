@@ -2,7 +2,7 @@ package com.leui.orderservice.domain.order.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.leui.orderservice.domain.order.dto.OrderCreateRequest;
-import com.leui.orderservice.domain.order.entity.OrderStatus;
+import enumtype.OrderStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

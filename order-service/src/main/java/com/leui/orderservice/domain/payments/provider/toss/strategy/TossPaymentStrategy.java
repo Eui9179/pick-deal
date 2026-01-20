@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
@@ -38,10 +39,11 @@ public class TossPaymentStrategy implements PaymentStrategy<TossSuccessParam> {
     @Override
     public PaymentReadyResponse ready(OrderCreateRequest request, String orderId, Long userId) {
         DealDetailResponse dealDetail = feignClient.getDealDetail(request.dealId());
-        if (!request.amount().equals(dealDetail.discountPrice())) {
+        BigDecimal actualAmount = dealDetail.discountPrice().multiply(BigDecimal.valueOf(request.quantity()));
+        if (!request.amount().equals(actualAmount)) {
             throw new RuntimeException("Mount is not equal. " +
-                    "Input amount = " + request.amount() +
-                    "Actual amount = " + dealDetail.discountPrice());
+                    "Request amount = " + request.amount() +
+                    "Actual amount = " + actualAmount);
         }
 
         UserDetailResponse userDetail = userFeignClient.getUserDetail(userId);
@@ -59,7 +61,7 @@ public class TossPaymentStrategy implements PaymentStrategy<TossSuccessParam> {
         String authorization = Base64.getEncoder()
                 .encodeToString((secretKey + ":").getBytes(StandardCharsets.UTF_8));
         TossConfirmResponse response = tossPaymentClient.confirmPayment(authorization, param);
-        return ConfirmResult.from(support(), response.status());
+        return ConfirmResult.from(response.status());
     }
 
     @Override

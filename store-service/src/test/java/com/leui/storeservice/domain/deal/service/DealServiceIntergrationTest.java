@@ -8,7 +8,7 @@ import com.leui.storeservice.domain.deal.entity.Deal;
 import enumtype.DealStatus;
 import com.leui.storeservice.domain.deal.repository.DealRepository;
 import com.leui.storeservice.domain.discountpolicy.calculator.DiscountCalculator;
-import exception.OutOfStock;
+import exception.OutOfStockException;
 import com.leui.storeservice.domain.store.entity.Store;
 import com.leui.storeservice.domain.store.entity.StoreCategory;
 import com.leui.storeservice.domain.store.repository.StoreCategoryRepository;
@@ -159,7 +159,7 @@ public class DealServiceIntergrationTest {
 
         //when & then
         assertThrows(
-                OutOfStock.class,
+                OutOfStockException.class,
                 () -> dealService.decreaseStock(deal.getId(), new DealStockDecreaseRequest(needStockQuntity))
         );
     }
