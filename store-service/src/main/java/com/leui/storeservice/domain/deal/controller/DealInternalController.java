@@ -20,7 +20,7 @@ public class DealInternalController {
         return ResponseEntity.ok(dealService.getDealDetail(id));
     }
 
-    @PatchMapping("/{id}/stock")
+    @PatchMapping("/{id}/stock/decrease")
     public ResponseEntity<DealStockDecreaseResponse> decreaseDealStock(
             @PathVariable Long id,
             @RequestBody DealStockDecreaseRequest request

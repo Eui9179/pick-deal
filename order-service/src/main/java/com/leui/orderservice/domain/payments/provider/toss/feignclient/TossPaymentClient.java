@@ -7,8 +7,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 
-import java.util.Map;
-
 @FeignClient(name = "tossPaymentClient", url = "https://api.tosspayments.com")
 public interface TossPaymentClient {
 

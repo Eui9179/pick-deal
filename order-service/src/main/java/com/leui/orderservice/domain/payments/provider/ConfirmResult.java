@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 public class ConfirmResult {
     private OrderStatus status;
 
-    public static ConfirmResult from(String status) {
-        return new ConfirmResult(OrderStatus.from(status));
+    public ConfirmResult(String status) {
+        this.status = OrderStatus.from(status);
     }
 }

@@ -16,7 +16,7 @@ public interface StoreDealFeignClient {
     @GetMapping("/deals/{id}")
     DealDetailResponse getDealDetail(@PathVariable Long id);
 
-    @PatchMapping("/deals/{id}/stock")
+    @PatchMapping("/deals/{id}/stock/decrease")
     DealStockDecreaseResponse decreaseDealStock(@PathVariable Long id, @RequestBody DealStockDecreaseRequest request);
 
 }

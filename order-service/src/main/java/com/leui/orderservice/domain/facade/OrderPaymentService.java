@@ -2,6 +2,9 @@ package com.leui.orderservice.domain.facade;
 
 import com.leui.orderservice.domain.order.dto.OrderCreateRequest;
 import com.leui.orderservice.domain.order.entity.Order;
+import dto.payment.PaymentFailParam;
+import dto.payment.PaymentSuccessParam;
+import dto.payment.TossSuccessParam;
 import enumtype.OrderStatus;
 import com.leui.orderservice.domain.order.service.OrderService;
 import com.leui.orderservice.domain.payments.dto.PaymentReadyResponse;
@@ -16,8 +19,6 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Map;
 
 @RequiredArgsConstructor
 @Service
@@ -34,13 +35,23 @@ public class OrderPaymentService {
         return paymentProviderHandler.ready(request, order.getId(), userId);
     }
 
-    public ConfirmResult confirmPayment(PaymentProvider provider, Map<String, Object> param) {
-        ConfirmResult confirm = paymentProviderHandler.confirm(provider, param);
-
-        return confirm;
+    public ConfirmResult confirmToss(TossSuccessParam param) {
+        return confirmPayment(PaymentProvider.TOSS, param);
     }
 
-    // FeignClient
+    @Transactional
+    public OrderStatus failTransaction(PaymentFailParam param) {
+        Order order = orderService.getOrder(param.getOrderId());
+        OrderStatus status = OrderStatus.from(param.getCode());
+        order.setStatus(status);
+        // TODO 실패 처리
+        return status;
+    }
+
+    private ConfirmResult confirmPayment(PaymentProvider provider, PaymentSuccessParam param) {
+        return paymentProviderHandler.confirm(provider, param);
+    }
+
     private void decreaseDealStock(Order order, Long dealId, int quantity) {
         try {
             storeDealFeignClient.decreaseDealStock(dealId, new DealStockDecreaseRequest(quantity));
@@ -53,4 +64,5 @@ public class OrderPaymentService {
             throw new OutOfStockException(e.getMessage());
         }
     }
+
 }

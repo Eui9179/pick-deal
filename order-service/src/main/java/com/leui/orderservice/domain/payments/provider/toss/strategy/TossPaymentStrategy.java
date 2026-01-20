@@ -1,7 +1,6 @@
 package com.leui.orderservice.domain.payments.provider.toss.strategy;
 
 import com.leui.orderservice.domain.order.dto.OrderCreateRequest;
-import com.leui.orderservice.domain.payments.dto.PaymentFailPayload;
 import com.leui.orderservice.domain.payments.dto.PaymentReadyResponse;
 import com.leui.orderservice.domain.payments.dto.provider.TossConfirmResponse;
 import com.leui.orderservice.domain.payments.dto.provider.TossReadyPayload;
@@ -57,16 +56,11 @@ public class TossPaymentStrategy implements PaymentStrategy<TossSuccessParam> {
     }
 
     @Override
-    public ConfirmResult confirm(TossSuccessParam param) {
+    public ConfirmResult confirmPay(TossSuccessParam param) {
         String authorization = Base64.getEncoder()
                 .encodeToString((secretKey + ":").getBytes(StandardCharsets.UTF_8));
         TossConfirmResponse response = tossPaymentClient.confirmPayment(authorization, param);
-        return ConfirmResult.from(response.status());
-    }
-
-    @Override
-    public PaymentFailPayload fail() {
-        return null;
+        return new ConfirmResult(response.status());
     }
 
     @Override
@@ -75,8 +69,7 @@ public class TossPaymentStrategy implements PaymentStrategy<TossSuccessParam> {
     }
 
     @Override
-    public Class<TossSuccessParam> paramType() {
+    public Class<TossSuccessParam> type() {
         return TossSuccessParam.class;
     }
-
 }

@@ -19,14 +19,16 @@ public enum OrderStatus {
     FAIL_PAYMENT_CANCELED, // 승인된 결제가 취소된 상태
     FAIL_PAYMENT_ABORTED, // 결제 승인 실패
     FAIL_PAYMENT_EXPIRED, // 결제 유효시간 초과
+    FAIL_REJECT_CARD_COMPANY, // 구매자의 카드 정보 문제
     ;
 
     public static OrderStatus from(String status) {
         return switch (status) {
             case "DONE" -> PAYMENT_DONE;
-            case "CANCELED" -> FAIL_PAYMENT_CANCELED;
-            case "ABORTED" -> FAIL_PAYMENT_ABORTED;
-            case "EXPIRED" -> FAIL_PAYMENT_EXPIRED;
+            case "CANCELED", "PAY_PROCESS_CANCELED" -> FAIL_PAYMENT_CANCELED;
+            case "ABORTED", "PAY_PROCESS_ABORTED" -> FAIL_PAYMENT_ABORTED;
+            case "EXPIRED", "" -> FAIL_PAYMENT_EXPIRED;
+            case "REJECT_CARD_COMPANY" -> FAIL_REJECT_CARD_COMPANY;
             default -> throw new NotSupportedOrderStatus("Not supported order status.");
         };
     }

@@ -71,7 +71,7 @@ public class DealService {
 
     @Transactional
     public DealStockDecreaseResponse decreaseStock(Long id, DealStockDecreaseRequest request) {
-        int stockQuantity = dealRepository.decreaseStockQuantity(id, request.quatity());
+        int stockQuantity = dealRepository.decreaseStockQuantity(id, request.quantity());
         if (stockQuantity == 0) {
             if (!dealRepository.existsById(id)) {
                 throw new EntityNotFoundException("Deal Not Found. id: " + id);

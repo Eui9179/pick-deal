@@ -30,12 +30,4 @@ public class OrderService {
         return new OrderDetailResponse(orderId);
     }
 
-    public OrderStatusResponse getOrderStatus(Long orderId) {
-        return new OrderStatusResponse(orderId, OrderStatus.PAID);
-    }
-
-    public OrderStatusResponse updateOrderStatusPaid(Long orderId) {
-        return new OrderStatusResponse(orderId, OrderStatus.PAID);
-    }
-
 }
