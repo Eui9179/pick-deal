@@ -12,13 +12,13 @@ import java.util.stream.Collectors;
 
 public class PaymentProviderHandler {
 
-    private final Map<PaymentProvider, PaymentStrategy<?>> strategeis;
+    private final Map<PaymentProvider, PaymentStrategy<?>> strategies;
 
     private final ObjectMapper objectMapper;
 
     public PaymentProviderHandler(ObjectMapper objectMapper, List<PaymentStrategy<?>> strategyList) {
         this.objectMapper = objectMapper;
-        this.strategeis = strategyList.stream()
+        this.strategies = strategyList.stream()
                 .collect(Collectors.toMap(
                         PaymentStrategy::support,
                         Function.identity()
@@ -26,12 +26,12 @@ public class PaymentProviderHandler {
     }
 
     public PaymentReadyResponse ready(OrderCreateRequest request, String orderId, Long userId) {
-        return strategeis.get(request.provider())
+        return strategies.get(request.provider())
                 .ready(request, orderId, userId);
     }
 
     public ConfirmResult confirm(PaymentProvider provider, Map<String, Object> param) {
-        return strategeis.get(provider)
+        return strategies.get(provider)
                 .confirm(objectMapper, param);
     }
 
