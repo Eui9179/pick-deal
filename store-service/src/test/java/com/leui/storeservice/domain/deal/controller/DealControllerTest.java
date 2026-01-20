@@ -2,12 +2,12 @@ package com.leui.storeservice.domain.deal.controller;
 
 import com.leui.storeservice.common.util.LocationUtils;
 import com.leui.storeservice.config.postgres.PostgreSQLTestContainer;
-import com.leui.storeservice.domain.deal.dto.DealDetailResponse;
+import dto.store.DealDetailResponse;
 import com.leui.storeservice.domain.deal.entity.Deal;
-import com.leui.storeservice.domain.deal.entity.DealStatus;
+import enumtype.DealStatus;
 import com.leui.storeservice.domain.deal.repository.DealRepository;
 import com.leui.storeservice.domain.discountpolicy.entity.DiscountPolicy;
-import com.leui.storeservice.domain.discountpolicy.entity.DiscountType;
+import enumtype.DiscountType;
 import com.leui.storeservice.domain.store.entity.StoreCategory;
 import com.leui.storeservice.domain.store.entity.Store;
 import com.leui.storeservice.domain.store.repository.StoreCategoryRepository;

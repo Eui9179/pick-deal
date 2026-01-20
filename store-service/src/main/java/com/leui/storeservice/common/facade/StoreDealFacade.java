@@ -1,7 +1,7 @@
 package com.leui.storeservice.common.facade;
 
-import com.leui.storeservice.domain.deal.dto.DealCreateRequest;
-import com.leui.storeservice.domain.deal.dto.DealCreateResponse;
+import dto.store.DealCreateRequest;
+import dto.store.DealCreateResponse;
 import com.leui.storeservice.domain.deal.entity.Deal;
 import com.leui.storeservice.domain.deal.service.DealService;
 import com.leui.storeservice.domain.discountpolicy.entity.DiscountPolicy;

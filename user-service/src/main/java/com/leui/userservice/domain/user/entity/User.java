@@ -1,6 +1,7 @@
 package com.leui.userservice.domain.user.entity;
 
 import com.leui.userservice.common.entity.BaseEntity;
+import enumtype.Role;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;

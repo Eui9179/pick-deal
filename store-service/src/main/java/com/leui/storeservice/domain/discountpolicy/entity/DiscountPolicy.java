@@ -2,7 +2,8 @@ package com.leui.storeservice.domain.discountpolicy.entity;
 
 import com.leui.storeservice.common.entity.BaseEntity;
 import com.leui.storeservice.domain.deal.entity.Deal;
-import com.leui.storeservice.domain.discountpolicy.dto.DiscountPolicyCreateRequest;
+import dto.store.DiscountPolicyCreateRequest;
+import enumtype.DiscountType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;

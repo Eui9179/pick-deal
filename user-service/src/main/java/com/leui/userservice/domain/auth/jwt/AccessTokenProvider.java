@@ -1,6 +1,6 @@
 package com.leui.userservice.domain.auth.jwt;
 
-import com.leui.userservice.domain.user.entity.Role;
+import enumtype.Role;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jwt.JwtProvider;

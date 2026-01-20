@@ -1,6 +1,7 @@
 package com.leui.userservice.domain.user.service;
 
-import com.leui.userservice.domain.user.dto.UserCreateRequest;
+import dto.user.UserCreateRequest;
+import dto.user.UserDetailResponse;
 import com.leui.userservice.domain.user.entity.User;
 import com.leui.userservice.domain.user.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -23,6 +24,11 @@ public class UserService {
     public User getUser(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("User not found. email = " + email));
+    }
+
+    public UserDetailResponse getUserDetail(Long id) {
+        User user = getUser(id);
+        return new UserDetailResponse(user.getEmail(), user.getRole());
     }
 
     public User getUser(Long id) {

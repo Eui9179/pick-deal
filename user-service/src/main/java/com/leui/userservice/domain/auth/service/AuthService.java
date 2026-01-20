@@ -3,7 +3,7 @@ package com.leui.userservice.domain.auth.service;
 import com.leui.userservice.domain.auth.dto.LoginRequest;
 import com.leui.userservice.domain.auth.dto.TokenResponse;
 import com.leui.userservice.domain.auth.jwt.AccessTokenProvider;
-import com.leui.userservice.domain.user.entity.Role;
+import enumtype.Role;
 import com.leui.userservice.domain.user.entity.User;
 import com.leui.userservice.domain.user.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -45,7 +45,7 @@ public class AuthService {
 
     public TokenResponse refresh(HttpServletResponse response, String accessToken, String refreshToken) {
         if (validAccessToken(accessToken, refreshToken)) {
-            String subject = accessTokenProvider.extractSubjectIgnoreExpiration(refreshToken);
+            String subject = accessTokenProvider.getJwtProvider().extractSubjectIgnoreExpiration(refreshToken);
             throw new BadCredentialsException("Refresh Token is expired. User id = " + subject);
         }
 
@@ -77,7 +77,7 @@ public class AuthService {
 
     private boolean validAccessToken(String accessToken, String refreshToken) {
         return !redisRepository.hasKey(blockKeyPrefix + accessToken) &&
-                accessTokenProvider.validateJwt(refreshToken) &&
+                accessTokenProvider.getJwtProvider().validateJwt(refreshToken) &&
                 redisRepository.hasKey("refresh:" + refreshToken);
     }
 }

@@ -1,6 +1,6 @@
 package com.leui.userservice.domain.user.controller;
 
-import com.leui.userservice.domain.user.dto.UserCreateRequest;
+import dto.user.UserCreateRequest;
 import com.leui.userservice.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
