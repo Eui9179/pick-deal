@@ -1,13 +1,19 @@
 package dto.payment;
 
-import enumtype.TossPaymentType;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 
-public record TossSuccessParam(
-        TossPaymentType paymentType,
-        String orderId,
-        String paymentKey,
-        BigDecimal amout
-) {
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class TossSuccessParam extends PaymentSuccessParam {
+    private String paymentType;
+    private String orderId;
+    private String paymentKey;
+    private BigDecimal amount;
 }

@@ -1,8 +1,8 @@
 package com.leui.orderservice.domain.payments.provider;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.leui.orderservice.domain.order.dto.OrderCreateRequest;
 import com.leui.orderservice.domain.payments.dto.PaymentReadyResponse;
+import dto.payment.PaymentSuccessParam;
 import enumtype.PaymentProvider;
 
 import java.util.List;
@@ -14,10 +14,7 @@ public class PaymentProviderHandler {
 
     private final Map<PaymentProvider, PaymentStrategy<?>> strategies;
 
-    private final ObjectMapper objectMapper;
-
-    public PaymentProviderHandler(ObjectMapper objectMapper, List<PaymentStrategy<?>> strategyList) {
-        this.objectMapper = objectMapper;
+    public PaymentProviderHandler(List<PaymentStrategy<?>> strategyList) {
         this.strategies = strategyList.stream()
                 .collect(Collectors.toMap(
                         PaymentStrategy::support,
@@ -25,14 +22,18 @@ public class PaymentProviderHandler {
                 ));
     }
 
-    public PaymentReadyResponse ready(OrderCreateRequest request, String orderId, Long userId) {
+    public PaymentReadyResponse ready(
+            OrderCreateRequest request,
+            String orderId,
+            Long userId
+    ) {
         return strategies.get(request.provider())
                 .ready(request, orderId, userId);
     }
 
-    public ConfirmResult confirm(PaymentProvider provider, Map<String, Object> param) {
+    public ConfirmResult confirm(PaymentProvider provider, PaymentSuccessParam param) {
         return strategies.get(provider)
-                .confirm(objectMapper, param);
+                .confirm(param);
     }
 
 }

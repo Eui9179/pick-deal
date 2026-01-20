@@ -2,23 +2,23 @@ package com.leui.orderservice.domain.facade;
 
 import com.leui.orderservice.domain.order.dto.OrderCreateRequest;
 import com.leui.orderservice.domain.order.entity.Order;
-import com.leui.orderservice.domain.order.entity.OrderStatus;
+import dto.payment.PaymentFailParam;
+import dto.payment.PaymentSuccessParam;
+import dto.payment.TossSuccessParam;
+import enumtype.OrderStatus;
 import com.leui.orderservice.domain.order.service.OrderService;
 import com.leui.orderservice.domain.payments.dto.PaymentReadyResponse;
 import com.leui.orderservice.domain.payments.provider.ConfirmResult;
 import com.leui.orderservice.domain.payments.provider.PaymentProviderHandler;
-import com.leui.orderservice.global.exception.OrderCreateException;
 import com.leui.orderservice.global.feignclient.StoreDealFeignClient;
 import dto.store.DealStockDecreaseRequest;
 import enumtype.PaymentProvider;
-import exception.OutOfStock;
+import exception.OutOfStockException;
 import feign.FeignException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Map;
 
 @RequiredArgsConstructor
 @Service
@@ -31,17 +31,38 @@ public class OrderPaymentService {
     @Transactional
     public PaymentReadyResponse startOrderTransaction(OrderCreateRequest request, Long userId) {
         Order order = orderService.createOrder(userId, request);
-        try {
-            storeDealFeignClient.decreaseDealStock(request.dealId(), new DealStockDecreaseRequest(request.quantity()));
-            order.setStatus(OrderStatus.READY);
-        } catch (FeignException.NotFound | FeignException.Conflict e) {
-            order.setErrorStatus(OrderStatus.FAIL, e.getMessage());
-            throw new OrderCreateException(e.getMessage());
-        }
+        decreaseDealStock(order, request.dealId(), request.quantity());
         return paymentProviderHandler.ready(request, order.getId(), userId);
     }
 
-    public ConfirmResult confirmPayment(PaymentProvider provider, Map<String, Object> param) {
+    public ConfirmResult confirmToss(TossSuccessParam param) {
+        return confirmPayment(PaymentProvider.TOSS, param);
+    }
+
+    @Transactional
+    public OrderStatus failTransaction(PaymentFailParam param) {
+        Order order = orderService.getOrder(param.getOrderId());
+        OrderStatus status = OrderStatus.from(param.getCode());
+        order.setStatus(status);
+        // TODO 실패 처리
+        return status;
+    }
+
+    private ConfirmResult confirmPayment(PaymentProvider provider, PaymentSuccessParam param) {
         return paymentProviderHandler.confirm(provider, param);
     }
+
+    private void decreaseDealStock(Order order, Long dealId, int quantity) {
+        try {
+            storeDealFeignClient.decreaseDealStock(dealId, new DealStockDecreaseRequest(quantity));
+            order.setStatus(OrderStatus.ORDER_READY);
+        } catch (FeignException.NotFound e) {
+            order.setErrorStatus(OrderStatus.FAIL_DEAL_NOTFOUND, e.getMessage());
+            throw new EntityNotFoundException(e.getMessage());
+        } catch (FeignException.Conflict e) {
+            order.setErrorStatus(OrderStatus.FAIL_OUT_OF_STOCK, e.getMessage());
+            throw new OutOfStockException(e.getMessage());
+        }
+    }
+
 }

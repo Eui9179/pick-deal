@@ -13,8 +13,8 @@ import java.util.List;
 public class BeanConfig {
 
     @Bean
-    public PaymentProviderHandler paymentHandler(ObjectMapper objectMapper, TossPaymentStrategy tossPayment) {
-        return new PaymentProviderHandler(objectMapper, List.of(tossPayment));
+    public PaymentProviderHandler paymentHandler(TossPaymentStrategy tossPayment) {
+        return new PaymentProviderHandler(List.of(tossPayment));
     }
 
     @Bean

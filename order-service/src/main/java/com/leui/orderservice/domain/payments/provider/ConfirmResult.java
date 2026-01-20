@@ -1,7 +1,7 @@
 package com.leui.orderservice.domain.payments.provider;
 
+import enumtype.OrderStatus;
 import enumtype.PaymentProvider;
-import enumtype.ConfirmStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,13 +10,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ConfirmResult {
-    private PaymentProvider provider;
-    private ConfirmStatus status;
+    private OrderStatus status;
 
-    public static ConfirmResult from(PaymentProvider provider, String status) {
-        return switch (provider) {
-            case TOSS -> new ConfirmResult(provider, ConfirmStatus.from(status));
-            case KAKAO -> new ConfirmResult(provider, ConfirmStatus.from(status));
-        };
+    public ConfirmResult(String status) {
+        this.status = OrderStatus.from(status);
     }
 }

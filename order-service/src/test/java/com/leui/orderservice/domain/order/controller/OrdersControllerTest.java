@@ -2,7 +2,8 @@ package com.leui.orderservice.domain.order.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.leui.orderservice.domain.order.dto.OrderCreateRequest;
-import com.leui.orderservice.domain.order.entity.OrderStatus;
+import enumtype.OrderStatus;
+import enumtype.PaymentProvider;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -36,7 +38,7 @@ public class OrdersControllerTest {
     public void createOrder() throws Exception {
         //given
         String uri = "/orders";
-        OrderCreateRequest request = new OrderCreateRequest(1L, 1L, 1, LocalDateTime.now().plusMinutes(30));
+        OrderCreateRequest request = new OrderCreateRequest(1L, 1,  LocalDateTime.now().plusMinutes(30), BigDecimal.ONE, PaymentProvider.TOSS);
 
         //when
         MockHttpServletRequestBuilder builder = post(uri)
@@ -118,7 +120,7 @@ public class OrdersControllerTest {
         mvc.perform(builder)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.orderId").value(orderId))
-                .andExpect(jsonPath("$.status").value(OrderStatus.PAID.name()));
+                .andExpect(jsonPath("$.status").value(OrderStatus.ORDER_READY.name()));
     }
 
     @Test

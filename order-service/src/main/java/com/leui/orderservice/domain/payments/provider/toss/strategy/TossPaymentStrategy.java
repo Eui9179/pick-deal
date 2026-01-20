@@ -1,7 +1,6 @@
 package com.leui.orderservice.domain.payments.provider.toss.strategy;
 
 import com.leui.orderservice.domain.order.dto.OrderCreateRequest;
-import com.leui.orderservice.domain.payments.dto.PaymentFailPayload;
 import com.leui.orderservice.domain.payments.dto.PaymentReadyResponse;
 import com.leui.orderservice.domain.payments.dto.provider.TossConfirmResponse;
 import com.leui.orderservice.domain.payments.dto.provider.TossReadyPayload;
@@ -18,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
@@ -38,10 +38,11 @@ public class TossPaymentStrategy implements PaymentStrategy<TossSuccessParam> {
     @Override
     public PaymentReadyResponse ready(OrderCreateRequest request, String orderId, Long userId) {
         DealDetailResponse dealDetail = feignClient.getDealDetail(request.dealId());
-        if (!request.amount().equals(dealDetail.discountPrice())) {
+        BigDecimal actualAmount = dealDetail.discountPrice().multiply(BigDecimal.valueOf(request.quantity()));
+        if (!request.amount().equals(actualAmount)) {
             throw new RuntimeException("Mount is not equal. " +
-                    "Input amount = " + request.amount() +
-                    "Actual amount = " + dealDetail.discountPrice());
+                    "Request amount = " + request.amount() +
+                    "Actual amount = " + actualAmount);
         }
 
         UserDetailResponse userDetail = userFeignClient.getUserDetail(userId);
@@ -55,16 +56,11 @@ public class TossPaymentStrategy implements PaymentStrategy<TossSuccessParam> {
     }
 
     @Override
-    public ConfirmResult confirm(TossSuccessParam param) {
+    public ConfirmResult confirmPay(TossSuccessParam param) {
         String authorization = Base64.getEncoder()
                 .encodeToString((secretKey + ":").getBytes(StandardCharsets.UTF_8));
         TossConfirmResponse response = tossPaymentClient.confirmPayment(authorization, param);
-        return ConfirmResult.from(support(), response.status());
-    }
-
-    @Override
-    public PaymentFailPayload fail() {
-        return null;
+        return new ConfirmResult(response.status());
     }
 
     @Override
@@ -73,8 +69,7 @@ public class TossPaymentStrategy implements PaymentStrategy<TossSuccessParam> {
     }
 
     @Override
-    public Class<TossSuccessParam> paramType() {
+    public Class<TossSuccessParam> type() {
         return TossSuccessParam.class;
     }
-
 }
