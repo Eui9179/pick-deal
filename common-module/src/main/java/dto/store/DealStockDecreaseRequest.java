@@ -1,4 +1,7 @@
 package dto.store;
 
-public record DealStockDecreaseRequest(int quantity) {
+public record DealStockDecreaseRequest(
+        String orderId,
+        int quantity
+) {
 }

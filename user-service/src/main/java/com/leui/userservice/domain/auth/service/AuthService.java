@@ -58,7 +58,7 @@ public class AuthService {
     private String issueAccessToken(HttpServletResponse response, Long userId, Role role) {
         String refreshToken = accessTokenProvider.generateRefreshToken(userId, role);
         accessTokenProvider.setRefreshTokenInCookie(response, refreshToken);
-        redisRepository.putWithExpiration(
+        redisRepository.put(
                 keyPrefix + refreshToken,
                 String.valueOf(userId),
                 Duration.ofDays(accessTokenProvider.getRefreshTokenExpireTime()));
@@ -68,7 +68,7 @@ public class AuthService {
 
     public void logout(HttpServletResponse response, String accessToken) {
         redisRepository.delete(keyPrefix + accessToken);
-        redisRepository.putWithExpiration(
+        redisRepository.put(
                 "block-access-token:" + accessToken,
                 "",
                 Duration.ofMinutes(accessTokenExpireTime));

@@ -1,7 +1,9 @@
 package com.leui.storeservice.domain.deal.service;
 
 import com.leui.storeservice.domain.deal.entity.Deal;
+import com.leui.storeservice.domain.deal.entity.DealReservation;
 import com.leui.storeservice.domain.deal.repository.DealRepository;
+import com.leui.storeservice.domain.deal.repository.DealReservationRepository;
 import com.leui.storeservice.domain.discountpolicy.calculator.DiscountCalculator;
 import exception.OutOfStockException;
 import dto.store.*;
@@ -9,8 +11,13 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import redis.RedisRepository;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -19,6 +26,11 @@ public class DealService {
 
     private final DealRepository dealRepository;
     private final DiscountCalculator calculator;
+    private final RedisRepository redisRepository;
+    private final DealReservationRepository dealReservationRepository;
+
+    private final String DEAL_RESERVATION = "deal-reservation:";
+    private final String RESERVATION_ORDER_ID = "reservation-order-id:";
 
     public Deal create(Deal deal) {
         return dealRepository.save(deal);
@@ -70,14 +82,53 @@ public class DealService {
     }
 
     @Transactional
-    public DealStockDecreaseResponse decreaseStock(Long id, DealStockDecreaseRequest request) {
-        int stockQuantity = dealRepository.decreaseStockQuantity(id, request.quantity());
+    public DealStockDecreaseResponse confirmStock(Long dealId, DealStockDecreaseRequest request) {
+        int stockQuantity = dealRepository.decreaseStockQuantity(dealId, request.quantity());
         if (stockQuantity == 0) {
-            if (!dealRepository.existsById(id)) {
-                throw new EntityNotFoundException("Deal Not Found. id: " + id);
+            if (!dealRepository.existsById(dealId)) {
+                throw new EntityNotFoundException("Deal Not Found. dealId: " + dealId);
             }
-            throw new OutOfStockException("Out of Stock. id: " + id);
+            throw new OutOfStockException("Out of Stock. dealId: " + dealId);
         }
+
+        Set<String> expiredOrders = redisRepository.zSetGetRange(DEAL_RESERVATION + dealId, 0, Instant.now().toEpochMilli());
+        redisRepository.remove(expiredOrders);
+
+        Set<String> orderIds = new HashSet<>();
+        for (String key : expiredOrders) {
+            orderIds.add(key.substring(DEAL_RESERVATION.length()));
+        }
+        dealReservationRepository.deleteByIds(orderIds);
+
         return new DealStockDecreaseResponse(stockQuantity);
+    }
+
+    public void reserveStock(Long dealId, DealStockDecreaseRequest request, Long userId) {
+        Deal deal = getDeal(dealId);
+
+        long current = Instant.now().toEpochMilli();
+        long expiredAt = Instant.now().plusSeconds(900).toEpochMilli();
+        long reservationCount = redisRepository.zSetCountRange(
+                DEAL_RESERVATION + dealId,
+                current,
+                expiredAt
+        ); // 현재 시간 ~ expiredAt 까지 조회
+
+        // 현재 재고 - redis 안에 있는 재고 > 0 일때만 예약 가능
+        if (deal.getStockQuantity() - reservationCount <= 0) {
+            throw new OutOfStockException("Out of Stock. id: " + dealId);
+        }
+
+        // 재고 예약
+        redisRepository.put(RESERVATION_ORDER_ID + request.orderId(), String.valueOf(request.quantity()));
+        redisRepository.zSetAdd(
+                DEAL_RESERVATION + dealId,
+                RESERVATION_ORDER_ID + request.orderId(),
+                expiredAt
+        );
+
+        // TODO 비동기 처리
+        DealReservation dealReservation = new DealReservation(dealId, request.orderId(), userId, expiredAt);
+        dealReservationRepository.save(dealReservation);
     }
 }
