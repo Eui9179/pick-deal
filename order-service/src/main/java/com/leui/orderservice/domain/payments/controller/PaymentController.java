@@ -1,6 +1,6 @@
 package com.leui.orderservice.domain.payments.controller;
 
-import com.leui.orderservice.domain.facade.OrderPaymentService;
+import com.leui.orderservice.global.facade.OrderPaymentService;
 import com.leui.orderservice.domain.payments.provider.ConfirmResult;
 import dto.payment.TossSuccessParam;
 import lombok.RequiredArgsConstructor;

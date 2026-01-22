@@ -2,9 +2,8 @@ package com.leui.orderservice.domain.order.controller;
 
 import com.leui.orderservice.domain.order.dto.OrderCreateRequest;
 import com.leui.orderservice.domain.order.dto.OrderDetailResponse;
-import com.leui.orderservice.domain.order.dto.OrderStatusResponse;
 import com.leui.orderservice.domain.order.service.OrderService;
-import com.leui.orderservice.domain.facade.OrderPaymentService;
+import com.leui.orderservice.global.facade.OrderPaymentService;
 import com.leui.orderservice.domain.payments.dto.PaymentReadyResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,4 @@
-package com.leui.orderservice.domain.facade;
+package com.leui.orderservice.global.facade;
 
 import com.leui.orderservice.domain.order.dto.OrderCreateRequest;
 import com.leui.orderservice.domain.order.entity.Order;
