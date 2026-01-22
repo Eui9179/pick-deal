@@ -36,7 +36,7 @@ public class DealServiceUnitTest {
         doReturn(1).when(dealRepository).decreaseStockQuantity(any(), anyInt());
 
         //when
-        DealStockDecreaseResponse response = dealService.decreaseStock(id, request);
+        DealStockDecreaseResponse response = dealService.confirmStock(id, request);
 
         //then
         assertThat(response.stockQuantity()).isEqualTo(1);
@@ -53,7 +53,7 @@ public class DealServiceUnitTest {
         doReturn(true).when(dealRepository).existsById(any());
 
         //when
-        assertThrows(OutOfStockException.class, () -> dealService.decreaseStock(id, request));
+        assertThrows(OutOfStockException.class, () -> dealService.confirmStock(id, request));
     }
 
     @Test
@@ -67,6 +67,6 @@ public class DealServiceUnitTest {
         doReturn(false).when(dealRepository).existsById(any());
 
         //when
-        assertThrows(EntityNotFoundException.class, () -> dealService.decreaseStock(id, request));
+        assertThrows(EntityNotFoundException.class, () -> dealService.confirmStock(id, request));
     }
 }

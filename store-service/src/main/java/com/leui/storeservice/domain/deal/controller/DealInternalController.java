@@ -20,11 +20,22 @@ public class DealInternalController {
         return ResponseEntity.ok(dealService.getDealDetail(id));
     }
 
-    @PatchMapping("/{id}/stock/decrease")
+    @PostMapping("/{dealId}/confirm-stock")
     public ResponseEntity<DealStockDecreaseResponse> decreaseDealStock(
-            @PathVariable Long id,
+            @PathVariable Long dealId,
             @RequestBody DealStockDecreaseRequest request
     ) {
-        return ResponseEntity.ok(dealService.decreaseStock(id, request));
+        return ResponseEntity.ok(dealService.confirmStock(dealId, request));
     }
+
+    @PostMapping("/{dealId}/reserve-stock")
+    public ResponseEntity<Void> reserveStock(
+            @PathVariable Long dealId,
+            @RequestBody DealStockDecreaseRequest request,
+            @RequestHeader("x-user-id") Long userId
+    ) {
+        dealService.reserveStock(dealId, request, userId);
+        return ResponseEntity.ok().build();
+    }
+
 }
