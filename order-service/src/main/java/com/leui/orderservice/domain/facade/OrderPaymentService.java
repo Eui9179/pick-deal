@@ -39,15 +39,6 @@ public class OrderPaymentService {
         return confirmPayment(PaymentProvider.TOSS, param);
     }
 
-    @Transactional
-    public OrderStatus failTransaction(PaymentFailParam param) {
-        Order order = orderService.getOrder(param.getOrderId());
-        OrderStatus status = OrderStatus.from(param.getCode());
-        order.setStatus(status);
-        // TODO 실패 처리
-        return status;
-    }
-
     private ConfirmResult confirmPayment(PaymentProvider provider, PaymentSuccessParam param) {
         return paymentProviderHandler.confirm(provider, param);
     }

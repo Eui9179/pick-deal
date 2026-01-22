@@ -33,13 +33,4 @@ public class OrdersController {
         return ResponseEntity.ok(ordersService.getOrderDetail(orderId));
     }
 
-    @GetMapping("/{orderId}/status")
-    public ResponseEntity<OrderStatusResponse> getOrderStatus(@PathVariable Long orderId) {
-        return ResponseEntity.ok(ordersService.getOrderStatus(orderId));
-    }
-
-    @PostMapping(value = "/{orderId}/paid")
-    public ResponseEntity<OrderStatusResponse> updateOrderStatusPaid(@PathVariable Long orderId) {
-        return ResponseEntity.ok(ordersService.updateOrderStatusPaid(orderId));
-    }
 }
