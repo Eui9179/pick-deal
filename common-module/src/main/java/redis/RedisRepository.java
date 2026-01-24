@@ -63,7 +63,7 @@ public class RedisRepository {
         return redisTemplate.opsForZSet().rangeByScore(key, start, end);
     }
 
-    public Long zSetCountRange(String key, double start, double end) {
+    public long zSetCountRange(String key, double start, double end) {
         return redisTemplate.opsForZSet().count(key, start, end);
     }
 
