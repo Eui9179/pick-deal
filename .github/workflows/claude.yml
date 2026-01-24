@@ -1,0 +1,29 @@
+name: Claude Code
+
+on:
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+
+jobs:
+  claude:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    steps:
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+
+prompt: |
+  이 PR을 리뷰해줘. 다음에 집중해줘:
+  - 보안 취약점
+  - 성능 이슈
+  - 버그 가능성
+  - 코드 품질 개선점
+  
+  변수명이나 사소한 스타일은 신경쓰지 말고,
+  실제 문제가 될 수 있는 것들만 간결하게 알려줘.
