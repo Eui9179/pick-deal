@@ -17,6 +17,7 @@ import redis.RedisRepository;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @RequiredArgsConstructor
@@ -106,48 +107,88 @@ public class DealService {
     public void reserveStock(Long dealId, DealStockDecreaseRequest request, Long userId) {
         Deal deal = getDeal(dealId);
 
-        long current = Instant.now().toEpochMilli();
         long expiredAt = Instant.now().plusSeconds(900).toEpochMilli();
-
-        String luaScript = """
-                
-                """;
-        DefaultRedisScript<Long> script = new DefaultRedisScript<>();
-        script.setScriptText(luaScript);
-
-        List<String> keys = List.of(
-                DEAL_RESERVATION + deal.getId(),
-                RESERVATION_ORDER_ID
-        );
-
-        List<String> agrs = List.of(
-                String.valueOf(deal.getStockQuantity()),
-                String.valueOf(request.quantity())
-        );
-
-
-
-        long reservationCount = redisRepository.zSetCountRange(
-                DEAL_RESERVATION + dealId,
-                current,
-                expiredAt
-        ); // 현재 시간 ~ expiredAt 까지 조회
-
-        // 현재 재고 - redis 안에 있는 재고 > 0 일때만 예약 가능
-        if (deal.getStockQuantity() - reservationCount <= 0) {
-            throw new OutOfStockException("Out of Stock. id: " + dealId);
-        }
-
-        // 재고 예약
-        redisRepository.put(RESERVATION_ORDER_ID + request.orderId(), String.valueOf(request.quantity()));
-        redisRepository.zSetAdd(
-                DEAL_RESERVATION + dealId,
-                RESERVATION_ORDER_ID + request.orderId(),
-                expiredAt
-        );
+        saveAtomicInRedis(dealId, deal.getStockQuantity(), request.orderId(), request.quantity(), expiredAt);
 
         // TODO 비동기 처리
         DealReservation dealReservation = new DealReservation(dealId, request.orderId(), userId, expiredAt);
         dealReservationRepository.save(dealReservation);
+    }
+
+    private void saveAtomicInRedis(Long dealId, long stockQuantity, String orderId, long requestQuantity, long expiredAt) {
+        DefaultRedisScript<Long> script = new DefaultRedisScript<>();
+        script.setScriptText(luaScript());
+
+        long current = Instant.now().toEpochMilli();
+
+        Map<String, String> orderQuantityMap = redisRepository.hashGetAll(DEAL_RESERVATION + dealId);
+        long reservationQuantity = redisRepository.zSetGetRange(DEAL_RESERVATION + dealId, current, expiredAt)
+                .stream()
+                .mapToLong(oId -> Long.parseLong(orderQuantityMap.get(oId)))
+                .sum();
+
+        // 현재 재고 - redis 안에 있는 재고 > 0 일때만 예약 가능
+        if (stockQuantity - reservationQuantity <= 0) {
+            throw new OutOfStockException("Out of Stock. id: " + dealId);
+        }
+
+        // 재고 예약
+        redisRepository.hashPut(RESERVATION_ORDER_ID + orderId, orderId, String.valueOf(requestQuantity));
+        redisRepository.zSetAdd(
+                DEAL_RESERVATION + dealId,
+                RESERVATION_ORDER_ID + orderId,
+                expiredAt
+        );
+    }
+
+    private String luaScript() {
+        return """
+                -- Deal 재고 예약 Lua 스크립트
+                -- KEYS[1]: deal-reservation:{dealId} (ZSet 키)
+                -- ARGV[1]: stockQuantity (현재 재고)
+                -- ARGV[2]: orderId (주문 ID)
+                -- ARGV[3]: requestQuantity (요청 수량)
+                -- ARGV[4]: expiredAt (만료 시간 milliseconds)
+                -- ARGV[5]: currentTime (현재 시간 milliseconds)
+                
+                local dealReservationKey = KEYS[1]
+                local reservationOrderKeyPrefix = "reservation-order-id:"
+                local stockQuantity = tonumber(ARGV[1])
+                local orderId = ARGV[2]
+                local requestQuantity = tonumber(ARGV[3])
+                local expiredAt = tonumber(ARGV[4])
+                local currentTime = tonumber(ARGV[5])
+                
+                -- 1. ZSet에서 현재 시간 이후의 유효한 예약 목록 가져오기
+                local validReservations = redis.call('ZRANGEBYSCORE', dealReservationKey, currentTime, '+inf')
+                
+                -- 2. 각 예약의 수량을 Hash에서 가져와서 합산
+                local reservationQuantity = 0
+                for _, reservationKey in ipairs(validReservations) do
+                    -- reservationKey는 "reservation-order-id:{orderId}" 형태
+                    -- orderId 추출
+                    local oid = string.sub(reservationKey, #reservationOrderKeyPrefix + 1)
+                    -- Hash에서 수량 가져오기
+                    local quantity = redis.call('HGET', reservationKey, oid)
+                    if quantity then
+                        reservationQuantity = reservationQuantity + tonumber(quantity)
+                    end
+                end
+                
+                -- 3. 재고 확인 (현재 재고 - 예약된 수량 - 요청 수량)
+                if stockQuantity - reservationQuantity - requestQuantity < 0 then
+                    return -1  -- Out of stock
+                end
+                
+                -- 4. Hash에 주문 정보 저장
+                local newReservationKey = reservationOrderKeyPrefix .. orderId
+                redis.call('HSET', newReservationKey, orderId, requestQuantity)
+                
+                -- 5. ZSet에 예약 정보 저장 (member는 reservation key, score는 만료 시간)
+                redis.call('ZADD', dealReservationKey, expiredAt, newReservationKey)
+                
+                -- 6. 성공 - 남은 재고 반환
+                return stockQuantity - reservationQuantity - requestQuantity
+                """;
     }
 }
