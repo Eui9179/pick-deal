@@ -1,18 +1,20 @@
 package redis;
 
+import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 
 import java.time.Duration;
-import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class RedisRepository {
 
     private final RedisTemplate<String, String> redisTemplate;
+    private final HashOperations<String, String, String> hashOps;
 
     public RedisRepository(RedisTemplate<String, String> redisTemplate) {
         this.redisTemplate = redisTemplate;
+        this.hashOps = redisTemplate.opsForHash();
     }
 
     public void put(String key, String value) {
@@ -59,8 +61,16 @@ public class RedisRepository {
         return redisTemplate.opsForZSet().rangeByScore(key, start, end);
     }
 
-    public long zSetCountRange(String key, double start, double end) {
+    public Long zSetCountRange(String key, double start, double end) {
         return redisTemplate.opsForZSet().count(key, start, end);
+    }
+
+    public void hashPut(String key, String hashKey, String value) {
+        hashOps.put(key, hashKey, value);
+    }
+
+    public Map<String, String> hashGetAll(String key) {
+        return hashOps.entries(key);
     }
 
 }

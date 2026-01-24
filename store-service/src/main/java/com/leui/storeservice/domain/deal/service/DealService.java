@@ -5,16 +5,16 @@ import com.leui.storeservice.domain.deal.entity.DealReservation;
 import com.leui.storeservice.domain.deal.repository.DealRepository;
 import com.leui.storeservice.domain.deal.repository.DealReservationRepository;
 import com.leui.storeservice.domain.discountpolicy.calculator.DiscountCalculator;
-import exception.OutOfStockException;
 import dto.store.*;
+import exception.OutOfStockException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import redis.RedisRepository;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -108,6 +108,25 @@ public class DealService {
 
         long current = Instant.now().toEpochMilli();
         long expiredAt = Instant.now().plusSeconds(900).toEpochMilli();
+
+        String luaScript = """
+                
+                """;
+        DefaultRedisScript<Long> script = new DefaultRedisScript<>();
+        script.setScriptText(luaScript);
+
+        List<String> keys = List.of(
+                DEAL_RESERVATION + deal.getId(),
+                RESERVATION_ORDER_ID
+        );
+
+        List<String> agrs = List.of(
+                String.valueOf(deal.getStockQuantity()),
+                String.valueOf(request.quantity())
+        );
+
+
+
         long reservationCount = redisRepository.zSetCountRange(
                 DEAL_RESERVATION + dealId,
                 current,
