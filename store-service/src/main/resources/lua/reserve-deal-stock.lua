@@ -1,5 +1,5 @@
 -- KEYS[1]: deal:reservations:{dealId} (ZSET 키)
--- KEYS[2]: deal:totalQty:{dealId} 현재 예약된 개수 
+-- KEYS[2]: deal:totalQty:{dealId} 현재 예약된 개수
 -- KEYS[3]: order:qty:{orderId} (주문 당 재고 개수)
 -- ARGV[1]: stockQuantity (현재 재고)
 -- ARGV[2]: orderId (주문 ID)
