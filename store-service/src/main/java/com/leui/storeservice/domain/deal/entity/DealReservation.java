@@ -22,12 +22,15 @@ public class DealReservation {
 
     private Long userId;
 
+    private int quantity;
+
     private long expiredAt;
 
-    public DealReservation(Long dealId, String orderId, Long userId, long expiredAt) {
+    public DealReservation(Long dealId, String orderId, Long userId, int quantity, long expiredAt) {
         this.dealId = dealId;
         this.orderId = orderId;
         this.userId = userId;
+        this.quantity = quantity;
         this.expiredAt = expiredAt;
     }
 }

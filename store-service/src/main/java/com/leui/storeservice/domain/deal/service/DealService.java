@@ -23,9 +23,10 @@ public class DealService {
 
     private final DealRepository dealRepository;
     private final DiscountCalculator calculator;
-    private final RedisRepository redisRepository;
     private final DealReservationRepository dealReservationRepository;
+    private final RedisRepository redisRepository;
 
+    // Redis 관련 상수 (현재 미사용)
     private static final String DEAL_RESERVATION_ZSET = "deal:reservations:";
     private static final String DEAL_TOTAL_QTY = "deal:totalQty:";
     private static final String ORDER_QTY_PREFIX = "order:qty:";
@@ -34,13 +35,12 @@ public class DealService {
 
     public DealService(DealRepository dealRepository,
                        DiscountCalculator calculator,
-                       RedisRepository redisRepository,
-                       DealReservationRepository dealReservationRepository
-    ) {
+                       DealReservationRepository dealReservationRepository,
+                       RedisRepository redisRepository) {
         this.dealRepository = dealRepository;
         this.calculator = calculator;
-        this.redisRepository = redisRepository;
         this.dealReservationRepository = dealReservationRepository;
+        this.redisRepository = redisRepository;
         this.reserveStockScript = loadReserveStockScript();
     }
 
@@ -103,42 +103,38 @@ public class DealService {
             throw new OutOfStockException("Out of Stock. dealId: " + dealId);
         }
 
-        confirmInRedis(dealId, request.orderId());
+        dealReservationRepository.deleteByOrderId(request.orderId());
 
         return new DealStockDecreaseResponse(stockQuantity);
     }
 
-    public Long reserveStock(Long dealId, DealStockDecreaseRequest request, Long userId) {
-        Deal deal = getDeal(dealId);
-        long expiredAt = Instant.now().plusSeconds(900).toEpochMilli();
+    @Transactional
+    public void reserveStock(Long dealId, DealStockDecreaseRequest request, Long userId) {
+        Deal deal = dealRepository.findByIdWithLock(dealId)
+                .orElseThrow(() -> new EntityNotFoundException("Deal not found. id = " + dealId));
 
-        Long result = saveAtomicInRedis(dealId, deal.getStockQuantity(), request.orderId(), request.quantity(), expiredAt);
+        Long reservedQuantity = dealReservationRepository.sumQuantityByDealId(dealId);
 
-        if (result == null || result == -1) {
+        long availableStock = deal.getStockQuantity() - (reservedQuantity != null ? reservedQuantity : 0);
+        if (availableStock < request.quantity()) {
             throw new OutOfStockException("Out of Stock. dealId: " + dealId);
         }
 
-        return result;
+        long expiredAt = Instant.now().plusSeconds(900).toEpochMilli();
+        DealReservation reservation = new DealReservation(
+                dealId,
+                request.orderId(),
+                userId,
+                request.quantity(),
+                expiredAt
+        );
+        dealReservationRepository.save(reservation);
     }
 
-    private void confirmInRedis(Long dealId, String orderId) {
-        // 결제 완료된 주문의 Redis 예약 데이터 삭제
-        String orderQtyKey = ORDER_QTY_PREFIX + orderId;
-        String totalQtyKey = DEAL_TOTAL_QTY + dealId;
-        String reservationZsetKey = DEAL_RESERVATION_ZSET + dealId;
-
-        // 주문별 수량 정보 조회 후 삭제
-        String quantity = redisRepository.get(orderQtyKey);
-        if (quantity != null) {
-            redisRepository.remove(orderQtyKey);
-            redisRepository.zSetRemove(reservationZsetKey, orderId);
-
-            // 총 예약 수량 감소
-            long qty = Long.parseLong(quantity);
-            redisRepository.decrement(totalQtyKey, qty);
-        }
-    }
-
+    /**
+     * 재고 감소 레디스 버전
+     */
+    @SuppressWarnings("unused")
     private Long saveAtomicInRedis(Long dealId, long stockQuantity, String orderId, long requestQuantity, long expiredAt) {
         long currentTime = Instant.now().toEpochMilli();
 
@@ -159,10 +155,33 @@ public class DealService {
         return redisRepository.executeScript(reserveStockScript, keys, args);
     }
 
+    /**
+     * Redis 예약 정보 삭제 (미사용)
+     */
+    @SuppressWarnings("unused")
+    private void confirmInRedis(Long dealId, String orderId) {
+        String orderQtyKey = ORDER_QTY_PREFIX + orderId;
+        String totalQtyKey = DEAL_TOTAL_QTY + dealId;
+        String reservationZsetKey = DEAL_RESERVATION_ZSET + dealId;
+
+        String quantity = redisRepository.get(orderQtyKey);
+        if (quantity != null) {
+            redisRepository.remove(orderQtyKey);
+            redisRepository.zSetRemove(reservationZsetKey, orderId);
+
+            long qty = Long.parseLong(quantity);
+            redisRepository.decrement(totalQtyKey, qty);
+        }
+    }
+
+    /**
+     * Lua 스크립트 로드
+     */
     private DefaultRedisScript<Long> loadReserveStockScript() {
         DefaultRedisScript<Long> script = new DefaultRedisScript<>();
         script.setLocation(new ClassPathResource("lua/reserve-deal-stock.lua"));
         script.setResultType(Long.class);
         return script;
     }
+
 }

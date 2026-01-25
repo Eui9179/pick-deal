@@ -11,11 +11,21 @@ import java.util.Set;
 
 @Repository
 public interface DealReservationRepository extends JpaRepository<DealReservation, Long> {
+
+    @Query("SELECT COALESCE(SUM(dr.quantity), 0) " +
+           "FROM DealReservation dr " +
+           "WHERE dr.dealId = :dealId")
+    Long sumQuantityByDealId(@Param("dealId") Long dealId);
+
+    @Modifying
+    @Query("DELETE FROM DealReservation dr WHERE dr.expiredAt < :expiredAt")
+    int deleteByExpiredAtBefore(@Param("expiredAt") long expiredAt);
+
+    @Modifying
+    @Query("DELETE FROM DealReservation dr WHERE dr.orderId = :orderId")
+    void deleteByOrderId(@Param("orderId") String orderId);
+
     @Modifying
     @Query("DELETE FROM DealReservation d WHERE d.orderId IN :ids")
     void deleteByIds(@Param("ids") Set<String> ids);
-
-    @Modifying
-    @Query("DELETE FROM DealReservation d WHERE d.orderId = :orderId")
-    void deleteByOrderId(@Param("orderId") String orderId);
 }
