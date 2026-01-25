@@ -44,8 +44,7 @@ public class OrderPaymentService {
 
     private void decreaseDealStock(Order order, Long dealId, int quantity) {
         try {
-
-            storeDealFeignClient.decreaseDealStock(dealId, new DealStockDecreaseRequest(quantity));
+            storeDealFeignClient.decreaseDealStock(dealId, new DealStockDecreaseRequest(order.getId(), quantity));
             order.setStatus(OrderStatus.ORDER_READY);
         } catch (FeignException.NotFound e) {
             order.setErrorStatus(OrderStatus.FAIL_DEAL_NOTFOUND, e.getMessage());
