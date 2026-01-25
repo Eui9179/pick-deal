@@ -18,6 +18,7 @@ jobs:
       - uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           prompt: |
             이 PR을 리뷰해줘. 다음에 집중해줘:
             - 보안 취약점
