@@ -2,8 +2,10 @@ package redis;
 
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.script.RedisScript;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -71,6 +73,14 @@ public class RedisRepository {
 
     public Map<String, String> hashGetAll(String key) {
         return hashOps.entries(key);
+    }
+
+    public <T> T executeScript(RedisScript<T> script, List<String> keys, Object... args) {
+        return redisTemplate.execute(script, keys, args);
+    }
+
+    public Long decrement(String key, long delta) {
+        return redisTemplate.opsForValue().decrement(key, delta);
     }
 
 }

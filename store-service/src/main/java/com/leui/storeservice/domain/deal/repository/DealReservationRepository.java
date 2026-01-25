@@ -14,4 +14,8 @@ public interface DealReservationRepository extends JpaRepository<DealReservation
     @Modifying
     @Query("DELETE FROM DealReservation d WHERE d.orderId IN :ids")
     void deleteByIds(@Param("ids") Set<String> ids);
+
+    @Modifying
+    @Query("DELETE FROM DealReservation d WHERE d.orderId = :orderId")
+    void deleteByOrderId(@Param("orderId") String orderId);
 }

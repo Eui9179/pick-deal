@@ -29,13 +29,12 @@ public class DealInternalController {
     }
 
     @PostMapping("/{dealId}/reserve-stock")
-    public ResponseEntity<Void> reserveStock(
+    public ResponseEntity<Long> reserveStock(
             @PathVariable Long dealId,
             @RequestBody DealStockDecreaseRequest request,
             @RequestHeader("x-user-id") Long userId
     ) {
-        dealService.reserveStock(dealId, request, userId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(dealService.reserveStock(dealId, request, userId));
     }
 
 }
