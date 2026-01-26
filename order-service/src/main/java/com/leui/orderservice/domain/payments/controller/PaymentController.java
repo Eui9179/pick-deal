@@ -2,6 +2,7 @@ package com.leui.orderservice.domain.payments.controller;
 
 import com.leui.orderservice.global.facade.OrderPaymentService;
 import com.leui.orderservice.domain.payments.provider.ConfirmResult;
+import dto.payment.KakaoSuccessParam;
 import dto.payment.TossSuccessParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,8 +19,12 @@ public class PaymentController {
     private final OrderPaymentService orderPaymentService;
 
     @GetMapping("/toss/success")
-    public ResponseEntity<ConfirmResult> confirm(@ModelAttribute TossSuccessParam param) {
+    public ResponseEntity<ConfirmResult> confirmToss(@ModelAttribute TossSuccessParam param) {
         return ResponseEntity.ok(orderPaymentService.confirmToss(param));
     }
 
+    @GetMapping("/kakao/success")
+    public ResponseEntity<ConfirmResult> confirmKakao(@ModelAttribute KakaoSuccessParam param) {
+        return ResponseEntity.ok(orderPaymentService.confirmKakao(param));
+    }
 }

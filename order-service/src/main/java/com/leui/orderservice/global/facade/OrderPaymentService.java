@@ -2,6 +2,7 @@ package com.leui.orderservice.domain.facade;
 
 import com.leui.orderservice.domain.order.dto.OrderCreateRequest;
 import com.leui.orderservice.domain.order.entity.Order;
+import dto.payment.KakaoSuccessParam;
 import dto.payment.PaymentFailParam;
 import dto.payment.PaymentSuccessParam;
 import dto.payment.TossSuccessParam;
@@ -37,6 +38,10 @@ public class OrderPaymentService {
 
     public ConfirmResult confirmToss(TossSuccessParam param) {
         return confirmPayment(PaymentProvider.TOSS, param);
+    }
+
+    public ConfirmResult confirmKakao(KakaoSuccessParam param) {
+        return confirmPayment(PaymentProvider.KAKAO, param);
     }
 
     @Transactional

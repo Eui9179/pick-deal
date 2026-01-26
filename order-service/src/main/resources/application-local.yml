@@ -1,2 +1,4 @@
 gateway:
   base-url: http://localhost:8888
+kakao:
+  cid: TC0ONETIME  # 테스트용 가맹점 코드 (실제 운영시 변경)

@@ -4,17 +4,17 @@ public record KakaoConfirmResponse(
         String aid,
         String tid,
         String cid,
-        String partner_order_id,
-        String partner_user_id,
-        String item_name,
+        String partnerOrderId,
+        String partnerUserId,
+        String itemName,
         Integer quantity,
         Amount amount,
-        String created_at,
-        String approved_at
+        String createdAt,
+        String approvedAt
 ) {
     record Amount(
             Integer total,
-            Integer tax_free,
+            Integer taxFree,
             Integer vat,
             Integer point,
             Integer discount
