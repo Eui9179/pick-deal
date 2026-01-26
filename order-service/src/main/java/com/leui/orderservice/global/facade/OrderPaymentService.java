@@ -1,7 +1,8 @@
-package com.leui.orderservice.global.facade;
+package com.leui.orderservice.domain.facade;
 
 import com.leui.orderservice.domain.order.dto.OrderCreateRequest;
 import com.leui.orderservice.domain.order.entity.Order;
+import dto.payment.PaymentFailParam;
 import dto.payment.PaymentSuccessParam;
 import dto.payment.TossSuccessParam;
 import enumtype.OrderStatus;
@@ -36,6 +37,15 @@ public class OrderPaymentService {
 
     public ConfirmResult confirmToss(TossSuccessParam param) {
         return confirmPayment(PaymentProvider.TOSS, param);
+    }
+
+    @Transactional
+    public OrderStatus failTransaction(PaymentFailParam param) {
+        Order order = orderService.getOrder(param.orderId());
+        OrderStatus status = OrderStatus.from(param.code());
+        order.setStatus(status);
+        // TODO 실패 처리
+        return status;
     }
 
     private ConfirmResult confirmPayment(PaymentProvider provider, PaymentSuccessParam param) {
