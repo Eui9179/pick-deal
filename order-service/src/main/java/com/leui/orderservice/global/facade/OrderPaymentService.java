@@ -1,8 +1,7 @@
-package com.leui.orderservice.domain.facade;
+package com.leui.orderservice.global.facade;
 
 import com.leui.orderservice.domain.order.dto.OrderCreateRequest;
 import com.leui.orderservice.domain.order.entity.Order;
-import dto.payment.PaymentFailParam;
 import dto.payment.PaymentSuccessParam;
 import dto.payment.TossSuccessParam;
 import enumtype.OrderStatus;
@@ -39,22 +38,13 @@ public class OrderPaymentService {
         return confirmPayment(PaymentProvider.TOSS, param);
     }
 
-    @Transactional
-    public OrderStatus failTransaction(PaymentFailParam param) {
-        Order order = orderService.getOrder(param.getOrderId());
-        OrderStatus status = OrderStatus.from(param.getCode());
-        order.setStatus(status);
-        // TODO 실패 처리
-        return status;
-    }
-
     private ConfirmResult confirmPayment(PaymentProvider provider, PaymentSuccessParam param) {
         return paymentProviderHandler.confirm(provider, param);
     }
 
     private void decreaseDealStock(Order order, Long dealId, int quantity) {
         try {
-            storeDealFeignClient.decreaseDealStock(dealId, new DealStockDecreaseRequest(quantity));
+            storeDealFeignClient.decreaseDealStock(dealId, new DealStockDecreaseRequest(order.getId(), quantity));
             order.setStatus(OrderStatus.ORDER_READY);
         } catch (FeignException.NotFound e) {
             order.setErrorStatus(OrderStatus.FAIL_DEAL_NOTFOUND, e.getMessage());

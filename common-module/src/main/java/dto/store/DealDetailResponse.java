@@ -14,7 +14,7 @@ public record DealDetailResponse(
         BigDecimal price,
         BigDecimal discountPrice,
         BigDecimal discountValue,
-        int stockQuantity,
+        long stockQuantity,
         DealStatus dealStatus,
         LocalDateTime pickupEndTime
 ) {
@@ -27,7 +27,7 @@ public record DealDetailResponse(
             BigDecimal price,
             BigDecimal discountPrice,
             BigDecimal discountValue,
-            int stockQuantity,
+            long stockQuantity,
             DealStatus dealStatus,
             LocalDateTime pickupEndTime
     ) {

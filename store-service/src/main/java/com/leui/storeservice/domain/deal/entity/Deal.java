@@ -39,7 +39,7 @@ public class Deal extends BaseEntity {
     private BigDecimal price;
 
     @Column(nullable = false)
-    private int stockQuantity;
+    private long stockQuantity;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)

@@ -86,7 +86,7 @@ public class DealServiceIntergrationTest {
         for (int i = 0; i < stockQuantity; i++) {
             executor.submit(() -> {
                 try {
-                    dealService.decreaseStock(deal.getId(), new DealStockDecreaseRequest(1));
+                    dealService.confirmStock(deal.getId(), new DealStockDecreaseRequest(1));
                 } finally {
                     latch.countDown();
                 }
@@ -127,7 +127,7 @@ public class DealServiceIntergrationTest {
         ));
 
         //when & then
-        DealStockDecreaseResponse response = dealService.decreaseStock(deal.getId(), new DealStockDecreaseRequest(needStockQuntity));
+        DealStockDecreaseResponse response = dealService.confirmStock(deal.getId(), new DealStockDecreaseRequest(needStockQuntity));
         assertThat(response.stockQuantity()).isEqualTo(1);
     }
 
@@ -160,7 +160,7 @@ public class DealServiceIntergrationTest {
         //when & then
         assertThrows(
                 OutOfStockException.class,
-                () -> dealService.decreaseStock(deal.getId(), new DealStockDecreaseRequest(needStockQuntity))
+                () -> dealService.confirmStock(deal.getId(), new DealStockDecreaseRequest(needStockQuntity))
         );
     }
 }

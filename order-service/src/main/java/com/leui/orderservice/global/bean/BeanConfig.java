@@ -1,4 +1,4 @@
-package com.leui.orderservice.global.config;
+package com.leui.orderservice.global.bean;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.leui.orderservice.domain.order.service.OrderService;
@@ -6,6 +6,9 @@ import com.leui.orderservice.domain.payments.provider.PaymentProviderHandler;
 import com.leui.orderservice.domain.payments.provider.toss.strategy.TossPaymentStrategy;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import redis.RedisRepository;
 
 import java.util.List;
 
@@ -17,8 +20,4 @@ public class BeanConfig {
         return new PaymentProviderHandler(List.of(tossPayment));
     }
 
-    @Bean
-    public ObjectMapper objectMapper() {
-        return new ObjectMapper();
-    }
 }

@@ -1,12 +1,15 @@
 package com.leui.storeservice.domain.deal.repository;
 
 import com.leui.storeservice.domain.deal.entity.Deal;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface DealRepository extends JpaRepository<Deal, Long> {
@@ -24,6 +27,13 @@ public interface DealRepository extends JpaRepository<Deal, Long> {
             where deal.id = :dealId
             """)
     Deal findByIdWithDiscountPolicy(Long dealId);
+
+    /**
+     * 비관적 락으로 Deal 조회 (재고 예약용)
+     */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT d FROM Deal d WHERE d.id = :dealId")
+    Optional<Deal> findByIdWithLock(Long dealId);
 
     /**
      * 재고 감소
