@@ -2,8 +2,8 @@ package com.leui.storeservice.domain.deal.service;
 
 import com.leui.storeservice.common.util.LocationUtils;
 import com.leui.storeservice.config.postgres.PostgreSQLTestContainer;
-import dto.store.DealStockDecreaseRequest;
-import dto.store.DealStockDecreaseResponse;
+import dto.store.DealStockQuantityRequest;
+import dto.store.DealQuantityResponse;
 import com.leui.storeservice.domain.deal.entity.Deal;
 import enumtype.DealStatus;
 import com.leui.storeservice.domain.deal.repository.DealRepository;
@@ -86,7 +86,7 @@ public class DealServiceIntergrationTest {
         for (int i = 0; i < stockQuantity; i++) {
             executor.submit(() -> {
                 try {
-                    dealService.confirmStock(deal.getId(), new DealStockDecreaseRequest(1));
+                    dealService.confirmStock(deal.getId(), new DealStockQuantityRequest(1));
                 } finally {
                     latch.countDown();
                 }
@@ -127,8 +127,8 @@ public class DealServiceIntergrationTest {
         ));
 
         //when & then
-        DealStockDecreaseResponse response = dealService.confirmStock(deal.getId(), new DealStockDecreaseRequest(needStockQuntity));
-        assertThat(response.stockQuantity()).isEqualTo(1);
+        DealQuantityResponse response = dealService.confirmStock(deal.getId(), new DealStockQuantityRequest(needStockQuntity));
+        assertThat(response.quantity()).isEqualTo(1);
     }
 
     @Test
@@ -160,7 +160,7 @@ public class DealServiceIntergrationTest {
         //when & then
         assertThrows(
                 OutOfStockException.class,
-                () -> dealService.confirmStock(deal.getId(), new DealStockDecreaseRequest(needStockQuntity))
+                () -> dealService.confirmStock(deal.getId(), new DealStockQuantityRequest(needStockQuntity))
         );
     }
 }

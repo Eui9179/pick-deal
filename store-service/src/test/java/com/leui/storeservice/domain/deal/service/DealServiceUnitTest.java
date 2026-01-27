@@ -1,7 +1,7 @@
 package com.leui.storeservice.domain.deal.service;
 
-import dto.store.DealStockDecreaseRequest;
-import dto.store.DealStockDecreaseResponse;
+import dto.store.DealStockQuantityRequest;
+import dto.store.DealQuantityResponse;
 import com.leui.storeservice.domain.deal.repository.DealRepository;
 import exception.OutOfStockException;
 import jakarta.persistence.EntityNotFoundException;
@@ -30,23 +30,23 @@ public class DealServiceUnitTest {
     void testDecreaseStock() {
         //given
         Long id = 1L;
-        DealStockDecreaseRequest request = new DealStockDecreaseRequest(1);
+        DealStockQuantityRequest request = new DealStockQuantityRequest(1);
 
         //mock
         doReturn(1).when(dealRepository).decreaseStockQuantity(any(), anyInt());
 
         //when
-        DealStockDecreaseResponse response = dealService.confirmStock(id, request);
+        DealQuantityResponse response = dealService.confirmStock(id, request);
 
         //then
-        assertThat(response.stockQuantity()).isEqualTo(1);
+        assertThat(response.quantity()).isEqualTo(1);
     }
 
     @Test
     void testDecreaseStock_stockQunatityIsZero_ThrowOutOfStock() {
         //given
         Long id = 1L;
-        DealStockDecreaseRequest request = new DealStockDecreaseRequest(1);
+        DealStockQuantityRequest request = new DealStockQuantityRequest(1);
 
         //mock
         doReturn(0).when(dealRepository).decreaseStockQuantity(any(), anyInt());
@@ -60,7 +60,7 @@ public class DealServiceUnitTest {
     void testDecreaseStock_EntityNotExist_ThrowEntityNotFountException() {
         //given
         Long id = 1L;
-        DealStockDecreaseRequest request = new DealStockDecreaseRequest(1);
+        DealStockQuantityRequest request = new DealStockQuantityRequest(1);
 
         //mock
         doReturn(0).when(dealRepository).decreaseStockQuantity(any(), anyInt());

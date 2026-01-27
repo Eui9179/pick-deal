@@ -2,8 +2,8 @@ package com.leui.storeservice.domain.deal.controller;
 
 import dto.store.DealDetailResponse;
 import com.leui.storeservice.domain.deal.service.DealService;
-import dto.store.DealStockDecreaseRequest;
-import dto.store.DealStockDecreaseResponse;
+import dto.store.DealStockQuantityRequest;
+import dto.store.DealQuantityResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,22 +20,26 @@ public class DealInternalController {
         return ResponseEntity.ok(dealService.getDealDetail(id));
     }
 
-    @PostMapping("/{dealId}/confirm-stock")
-    public ResponseEntity<DealStockDecreaseResponse> decreaseDealStock(
+    @PostMapping("/{dealId}/stock/commit")
+    public ResponseEntity<DealQuantityResponse> commitStock(
             @PathVariable Long dealId,
-            @RequestBody DealStockDecreaseRequest request
+            @RequestBody DealStockQuantityRequest request
     ) {
         return ResponseEntity.ok(dealService.confirmStock(dealId, request));
     }
 
-    @PostMapping("/{dealId}/reserve-stock")
-    public ResponseEntity<Void> reserveStock(
+    @PostMapping("/{dealId}/stock/reserve")
+    public ResponseEntity<DealQuantityResponse> reserveStock(
             @PathVariable Long dealId,
-            @RequestBody DealStockDecreaseRequest request,
+            @RequestBody DealStockQuantityRequest request,
             @RequestHeader("x-user-id") Long userId
     ) {
-        dealService.reserveStock(dealId, request, userId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(dealService.reserveStock(dealId, request, userId));
     }
 
+    @PostMapping("/stock/rollback")
+    public ResponseEntity<Void> rollbackStock(@RequestBody DealStockQuantityRequest request) {
+        dealService.rollbackStock(request);
+        return ResponseEntity.ok().build();
+    }
 }

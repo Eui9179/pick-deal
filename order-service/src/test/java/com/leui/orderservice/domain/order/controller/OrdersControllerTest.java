@@ -120,7 +120,7 @@ public class OrdersControllerTest {
         mvc.perform(builder)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.orderId").value(orderId))
-                .andExpect(jsonPath("$.status").value(OrderStatus.ORDER_READY.name()));
+                .andExpect(jsonPath("$.status").value(OrderStatus.ORDER_START.name()));
     }
 
     @Test

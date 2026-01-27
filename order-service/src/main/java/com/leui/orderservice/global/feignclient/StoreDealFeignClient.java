@@ -1,10 +1,9 @@
 package com.leui.orderservice.global.feignclient;
 
 import dto.store.DealDetailResponse;
-import dto.store.DealStockDecreaseRequest;
-import dto.store.DealStockDecreaseResponse;
+import dto.store.DealStockQuantityRequest;
+import dto.store.DealQuantityResponse;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @FeignClient(
@@ -16,7 +15,15 @@ public interface StoreDealFeignClient {
     @GetMapping("/deals/{id}")
     DealDetailResponse getDealDetail(@PathVariable Long id);
 
-    @PatchMapping("/deals/{id}/stock/decrease")
-    DealStockDecreaseResponse decreaseDealStock(@PathVariable Long id, @RequestBody DealStockDecreaseRequest request);
+    @PostMapping("/deals/{id}/stock/reserve")
+    DealQuantityResponse reserveStock(@PathVariable Long id, @RequestBody DealStockQuantityRequest request);
+
+    @PostMapping("/deals/{id}/stock/commit")
+    DealQuantityResponse commitStock(@PathVariable Long id, @RequestBody DealStockQuantityRequest request);
+
+
+    @PostMapping("/stock/rollback")
+    Void rollbackStock(@RequestBody DealStockQuantityRequest request);
+
 
 }

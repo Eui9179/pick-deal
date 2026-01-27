@@ -1,5 +1,6 @@
 package com.leui.orderservice.domain.order.entity;
 
+import com.leui.orderservice.domain.payments.entity.Payment;
 import com.leui.orderservice.global.entity.BaseEntity;
 import enumtype.OrderStatus;
 import enumtype.PaymentProvider;
@@ -16,6 +17,9 @@ public class Order extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
+
+    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Payment payment;
 
     @Column(updatable = false)
     private Long userId;
@@ -40,7 +44,7 @@ public class Order extends BaseEntity {
         this.dealId = dealId;
         this.quantity = quantity;
         this.provider = provider;
-        this.status = OrderStatus.ORDER_READY;
+        this.status = OrderStatus.ORDER_START;
     }
 
     public void setErrorStatus(OrderStatus status, String failDescription) {
