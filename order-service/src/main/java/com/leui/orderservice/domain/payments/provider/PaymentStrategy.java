@@ -5,7 +5,6 @@ import com.leui.orderservice.domain.payments.dto.PaymentReadyResponse;
 import dto.payment.PaymentSuccessParam;
 import enumtype.PaymentProvider;
 
-// TODO fail, cancel
 public interface PaymentStrategy<T extends PaymentSuccessParam> {
     PaymentReadyResponse ready(OrderCreateRequest request, String orderId, Long userId);
 

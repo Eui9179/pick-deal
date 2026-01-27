@@ -12,7 +12,7 @@ public record KakaoConfirmResponse(
         String createdAt,
         String approvedAt
 ) {
-    record Amount(
+    public record Amount(
             Integer total,
             Integer taxFree,
             Integer vat,
@@ -21,3 +21,4 @@ public record KakaoConfirmResponse(
     ) {
     }
 }
+

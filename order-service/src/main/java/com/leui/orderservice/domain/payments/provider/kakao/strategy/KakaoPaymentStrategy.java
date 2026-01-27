@@ -78,7 +78,7 @@ public class KakaoPaymentStrategy implements PaymentStrategy<KakaoSuccessParam> 
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new EntityNotFoundException("Order not found. id=" + orderId));
         Payment payment = new Payment(order, PaymentProvider.KAKAO);
-        payment.updatePaymentKey(payload.tid());
+        payment.updatePaymentKey(payload.getTid());
         paymentRepository.save(payment);
 
         return payload;
@@ -86,16 +86,13 @@ public class KakaoPaymentStrategy implements PaymentStrategy<KakaoSuccessParam> 
 
     @Override
     public ConfirmResult confirmPay(KakaoSuccessParam param) {
-        // 1. Payment에서 tid 조회
-        Payment payment = paymentRepository.findById(param.orderId())
-                .orElseThrow(() -> new EntityNotFoundException("Payment not found. orderId=" + param.orderId()));
+        Payment payment = paymentRepository.findById(param.getOrderId())
+                .orElseThrow(() -> new EntityNotFoundException("Payment not found. orderId=" + param.getOrderId()));
         String tid = payment.getPaymentKey();
 
-        // 2. Kakao 결제 승인 요청
         KakaoConfirmRequest request = new KakaoConfirmRequest(cid, tid, param);
         KakaoConfirmResponse response = kakaoPaymentClient.confirm(AUTHORIZATION_PREFIX + adminKey, request);
 
-        // 3. Payment 완료 처리
         payment.completePayment(
                 BigDecimal.valueOf(response.amount().total()),
                 "KAKAO_PAY"

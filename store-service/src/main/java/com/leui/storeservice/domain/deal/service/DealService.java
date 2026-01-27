@@ -94,7 +94,7 @@ public class DealService {
     }
 
     @Transactional
-    public DealStockDecreaseResponse confirmStock(Long dealId, DealStockDecreaseRequest request) {
+    public DealQuantityResponse confirmStock(Long dealId, DealStockQuantityRequest request) {
         int stockQuantity = dealRepository.decreaseStockQuantity(dealId, request.quantity());
         if (stockQuantity == 0) {
             if (!dealRepository.existsById(dealId)) {
@@ -105,11 +105,11 @@ public class DealService {
 
         dealReservationRepository.deleteByOrderId(request.orderId());
 
-        return new DealStockDecreaseResponse(stockQuantity);
+        return new DealQuantityResponse(stockQuantity);
     }
 
     @Transactional
-    public void reserveStock(Long dealId, DealStockDecreaseRequest request, Long userId) {
+    public DealQuantityResponse reserveStock(Long dealId, DealStockQuantityRequest request, Long userId) {
         Deal deal = dealRepository.findByIdWithLock(dealId)
                 .orElseThrow(() -> new EntityNotFoundException("Deal not found. id = " + dealId));
 
@@ -129,6 +129,12 @@ public class DealService {
                 expiredAt
         );
         dealReservationRepository.save(reservation);
+        return new DealQuantityResponse(availableStock - request.quantity());
+    }
+
+    @Transactional
+    public void rollbackStock(DealStockQuantityRequest request) {
+        dealReservationRepository.deleteByOrderId(request.orderId());
     }
 
     /**
@@ -145,7 +151,7 @@ public class DealService {
         );
 
         Object[] args = new Object[]{
-                String.valueOf(stockQuantity),     // ARGV[1]: stockQuantity
+                String.valueOf(stockQuantity),     // ARGV[1]: quantity
                 orderId,                           // ARGV[2]: orderId
                 String.valueOf(requestQuantity),   // ARGV[3]: requestQty
                 String.valueOf(expiredAt),         // ARGV[4]: expiredAt
@@ -183,5 +189,4 @@ public class DealService {
         script.setResultType(Long.class);
         return script;
     }
-
 }

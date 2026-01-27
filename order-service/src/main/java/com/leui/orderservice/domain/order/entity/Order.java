@@ -44,7 +44,7 @@ public class Order extends BaseEntity {
         this.dealId = dealId;
         this.quantity = quantity;
         this.provider = provider;
-        this.status = OrderStatus.ORDER_READY;
+        this.status = OrderStatus.ORDER_START;
     }
 
     public void setErrorStatus(OrderStatus status, String failDescription) {
