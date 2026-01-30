@@ -53,7 +53,7 @@ public class OrderPaymentService {
     }
 
     private ConfirmResult confirmPayment(PaymentProvider provider, PaymentSuccessParam param) {
-        ConfirmResult confirm = paymentProviderHandler.confirm(provider, param);
+        return paymentProviderHandler.confirm(provider, param);
 
     }
 
