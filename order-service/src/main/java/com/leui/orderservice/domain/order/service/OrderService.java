@@ -8,6 +8,8 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+
 @RequiredArgsConstructor
 @Service
 public class OrderService {
@@ -19,8 +21,8 @@ public class OrderService {
                 .orElseThrow(() -> new EntityNotFoundException("Order Not Found. id: " + id));
     }
 
-    public Order createOrder(Long userId, OrderCreateRequest request) {
-        Order order = new Order(userId, request.dealId(), request.quantity(), request.provider());
+    public Order createOrder(Long userId, OrderCreateRequest request, BigDecimal totalAmount) {
+        Order order = new Order(userId, request.dealId(), request.pickupTime(), request.quantity(), request.provider(), totalAmount);
         return orderRepository.save(order);
     }
 

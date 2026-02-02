@@ -1,9 +1,12 @@
 package com.leui.orderservice.domain.payments.provider;
 
-import com.leui.orderservice.domain.order.dto.OrderCreateRequest;
+import com.leui.orderservice.domain.order.entity.Order;
+import com.leui.orderservice.domain.order.service.OrderService;
+import com.leui.orderservice.domain.payments.dto.PaymentReadyRequest;
 import com.leui.orderservice.domain.payments.dto.PaymentReadyResponse;
 import dto.payment.PaymentSuccessParam;
 import enumtype.PaymentProvider;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -14,7 +17,7 @@ public class PaymentProviderHandler {
 
     private final Map<PaymentProvider, PaymentStrategy<?>> strategies;
 
-    public PaymentProviderHandler(List<PaymentStrategy<?>> strategyList) {
+    public PaymentProviderHandler(List<PaymentStrategy<?>> strategyList, OrderService orderPaymentService) {
         this.strategies = strategyList.stream()
                 .collect(Collectors.toMap(
                         PaymentStrategy::support,
@@ -22,18 +25,16 @@ public class PaymentProviderHandler {
                 ));
     }
 
-    public PaymentReadyResponse ready(
-            OrderCreateRequest request,
-            String orderId,
-            Long userId
-    ) {
-        return strategies.get(request.provider())
-                .ready(request, orderId, userId);
+    @Transactional
+    public PaymentReadyResponse ready(PaymentReadyRequest readyRequest) {
+        return strategies.get(readyRequest.provider())
+                .ready(readyRequest);
     }
 
-    public ConfirmResult confirm(PaymentProvider provider, PaymentSuccessParam param) {
+    @Transactional
+    public ConfirmResult confirm(PaymentProvider provider, PaymentSuccessParam param, Order order) {
         return strategies.get(provider)
-                .confirm(param);
+                .confirm(param, order);
     }
 
 }
