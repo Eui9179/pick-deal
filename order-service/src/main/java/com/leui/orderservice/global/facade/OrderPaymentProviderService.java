@@ -65,7 +65,7 @@ public class OrderPaymentProviderService {
         Order order = orderService.getOrder(param.orderId());
         OrderStatus status = OrderStatus.FAIL_PAYMENT_CANCELED;
         order.setStatus(status);
-        // TODO 이벤트 처리
+        // TODO 이벤트 발행
         storeDealFeignClient.rollbackStock(new DealStockQuantityRequest(order.getId(), order.getQuantity()));
         return new PaymentFailResponse(status);
     }
@@ -74,7 +74,7 @@ public class OrderPaymentProviderService {
         Order order = orderService.getOrder(param.getOrderId());
         ConfirmResult result = paymentProviderHandler.confirm(provider, param, order);
         order.setStatus(result.getStatus());
-        // TODO 이벤트 처리
+        // TODO 이벤트 발행
         if (result.getStatus() == OrderStatus.PAYMENT_DONE) {
             // TODO 사장님 알림
             storeDealFeignClient.commitStock(order.getDealId(), new DealStockQuantityRequest(order.getId(), order.getQuantity()));
