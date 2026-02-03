@@ -3,6 +3,7 @@ package com.leui.orderservice.global.feignclient;
 import dto.store.DealDetailResponse;
 import dto.store.DealStockQuantityRequest;
 import dto.store.DealQuantityResponse;
+import dto.store.NotiReadyPickup;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,5 +26,6 @@ public interface StoreDealFeignClient {
     @PostMapping("/stock/rollback")
     Void rollbackStock(@RequestBody DealStockQuantityRequest request);
 
-
+    @PostMapping("/store/noti-ready-pickup")
+    Void notiReadyPickup(@RequestBody NotiReadyPickup request);
 }

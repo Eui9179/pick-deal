@@ -1,7 +1,7 @@
 package com.leui.orderservice.domain.payments.controller;
 
 import com.leui.orderservice.domain.payments.provider.ConfirmResult;
-import com.leui.orderservice.global.facade.OrderPaymentService;
+import com.leui.orderservice.global.facade.OrderPaymentProviderService;
 import dto.payment.KakaoSuccessParam;
 import dto.payment.PaymentFailRequest;
 import dto.payment.PaymentFailResponse;
@@ -15,20 +15,20 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/payments")
 public class PaymentController {
 
-    private final OrderPaymentService orderPaymentService;
+    private final OrderPaymentProviderService orderPaymentProviderService;
 
     @PostMapping("/toss/confirm")
     public ResponseEntity<ConfirmResult> confirmToss(@RequestBody TossSuccessParam param) {
-        return ResponseEntity.ok(orderPaymentService.confirmToss(param));
+        return ResponseEntity.ok(orderPaymentProviderService.confirmToss(param));
     }
 
     @PostMapping("/kakao/confirm")
     public ResponseEntity<ConfirmResult> confirmKakao(@RequestBody KakaoSuccessParam param) {
-        return ResponseEntity.ok(orderPaymentService.confirmKakao(param));
+        return ResponseEntity.ok(orderPaymentProviderService.confirmKakao(param));
     }
 
     @PostMapping("/fail")
     public ResponseEntity<PaymentFailResponse> fail(@RequestBody PaymentFailRequest param) {
-        return ResponseEntity.ok(orderPaymentService.failPayment(param));
+        return ResponseEntity.ok(orderPaymentProviderService.failPayment(param));
     }
 }

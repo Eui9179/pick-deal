@@ -24,11 +24,10 @@ public enum OrderStatus {
 
     public static OrderStatus from(String status) {
         return switch (status) {
-            case "DONE" -> PAYMENT_DONE;
+            case "DONE", "200" -> PAYMENT_DONE;
             case "CANCELED", "PAY_PROCESS_CANCELED" -> FAIL_PAYMENT_CANCELED;
-            case "ABORTED", "PAY_PROCESS_ABORTED", "-708" -> FAIL_PAYMENT_ABORTED;
-            case "EXPIRED", "-723" -> FAIL_PAYMENT_EXPIRED;
-            case "REJECT_CARD_COMPANY" -> FAIL_REJECT_CARD_COMPANY;
+            case "ABORTED", "PAY_PROCESS_ABORTED", "-702" -> FAIL_PAYMENT_ABORTED;
+            case "EXPIRED", "-721" -> FAIL_PAYMENT_EXPIRED;
             default -> throw new NotSupportedOrderStatus("Not supported order status.");
         };
     }

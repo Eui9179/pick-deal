@@ -10,9 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ConfirmResult {
+    private PaymentProvider provider;
     private OrderStatus status;
-
-    public ConfirmResult(String status) {
-        this.status = OrderStatus.from(status);
-    }
 }

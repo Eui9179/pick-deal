@@ -6,6 +6,7 @@ import com.leui.orderservice.domain.payments.dto.provider.KakaoConfirmResponse;
 import com.leui.orderservice.domain.payments.dto.provider.KakaoReadyPayload;
 import com.leui.orderservice.domain.payments.dto.provider.KakaoReadyRequest;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
