@@ -14,10 +14,9 @@ import dto.store.DealStockQuantityRequest;
 import dto.store.NotiReadyPickup;
 import enumtype.OrderStatus;
 import enumtype.PaymentProvider;
-import exception.OutOfStockException;
-import feign.FeignException;
-import jakarta.persistence.EntityNotFoundException;
+import event.OrderEvent;
 import lombok.RequiredArgsConstructor;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +29,8 @@ public class OrderPaymentProviderService {
     private final PaymentProviderHandler paymentProviderHandler;
     private final OrderService orderService;
     private final StoreDealFeignClient storeDealFeignClient;
+    private final KafkaTemplate<String, OrderEvent> kafkaTemplate;
+
 
     @Transactional
     public PaymentReadyResponse startOrderTransaction(OrderCreateRequest request, Long userId) {
@@ -42,7 +43,14 @@ public class OrderPaymentProviderService {
         }
 
         Order order = orderService.createOrder(userId, request, totalAmount);
-        decreaseDealStock(order, request.dealId(), request.quantity());
+
+        publishMessageEvent(OrderEvent.builder()
+                .orderId(order.getId())
+                .status(OrderStatus.ORDER_START)
+                .dealId(request.dealId())
+                .quantity(request.quantity())
+                .userId(userId)
+                .build());
 
         PaymentReadyRequest readyRequest = new PaymentReadyRequest(
                 request.provider(), order, userId, dealDetail.name(), request.quantity(), totalAmount
@@ -66,8 +74,13 @@ public class OrderPaymentProviderService {
         Order order = orderService.getOrder(param.orderId());
         OrderStatus status = OrderStatus.FAIL_PAYMENT_CANCELED;
         order.setStatus(status);
-        // TODO 이벤트 발행
-        storeDealFeignClient.rollbackStock(new DealStockQuantityRequest(order.getId(), order.getQuantity()));
+        publishMessageEvent(OrderEvent.builder()
+                .orderId(order.getId())
+                .status(OrderStatus.FAIL_PAYMENT_CANCELED)
+                .dealId(order.getDealId())
+                .quantity(order.getQuantity())
+                .failDescription(param.failCode())
+                .build());
         return new PaymentFailResponse(status);
     }
 
@@ -75,28 +88,30 @@ public class OrderPaymentProviderService {
         Order order = orderService.getOrder(param.getOrderId());
         ConfirmResult result = paymentProviderHandler.confirm(provider, param, order);
         order.setStatus(result.getStatus());
-        // TODO 이벤트 발행
         if (result.getStatus() == OrderStatus.PAYMENT_DONE) {
-            storeDealFeignClient.commitStock(order.getDealId(), new DealStockQuantityRequest(order.getId(), order.getQuantity()));
-            storeDealFeignClient.notiReadyPickup(new NotiReadyPickup());
+            publishMessageEvent(OrderEvent.builder()
+                    .orderId(order.getId())
+                    .status(OrderStatus.PAYMENT_DONE)
+                    .dealId(order.getDealId())
+                    .quantity(order.getQuantity())
+                    .build());
+//            storeDealFeignClient.commitStock(order.getDealId(), new DealStockQuantityRequest(order.getId(), order.getQuantity()));
+//            storeDealFeignClient.notiReadyPickup(new NotiReadyPickup());
         } else {
-            storeDealFeignClient.rollbackStock(new DealStockQuantityRequest(order.getId(), order.getQuantity()));
+            publishMessageEvent(OrderEvent.builder()
+                    .orderId(order.getId())
+                    .status(OrderStatus.FAIL_PAYMENT_CANCELED)
+                    .dealId(order.getDealId())
+                    .quantity(order.getQuantity())
+                    .build());
+//            storeDealFeignClient.rollbackStock(new DealStockQuantityRequest(order.getId(), order.getQuantity()));
         }
 
         return result;
     }
 
-    private void decreaseDealStock(Order order, Long dealId, int quantity) {
-        try {
-            storeDealFeignClient.reserveStock(dealId, new DealStockQuantityRequest(order.getId(), quantity));
-            order.setStatus(OrderStatus.ORDER_START);
-        } catch (FeignException.NotFound e) {
-            order.setErrorStatus(OrderStatus.FAIL_DEAL_NOTFOUND, e.getMessage());
-            throw new EntityNotFoundException(e.getMessage());
-        } catch (FeignException.Conflict e) {
-            order.setErrorStatus(OrderStatus.FAIL_OUT_OF_STOCK, e.getMessage());
-            throw new OutOfStockException(e.getMessage());
-        }
+    private void publishMessageEvent(OrderEvent event) {
+        kafkaTemplate.send(OrderEvent.TOPIC, event.getEventId(), event);
     }
 
 }

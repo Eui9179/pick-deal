@@ -67,7 +67,7 @@ public class AuthService {
     }
 
     public void logout(HttpServletResponse response, String accessToken) {
-        redisRepository.delete(keyPrefix + accessToken);
+        redisRepository.remove(keyPrefix + accessToken);
         redisRepository.put(
                 "block-access-token:" + accessToken,
                 "",

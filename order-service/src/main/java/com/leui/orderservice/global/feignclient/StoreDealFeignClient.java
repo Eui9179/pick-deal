@@ -22,7 +22,6 @@ public interface StoreDealFeignClient {
     @PostMapping("/deals/{id}/stock/commit")
     DealQuantityResponse commitStock(@PathVariable Long id, @RequestBody DealStockQuantityRequest request);
 
-
     @PostMapping("/stock/rollback")
     Void rollbackStock(@RequestBody DealStockQuantityRequest request);
 

@@ -40,7 +40,7 @@ class StoreServiceTest {
         repository.deleteAll();
         storeCategoryRepository.deleteAll();
 
-        StoreCategory category = storeCategoryRepository.save(new StoreCategory("test code", "test desc"));
+        StoreCategory category = storeCategoryRepository.save(new StoreCategory("orderId code", "orderId desc"));
         // 1. radius = 100m
         repository.save(new Store("name1_100", LocationUtils.createPoint(126.9725445, 37.5557536),
                 "address1_100", "phoneNumber1", LocalTime.now(), category));

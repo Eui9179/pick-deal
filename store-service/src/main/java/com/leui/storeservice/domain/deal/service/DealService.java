@@ -94,8 +94,8 @@ public class DealService {
     }
 
     @Transactional
-    public DealQuantityResponse confirmStock(Long dealId, DealStockQuantityRequest request) {
-        int stockQuantity = dealRepository.decreaseStockQuantity(dealId, request.quantity());
+    public DealQuantityResponse confirmStock(Long dealId, String orderId, int quantity) {
+        int stockQuantity = dealRepository.decreaseStockQuantity(dealId, quantity);
         if (stockQuantity == 0) {
             if (!dealRepository.existsById(dealId)) {
                 throw new EntityNotFoundException("Deal Not Found. dealId: " + dealId);
@@ -103,38 +103,38 @@ public class DealService {
             throw new OutOfStockException("Out of Stock. dealId: " + dealId);
         }
 
-        dealReservationRepository.deleteByOrderId(request.orderId());
+        dealReservationRepository.deleteByOrderId(orderId);
 
         return new DealQuantityResponse(stockQuantity);
     }
 
     @Transactional
-    public DealQuantityResponse reserveStock(Long dealId, DealStockQuantityRequest request, Long userId) {
+    public DealQuantityResponse reserveStock(Long dealId, String orderId, int quantity, Long userId) {
         Deal deal = dealRepository.findByIdWithLock(dealId)
                 .orElseThrow(() -> new EntityNotFoundException("Deal not found. id = " + dealId));
 
         Long reservedQuantity = dealReservationRepository.sumQuantityByDealId(dealId);
 
         long availableStock = deal.getStockQuantity() - (reservedQuantity != null ? reservedQuantity : 0);
-        if (availableStock < request.quantity()) {
+        if (availableStock < quantity) {
             throw new OutOfStockException("Out of Stock. dealId: " + dealId);
         }
 
         long expiredAt = Instant.now().plusSeconds(900).toEpochMilli();
         DealReservation reservation = new DealReservation(
                 dealId,
-                request.orderId(),
+                orderId,
                 userId,
-                request.quantity(),
+                quantity,
                 expiredAt
         );
         dealReservationRepository.save(reservation);
-        return new DealQuantityResponse(availableStock - request.quantity());
+        return new DealQuantityResponse(availableStock - quantity);
     }
 
     @Transactional
-    public void rollbackStock(DealStockQuantityRequest request) {
-        dealReservationRepository.deleteByOrderId(request.orderId());
+    public void rollbackStock(String orderId, int quantity) {
+        dealReservationRepository.deleteByOrderId(orderId);
     }
 
     /**
