@@ -111,7 +111,7 @@ public class OrderPaymentProviderService {
     }
 
     private void publishMessageEvent(OrderEvent event) {
-        kafkaTemplate.send(OrderEvent.TOPIC, event.getEventId(), event);
+        kafkaTemplate.send(OrderEvent.TOPIC, event.getOrderId(), event);
     }
 
 }
