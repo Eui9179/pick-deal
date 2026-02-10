@@ -30,13 +30,13 @@ public class DealServiceUnitTest {
     void testDecreaseStock() {
         //given
         Long id = 1L;
-        DealStockQuantityRequest request = new DealStockQuantityRequest(1);
+        DealStockQuantityRequest request = new DealStockQuantityRequest("1", 1);
 
         //mock
         doReturn(1).when(dealRepository).decreaseStockQuantity(any(), anyInt());
 
         //when
-        DealQuantityResponse response = dealService.confirmStock(id, request);
+        DealQuantityResponse response = dealService.confirmStock(id, request.orderId(), request.quantity());
 
         //then
         assertThat(response.quantity()).isEqualTo(1);
@@ -46,27 +46,27 @@ public class DealServiceUnitTest {
     void testDecreaseStock_stockQunatityIsZero_ThrowOutOfStock() {
         //given
         Long id = 1L;
-        DealStockQuantityRequest request = new DealStockQuantityRequest(1);
+        DealStockQuantityRequest request = new DealStockQuantityRequest("1", 1);
 
         //mock
         doReturn(0).when(dealRepository).decreaseStockQuantity(any(), anyInt());
         doReturn(true).when(dealRepository).existsById(any());
 
         //when
-        assertThrows(OutOfStockException.class, () -> dealService.confirmStock(id, request));
+        assertThrows(OutOfStockException.class, () -> dealService.confirmStock(id, request.orderId(), request.quantity()));
     }
 
     @Test
     void testDecreaseStock_EntityNotExist_ThrowEntityNotFountException() {
         //given
         Long id = 1L;
-        DealStockQuantityRequest request = new DealStockQuantityRequest(1);
+        DealStockQuantityRequest request = new DealStockQuantityRequest("1", 1);
 
         //mock
         doReturn(0).when(dealRepository).decreaseStockQuantity(any(), anyInt());
         doReturn(false).when(dealRepository).existsById(any());
 
         //when
-        assertThrows(EntityNotFoundException.class, () -> dealService.confirmStock(id, request));
+        assertThrows(EntityNotFoundException.class, () -> dealService.confirmStock(id, "1", 1));
     }
 }

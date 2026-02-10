@@ -23,3 +23,5 @@ spring:
     show-sql: true
   application:
     name: user-service
+  profiles:
+    active: local

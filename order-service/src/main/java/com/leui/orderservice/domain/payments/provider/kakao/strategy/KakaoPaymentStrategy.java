@@ -4,7 +4,6 @@ import com.leui.orderservice.domain.order.entity.Order;
 import com.leui.orderservice.domain.payments.dto.PaymentReadyRequest;
 import com.leui.orderservice.domain.payments.dto.PaymentReadyResponse;
 import com.leui.orderservice.domain.payments.dto.provider.KakaoConfirmRequest;
-import com.leui.orderservice.domain.payments.dto.provider.KakaoConfirmResponse;
 import com.leui.orderservice.domain.payments.dto.provider.KakaoReadyPayload;
 import com.leui.orderservice.domain.payments.dto.provider.KakaoReadyRequest;
 import com.leui.orderservice.domain.payments.provider.ConfirmResult;
@@ -16,7 +15,6 @@ import enumtype.PaymentProvider;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
@@ -29,7 +27,7 @@ public class KakaoPaymentStrategy implements PaymentStrategy<KakaoSuccessParam> 
     @Value("${kakao.admin-key}")
     private String adminKey;
 
-    @Value("${kakao.sucess-url}")
+    @Value("${kakao.success-url}")
     private String successUrl;
 
     @Value("${kakao.cancel-url}")

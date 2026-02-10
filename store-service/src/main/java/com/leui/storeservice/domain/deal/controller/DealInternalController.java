@@ -25,7 +25,7 @@ public class DealInternalController {
             @PathVariable Long dealId,
             @RequestBody DealStockQuantityRequest request
     ) {
-        return ResponseEntity.ok(dealService.confirmStock(dealId, request));
+        return ResponseEntity.ok(dealService.confirmStock(dealId, request.orderId(), request.quantity()));
     }
 
     @PostMapping("/{dealId}/stock/reserve")
@@ -34,12 +34,12 @@ public class DealInternalController {
             @RequestBody DealStockQuantityRequest request,
             @RequestHeader("x-user-id") Long userId
     ) {
-        return ResponseEntity.ok(dealService.reserveStock(dealId, request, userId));
+        return ResponseEntity.ok(dealService.reserveStock(dealId, request.orderId(), request.quantity(), userId));
     }
 
     @PostMapping("/stock/rollback")
     public ResponseEntity<Void> rollbackStock(@RequestBody DealStockQuantityRequest request) {
-        dealService.rollbackStock(request);
+        dealService.rollbackStock(request.orderId(), request.quantity());
         return ResponseEntity.ok().build();
     }
 }
