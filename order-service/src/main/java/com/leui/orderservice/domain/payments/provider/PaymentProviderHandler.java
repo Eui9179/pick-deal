@@ -1,7 +1,6 @@
 package com.leui.orderservice.domain.payments.provider;
 
 import com.leui.orderservice.domain.order.entity.Order;
-import com.leui.orderservice.domain.order.service.OrderService;
 import com.leui.orderservice.domain.payments.dto.PaymentReadyRequest;
 import com.leui.orderservice.domain.payments.dto.PaymentReadyResponse;
 import dto.payment.PaymentSuccessParam;
@@ -15,9 +14,9 @@ import java.util.stream.Collectors;
 
 public class PaymentProviderHandler {
 
-    private final Map<PaymentProvider, PaymentStrategy<?>> strategies;
+    private final Map<PaymentProvider, PaymentStrategy> strategies;
 
-    public PaymentProviderHandler(List<PaymentStrategy<?>> strategyList, OrderService orderPaymentService) {
+    public PaymentProviderHandler(List<PaymentStrategy> strategyList) {
         this.strategies = strategyList.stream()
                 .collect(Collectors.toMap(
                         PaymentStrategy::support,
@@ -32,9 +31,9 @@ public class PaymentProviderHandler {
     }
 
     @Transactional
-    public ConfirmResult confirm(PaymentProvider provider, PaymentSuccessParam param, Order order) {
+    public ConfirmResult approve(PaymentProvider provider, PaymentSuccessParam param, Order order) {
         return strategies.get(provider)
-                .confirm(param, order);
+                .approve(param, order);
     }
 
 }

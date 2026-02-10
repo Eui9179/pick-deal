@@ -11,17 +11,17 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class KakaoConfirmRequest {
-    private String orderId;
-    private String userId;
-    private String pgToken;
     private String cid;
     private String tid;
+    private String partnerOrderId;
+    private String partnerUserId;
+    private String pgToken;
 
     public KakaoConfirmRequest(String cid, String tid, KakaoSuccessParam param) {
-        this.orderId = param.getOrderId();
-        this.userId = param.getUserId();
-        this.pgToken = param.getPgToken();
         this.cid = cid;
         this.tid = tid;
+        this.partnerOrderId = param.getOrderId();
+        this.partnerUserId = param.getUserId();
+        this.pgToken = param.getPgToken();
     }
 }

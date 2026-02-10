@@ -1,6 +1,5 @@
 package com.leui.orderservice.global.bean;
 
-import com.leui.orderservice.domain.order.service.OrderService;
 import com.leui.orderservice.domain.payments.provider.PaymentProviderHandler;
 import com.leui.orderservice.domain.payments.provider.kakao.strategy.KakaoPaymentStrategy;
 import com.leui.orderservice.domain.payments.provider.toss.strategy.TossPaymentStrategy;
@@ -15,12 +14,10 @@ public class BeanConfig {
     @Bean
     public PaymentProviderHandler paymentHandler(
             TossPaymentStrategy tossPayment,
-            KakaoPaymentStrategy kakaoPayment,
-            OrderService orderService
+            KakaoPaymentStrategy kakaoPayment
     ) {
         return new PaymentProviderHandler(
-                List.of(tossPayment, kakaoPayment),
-                orderService
+                List.of(tossPayment, kakaoPayment)
         );
     }
 

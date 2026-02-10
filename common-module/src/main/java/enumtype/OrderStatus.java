@@ -1,7 +1,5 @@
 package enumtype;
 
-import exception.NotSupportedOrderStatus;
-
 public enum OrderStatus {
 
     // 주문 관련
@@ -16,19 +14,6 @@ public enum OrderStatus {
 
     // PG 관련
     PAYMENT_DONE, // 결제 완료
-    FAIL_PAYMENT_CANCELED, // 승인된 결제가 취소된 상태
-    FAIL_PAYMENT_ABORTED, // 결제 승인 실패
-    FAIL_PAYMENT_EXPIRED, // 결제 유효시간 초과
-    FAIL_REJECT_CARD_COMPANY, // 구매자의 카드 정보 문제
+    PAYMENT_FAILED, // 결제 실패
     ;
-
-    public static OrderStatus from(String status) {
-        return switch (status) {
-            case "DONE", "200" -> PAYMENT_DONE;
-            case "CANCELED", "PAY_PROCESS_CANCELED" -> FAIL_PAYMENT_CANCELED;
-            case "ABORTED", "PAY_PROCESS_ABORTED", "-702" -> FAIL_PAYMENT_ABORTED;
-            case "EXPIRED", "-721" -> FAIL_PAYMENT_EXPIRED;
-            default -> throw new NotSupportedOrderStatus("Not supported order status.");
-        };
-    }
 }

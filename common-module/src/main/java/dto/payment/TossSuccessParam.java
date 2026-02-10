@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class TossSuccessParam extends PaymentSuccessParam {
+public class TossSuccessParam implements PaymentSuccessParam {
     private String paymentType;
     private String orderId;
     private String paymentKey;

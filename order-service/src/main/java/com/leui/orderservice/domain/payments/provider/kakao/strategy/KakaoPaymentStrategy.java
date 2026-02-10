@@ -10,6 +10,7 @@ import com.leui.orderservice.domain.payments.provider.ConfirmResult;
 import com.leui.orderservice.domain.payments.provider.PaymentStrategy;
 import com.leui.orderservice.domain.payments.provider.kakao.feignclient.KakaoPaymentClient;
 import dto.payment.KakaoSuccessParam;
+import dto.payment.PaymentSuccessParam;
 import enumtype.OrderStatus;
 import enumtype.PaymentProvider;
 import feign.FeignException;
@@ -19,7 +20,7 @@ import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
 @Component
-public class KakaoPaymentStrategy implements PaymentStrategy<KakaoSuccessParam> {
+public class KakaoPaymentStrategy implements PaymentStrategy {
 
     @Value("${kakao.cid}")
     private String cid;
@@ -42,45 +43,42 @@ public class KakaoPaymentStrategy implements PaymentStrategy<KakaoSuccessParam> 
 
     @Override
     public PaymentReadyResponse ready(PaymentReadyRequest request) {
-        KakaoReadyRequest readyRequest = new KakaoReadyRequest(
-                cid,
-                request.order().getId(),
-                String.valueOf(request.userId()),
-                request.dealName(),
-                request.quantity(),
-                request.totalAmount(),
-                successUrl,
-                cancelUrl,
-                failUrl
-        );
-
-        KakaoReadyPayload payload = kakaoPaymentClient.ready(AUTHORIZATION_PREFIX + adminKey, readyRequest);
-        request.order().setPaymentKey(payload.getTid());
+        Order order = request.order();
+        KakaoReadyPayload payload = kakaoPaymentClient.ready(
+                AUTHORIZATION_PREFIX + adminKey,
+                new KakaoReadyRequest(
+                        cid,
+                        order.getId(),
+                        String.valueOf(request.userId()),
+                        request.dealName(),
+                        request.quantity(),
+                        request.totalAmount(),
+                        successUrl,
+                        cancelUrl,
+                        failUrl
+                ));
+        order.setPaymentKey(payload.getTid());
         return payload;
     }
 
     @Override
-    public ConfirmResult confirmPay(KakaoSuccessParam param, Order order) {
-        KakaoConfirmRequest request = new KakaoConfirmRequest(cid, order.getPaymentKey(), param);
-        OrderStatus status;
+    public ConfirmResult approve(PaymentSuccessParam param, Order order) {
+        if (!(param instanceof KakaoSuccessParam)) {
+            throw new IllegalArgumentException("Invalid parameter type for Kakao");
+        }
+        KakaoConfirmRequest request =
+                new KakaoConfirmRequest(cid, order.getPaymentKey(), (KakaoSuccessParam) param);
         try {
             kakaoPaymentClient.confirm(AUTHORIZATION_PREFIX + adminKey, request);
-            status = OrderStatus.PAYMENT_DONE;
+            return new ConfirmResult(PaymentProvider.KAKAO, OrderStatus.PAYMENT_DONE, "");
         } catch (FeignException e) {
-            status = OrderStatus.FAIL_PAYMENT_ABORTED;
+            return new ConfirmResult(PaymentProvider.KAKAO, OrderStatus.PAYMENT_FAILED, e.getMessage());
         }
-        return new ConfirmResult(PaymentProvider.KAKAO, status);
-
     }
 
     @Override
     public PaymentProvider support() {
         return PaymentProvider.KAKAO;
-    }
-
-    @Override
-    public Class<KakaoSuccessParam> type() {
-        return KakaoSuccessParam.class;
     }
 
 }

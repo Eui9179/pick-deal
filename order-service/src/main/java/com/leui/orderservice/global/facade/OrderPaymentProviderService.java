@@ -3,6 +3,7 @@ package com.leui.orderservice.global.facade;
 import com.leui.orderservice.domain.order.dto.OrderCreateRequest;
 import com.leui.orderservice.domain.order.entity.Order;
 import com.leui.orderservice.domain.order.service.OrderService;
+import com.leui.orderservice.domain.payments.dto.PaymentFailParam;
 import com.leui.orderservice.domain.payments.dto.PaymentReadyRequest;
 import com.leui.orderservice.domain.payments.dto.PaymentReadyResponse;
 import com.leui.orderservice.domain.payments.provider.ConfirmResult;
@@ -11,10 +12,12 @@ import com.leui.orderservice.global.feignclient.StoreDealFeignClient;
 import dto.payment.*;
 import dto.store.DealDetailResponse;
 import dto.store.DealStockQuantityRequest;
-import dto.store.NotiReadyPickup;
 import enumtype.OrderStatus;
 import enumtype.PaymentProvider;
 import event.OrderEvent;
+import exception.OutOfStockException;
+import feign.FeignException;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -43,75 +46,75 @@ public class OrderPaymentProviderService {
         }
 
         Order order = orderService.createOrder(userId, request, totalAmount);
+        decreaseDealStock(order, request.dealId(), request.quantity());
 
-        publishMessageEvent(OrderEvent.builder()
-                .orderId(order.getId())
-                .status(OrderStatus.ORDER_START)
-                .dealId(request.dealId())
-                .quantity(request.quantity())
+        return paymentProviderHandler.ready(PaymentReadyRequest.builder()
+                .provider(request.provider())
+                .order(order)
                 .userId(userId)
+                .dealName(dealDetail.name())
+                .quantity(request.quantity())
+                .totalAmount(totalAmount)
                 .build());
-
-        PaymentReadyRequest readyRequest = new PaymentReadyRequest(
-                request.provider(), order, userId, dealDetail.name(), request.quantity(), totalAmount
-        );
-
-        return paymentProviderHandler.ready(readyRequest);
     }
 
     @Transactional
-    public ConfirmResult confirmToss(TossSuccessParam param) {
-        return confirmPayment(PaymentProvider.TOSS, param);
-    }
-
-    @Transactional
-    public ConfirmResult confirmKakao(KakaoSuccessParam param) {
-        return confirmPayment(PaymentProvider.KAKAO, param);
-    }
-
-    @Transactional
-    public PaymentFailResponse failPayment(PaymentFailRequest param) {
-        Order order = orderService.getOrder(param.orderId());
-        OrderStatus status = OrderStatus.FAIL_PAYMENT_CANCELED;
-        order.setStatus(status);
-        publishMessageEvent(OrderEvent.builder()
-                .orderId(order.getId())
-                .status(OrderStatus.FAIL_PAYMENT_CANCELED)
-                .dealId(order.getDealId())
-                .quantity(order.getQuantity())
-                .failDescription(param.failCode())
-                .build());
-        return new PaymentFailResponse(status);
-    }
-
-    private ConfirmResult confirmPayment(PaymentProvider provider, PaymentSuccessParam param) {
+    public ConfirmResult approvePayments(PaymentProvider provider, PaymentSuccessParam param) {
         Order order = orderService.getOrder(param.getOrderId());
-        ConfirmResult result = paymentProviderHandler.confirm(provider, param, order);
-        order.setStatus(result.getStatus());
-        if (result.getStatus() == OrderStatus.PAYMENT_DONE) {
+        ConfirmResult result = paymentProviderHandler.approve(provider, param, order);
+        order.setStatus(result.status());
+        order.setFailDescription(result.failCode());
+        if (result.status() == OrderStatus.PAYMENT_DONE) {
             publishMessageEvent(OrderEvent.builder()
                     .orderId(order.getId())
                     .status(OrderStatus.PAYMENT_DONE)
                     .dealId(order.getDealId())
                     .quantity(order.getQuantity())
                     .build());
-//            storeDealFeignClient.commitStock(order.getDealId(), new DealStockQuantityRequest(order.getId(), order.getQuantity()));
-//            storeDealFeignClient.notiReadyPickup(new NotiReadyPickup());
         } else {
             publishMessageEvent(OrderEvent.builder()
                     .orderId(order.getId())
-                    .status(OrderStatus.FAIL_PAYMENT_CANCELED)
+                    .status(OrderStatus.PAYMENT_FAILED)
                     .dealId(order.getDealId())
                     .quantity(order.getQuantity())
                     .build());
-//            storeDealFeignClient.rollbackStock(new DealStockQuantityRequest(order.getId(), order.getQuantity()));
         }
 
         return result;
     }
 
+    @Transactional
+    public PaymentFailResponse failPayment(PaymentFailParam param) {
+        Order order = orderService.getOrder(param.orderId());
+        OrderStatus status = OrderStatus.PAYMENT_FAILED;
+        order.setStatus(status);
+        order.setFailDescription(param.failCode());
+        publishMessageEvent(OrderEvent.builder()
+                .orderId(order.getId())
+                .status(status)
+                .dealId(order.getDealId())
+                .quantity(order.getQuantity())
+                .failDescription(param.failCode())
+                .build());
+        return new PaymentFailResponse(order.getId(), OrderStatus.PAYMENT_FAILED);
+    }
+
     private void publishMessageEvent(OrderEvent event) {
         kafkaTemplate.send(OrderEvent.TOPIC, event.getOrderId(), event);
+    }
+
+
+    private void decreaseDealStock(Order order, Long dealId, int quantity) {
+        try {
+            storeDealFeignClient.reserveStock(dealId, new DealStockQuantityRequest(order.getId(), quantity));
+            order.setStatus(OrderStatus.ORDER_START);
+        } catch (FeignException.NotFound e) {
+            order.setErrorStatus(OrderStatus.FAIL_DEAL_NOTFOUND, e.getMessage());
+            throw new EntityNotFoundException(e.getMessage());
+        } catch (FeignException.Conflict e) {
+            order.setErrorStatus(OrderStatus.FAIL_OUT_OF_STOCK, e.getMessage());
+            throw new OutOfStockException(e.getMessage());
+        }
     }
 
 }

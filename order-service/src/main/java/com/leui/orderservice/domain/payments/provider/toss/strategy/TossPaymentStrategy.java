@@ -1,6 +1,5 @@
 package com.leui.orderservice.domain.payments.provider.toss.strategy;
 
-import com.leui.orderservice.domain.order.dto.OrderCreateRequest;
 import com.leui.orderservice.domain.order.entity.Order;
 import com.leui.orderservice.domain.payments.dto.PaymentReadyRequest;
 import com.leui.orderservice.domain.payments.dto.PaymentReadyResponse;
@@ -9,26 +8,24 @@ import com.leui.orderservice.domain.payments.dto.provider.TossReadyPayload;
 import com.leui.orderservice.domain.payments.provider.ConfirmResult;
 import com.leui.orderservice.domain.payments.provider.PaymentStrategy;
 import com.leui.orderservice.domain.payments.provider.toss.feignclient.TossPaymentClient;
-import com.leui.orderservice.global.feignclient.StoreDealFeignClient;
 import com.leui.orderservice.global.feignclient.UserFeignClient;
+import dto.payment.PaymentSuccessParam;
 import dto.payment.TossSuccessParam;
-import dto.store.DealDetailResponse;
 import dto.user.UserDetailResponse;
 import enumtype.OrderStatus;
 import enumtype.PaymentProvider;
 import feign.FeignException;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 @RequiredArgsConstructor
 @Component
-public class TossPaymentStrategy implements PaymentStrategy<TossSuccessParam> {
+public class TossPaymentStrategy implements PaymentStrategy {
 
     @Value("${toss.secret-key}")
     private String secretKey;
@@ -48,21 +45,26 @@ public class TossPaymentStrategy implements PaymentStrategy<TossSuccessParam> {
                 baseUrl + "/api/v1/payments/toss/confirm",
                 baseUrl + "/api/v1/payments/toss/fail",
                 userDetail.eamil(),
-                userDetail.eamil());
+                userDetail.eamil()
+        );
     }
 
     @Override
-    public ConfirmResult confirmPay(TossSuccessParam param, Order order) {
+    public ConfirmResult approve(PaymentSuccessParam param, Order order) {
+        if (!(param instanceof TossSuccessParam)) {
+            throw new IllegalArgumentException("Invalid parameter type for Toss");
+        }
+
         String authorization = Base64.getEncoder()
                 .encodeToString((secretKey + ":").getBytes(StandardCharsets.UTF_8));
-        OrderStatus status;
         try {
-            tossPaymentClient.confirmPayment(authorization, param);
-            status = OrderStatus.PAYMENT_DONE;
+            ResponseEntity<TossConfirmResponse> response =
+                    tossPaymentClient.confirmPayment(authorization, (TossSuccessParam) param);
+            order.setPaymentKey(response.getBody().paymentKey());
+            return new ConfirmResult(PaymentProvider.TOSS, OrderStatus.PAYMENT_DONE, "");
         } catch (FeignException e) {
-            status = OrderStatus.FAIL_PAYMENT_ABORTED;
+            return new ConfirmResult(PaymentProvider.TOSS, OrderStatus.PAYMENT_FAILED, e.getMessage());
         }
-        return new ConfirmResult(PaymentProvider.TOSS, status);
     }
 
     @Override
@@ -70,8 +72,6 @@ public class TossPaymentStrategy implements PaymentStrategy<TossSuccessParam> {
         return PaymentProvider.TOSS;
     }
 
-    @Override
-    public Class<TossSuccessParam> type() {
-        return TossSuccessParam.class;
-    }
+
+
 }

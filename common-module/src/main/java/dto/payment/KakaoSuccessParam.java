@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class KakaoSuccessParam extends PaymentSuccessParam {
+public class KakaoSuccessParam implements PaymentSuccessParam {
     private String orderId;
     private String userId;
     private String pgToken;
