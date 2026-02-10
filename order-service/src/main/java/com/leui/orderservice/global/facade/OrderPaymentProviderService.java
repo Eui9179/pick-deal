@@ -6,6 +6,7 @@ import com.leui.orderservice.domain.order.service.OrderService;
 import com.leui.orderservice.domain.payments.dto.PaymentFailParam;
 import com.leui.orderservice.domain.payments.dto.PaymentReadyRequest;
 import com.leui.orderservice.domain.payments.dto.PaymentReadyResponse;
+import com.leui.orderservice.domain.payments.dto.PaymentStatusResponse;
 import com.leui.orderservice.domain.payments.provider.ConfirmResult;
 import com.leui.orderservice.domain.payments.provider.PaymentProviderHandler;
 import com.leui.orderservice.global.feignclient.StoreDealFeignClient;
@@ -115,6 +116,11 @@ public class OrderPaymentProviderService {
             order.setErrorStatus(OrderStatus.FAIL_OUT_OF_STOCK, e.getMessage());
             throw new OutOfStockException(e.getMessage());
         }
+    }
+
+    public PaymentStatusResponse status(String orderId) {
+        Order order = orderService.getOrder(orderId);
+        return new PaymentStatusResponse(order.getId(), order.getStatus(), order.getFailDescription());
     }
 
 }

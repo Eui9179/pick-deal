@@ -1,12 +1,12 @@
 package com.leui.orderservice.domain.payments.controller;
 
+import com.leui.orderservice.domain.payments.dto.PaymentFailParam;
+import com.leui.orderservice.domain.payments.dto.PaymentStatusResponse;
 import com.leui.orderservice.domain.payments.provider.ConfirmResult;
 import com.leui.orderservice.global.facade.OrderPaymentProviderService;
 import dto.payment.KakaoSuccessParam;
-import com.leui.orderservice.domain.payments.dto.PaymentFailParam;
 import dto.payment.PaymentFailResponse;
 import dto.payment.TossSuccessParam;
-import enumtype.OrderStatus;
 import enumtype.PaymentProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,9 +19,14 @@ public class PaymentController {
 
     private final OrderPaymentProviderService orderPaymentProviderService;
 
+    /**
+     * Client Polling API
+     * @param orderId 주문 고유 id
+     * @return 결제 상태 (PAYMENT_DONE,
+     */
     @GetMapping("/{orderId}/status")
-    public ResponseEntity<OrderStatus> status(@PathVariable String orderId) {
-        return ResponseEntity.ok(OrderStatus.ORDER_START);
+    public ResponseEntity<PaymentStatusResponse> status(@PathVariable String orderId) {
+        return ResponseEntity.ok(orderPaymentProviderService.status(orderId));
     }
 
     @PostMapping("/toss/success")
