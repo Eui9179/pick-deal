@@ -1,5 +1,7 @@
 package com.leui.orderservice.domain.payments.provider;
 
+import com.leui.orderservice.domain.order.dto.OrderCancelRequest;
+import com.leui.orderservice.domain.order.dto.OrderCancelResponse;
 import com.leui.orderservice.domain.order.entity.Order;
 import com.leui.orderservice.domain.payments.dto.PaymentReadyRequest;
 import com.leui.orderservice.domain.payments.dto.PaymentReadyResponse;
@@ -31,9 +33,13 @@ public class PaymentProviderHandler {
     }
 
     @Transactional
-    public ConfirmResult approve(PaymentProvider provider, PaymentSuccessParam param, Order order) {
+    public ApproveResult approve(PaymentProvider provider, PaymentSuccessParam param, Order order) {
         return strategies.get(provider)
                 .approve(param, order);
     }
 
+    public OrderCancelResponse cancel(Order order, OrderCancelRequest request) {
+        return strategies.get(order.getProvider())
+                .cancel(order, request);
+    }
 }

@@ -1,5 +1,6 @@
-package dto.payment;
+package com.leui.orderservice.domain.payments.dto.provider;
 
+import dto.payment.PaymentSuccessParam;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

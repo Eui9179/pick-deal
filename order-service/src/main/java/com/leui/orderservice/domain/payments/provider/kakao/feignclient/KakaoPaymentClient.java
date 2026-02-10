@@ -1,10 +1,6 @@
 package com.leui.orderservice.domain.payments.provider.kakao.feignclient;
 
-import com.leui.orderservice.domain.payments.dto.provider.KakaoConfirmRequest;
-import dto.payment.KakaoSuccessParam;
-import com.leui.orderservice.domain.payments.dto.provider.KakaoConfirmResponse;
-import com.leui.orderservice.domain.payments.dto.provider.KakaoReadyPayload;
-import com.leui.orderservice.domain.payments.dto.provider.KakaoReadyRequest;
+import com.leui.orderservice.domain.payments.dto.provider.*;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,8 +17,15 @@ public interface KakaoPaymentClient {
     );
 
     @PostMapping("/online/v1/payment/approve")
-    KakaoConfirmResponse confirm(
+    KakaoApproveResponse approve(
             @RequestHeader("Authorization") String authorization,
-            @RequestBody KakaoConfirmRequest request
+            @RequestBody KakaoApproveRequest request
     );
+
+    @PostMapping("/online/v1/payment/cancel")
+    ResponseEntity<Void> cancel(
+            @RequestHeader("Authorization") String authorization,
+            @RequestBody KakaoCancelRequest request
+    );
+
 }

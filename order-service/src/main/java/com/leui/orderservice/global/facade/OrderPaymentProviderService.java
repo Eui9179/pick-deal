@@ -1,5 +1,7 @@
 package com.leui.orderservice.global.facade;
 
+import com.leui.orderservice.domain.order.dto.OrderCancelRequest;
+import com.leui.orderservice.domain.order.dto.OrderCancelResponse;
 import com.leui.orderservice.domain.order.dto.OrderCreateRequest;
 import com.leui.orderservice.domain.order.entity.Order;
 import com.leui.orderservice.domain.order.service.OrderService;
@@ -7,10 +9,12 @@ import com.leui.orderservice.domain.payments.dto.PaymentFailParam;
 import com.leui.orderservice.domain.payments.dto.PaymentReadyRequest;
 import com.leui.orderservice.domain.payments.dto.PaymentReadyResponse;
 import com.leui.orderservice.domain.payments.dto.PaymentStatusResponse;
-import com.leui.orderservice.domain.payments.provider.ConfirmResult;
+import com.leui.orderservice.domain.payments.provider.ApproveResult;
 import com.leui.orderservice.domain.payments.provider.PaymentProviderHandler;
+import com.leui.orderservice.global.exception.ForbiddenException;
 import com.leui.orderservice.global.feignclient.StoreDealFeignClient;
-import dto.payment.*;
+import dto.payment.PaymentFailResponse;
+import dto.payment.PaymentSuccessParam;
 import dto.store.DealDetailResponse;
 import dto.store.DealStockQuantityRequest;
 import enumtype.OrderStatus;
@@ -60,9 +64,9 @@ public class OrderPaymentProviderService {
     }
 
     @Transactional
-    public ConfirmResult approvePayments(PaymentProvider provider, PaymentSuccessParam param) {
+    public ApproveResult approvePayments(PaymentProvider provider, PaymentSuccessParam param) {
         Order order = orderService.getOrder(param.getOrderId());
-        ConfirmResult result = paymentProviderHandler.approve(provider, param, order);
+        ApproveResult result = paymentProviderHandler.approve(provider, param, order);
         order.setStatus(result.status());
         order.setFailDescription(result.failCode());
         if (result.status() == OrderStatus.PAYMENT_DONE) {
@@ -100,10 +104,27 @@ public class OrderPaymentProviderService {
         return new PaymentFailResponse(order.getId(), OrderStatus.PAYMENT_FAILED);
     }
 
+    public PaymentStatusResponse status(String orderId) {
+        Order order = orderService.getOrder(orderId);
+        return new PaymentStatusResponse(order.getId(), order.getStatus(), order.getFailDescription());
+    }
+
+    @Transactional
+    public OrderCancelResponse cancel(String orderId, Long userId, OrderCancelRequest request) {
+        // TODO 결제 취소 이벤트 발행
+        Order order = orderService.getOrder(orderId);
+        if (!order.getUserId().equals(userId)) {
+            throw new ForbiddenException("Forbidden userId = " + userId);
+        }
+
+        OrderCancelResponse cancel = paymentProviderHandler.cancel(order, request);
+        order.setStatus(cancel.orderStatus());
+        return cancel;
+    }
+
     private void publishMessageEvent(OrderEvent event) {
         kafkaTemplate.send(OrderEvent.TOPIC, event.getOrderId(), event);
     }
-
 
     private void decreaseDealStock(Order order, Long dealId, int quantity) {
         try {
@@ -116,11 +137,6 @@ public class OrderPaymentProviderService {
             order.setErrorStatus(OrderStatus.FAIL_OUT_OF_STOCK, e.getMessage());
             throw new OutOfStockException(e.getMessage());
         }
-    }
-
-    public PaymentStatusResponse status(String orderId) {
-        Order order = orderService.getOrder(orderId);
-        return new PaymentStatusResponse(order.getId(), order.getStatus(), order.getFailDescription());
     }
 
 }

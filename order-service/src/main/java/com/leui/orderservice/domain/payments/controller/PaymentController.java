@@ -2,11 +2,11 @@ package com.leui.orderservice.domain.payments.controller;
 
 import com.leui.orderservice.domain.payments.dto.PaymentFailParam;
 import com.leui.orderservice.domain.payments.dto.PaymentStatusResponse;
-import com.leui.orderservice.domain.payments.provider.ConfirmResult;
+import com.leui.orderservice.domain.payments.provider.ApproveResult;
 import com.leui.orderservice.global.facade.OrderPaymentProviderService;
-import dto.payment.KakaoSuccessParam;
+import com.leui.orderservice.domain.payments.dto.provider.KakaoSuccessParam;
 import dto.payment.PaymentFailResponse;
-import dto.payment.TossSuccessParam;
+import com.leui.orderservice.domain.payments.dto.provider.TossSuccessParam;
 import enumtype.PaymentProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -30,12 +30,12 @@ public class PaymentController {
     }
 
     @PostMapping("/toss/success")
-    public ResponseEntity<ConfirmResult> confirmToss(@RequestBody TossSuccessParam param) {
+    public ResponseEntity<ApproveResult> confirmToss(@RequestBody TossSuccessParam param) {
         return ResponseEntity.ok(orderPaymentProviderService.approvePayments(PaymentProvider.TOSS, param));
     }
 
     @PostMapping("/kakao/success")
-    public ResponseEntity<ConfirmResult> confirmKakao(@RequestBody KakaoSuccessParam param) {
+    public ResponseEntity<ApproveResult> confirmKakao(@RequestBody KakaoSuccessParam param) {
         return ResponseEntity.ok(orderPaymentProviderService.approvePayments(PaymentProvider.KAKAO, param));
     }
 

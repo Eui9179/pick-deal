@@ -3,7 +3,7 @@ package com.leui.orderservice.domain.payments.dto.provider;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-public record TossConfirmResponse(
+public record TossApproveResponse(
         String lastTransactionKey,
         String paymentKey,
         String orderId,

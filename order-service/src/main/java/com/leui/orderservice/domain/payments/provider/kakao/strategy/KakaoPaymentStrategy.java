@@ -1,15 +1,14 @@
 package com.leui.orderservice.domain.payments.provider.kakao.strategy;
 
+import com.leui.orderservice.domain.order.dto.OrderCancelRequest;
+import com.leui.orderservice.domain.order.dto.OrderCancelResponse;
 import com.leui.orderservice.domain.order.entity.Order;
 import com.leui.orderservice.domain.payments.dto.PaymentReadyRequest;
 import com.leui.orderservice.domain.payments.dto.PaymentReadyResponse;
-import com.leui.orderservice.domain.payments.dto.provider.KakaoConfirmRequest;
-import com.leui.orderservice.domain.payments.dto.provider.KakaoReadyPayload;
-import com.leui.orderservice.domain.payments.dto.provider.KakaoReadyRequest;
-import com.leui.orderservice.domain.payments.provider.ConfirmResult;
+import com.leui.orderservice.domain.payments.dto.provider.*;
+import com.leui.orderservice.domain.payments.provider.ApproveResult;
 import com.leui.orderservice.domain.payments.provider.PaymentStrategy;
 import com.leui.orderservice.domain.payments.provider.kakao.feignclient.KakaoPaymentClient;
-import dto.payment.KakaoSuccessParam;
 import dto.payment.PaymentSuccessParam;
 import enumtype.OrderStatus;
 import enumtype.PaymentProvider;
@@ -62,23 +61,32 @@ public class KakaoPaymentStrategy implements PaymentStrategy {
     }
 
     @Override
-    public ConfirmResult approve(PaymentSuccessParam param, Order order) {
+    public ApproveResult approve(PaymentSuccessParam param, Order order) {
         if (!(param instanceof KakaoSuccessParam)) {
             throw new IllegalArgumentException("Invalid parameter type for Kakao");
         }
-        KakaoConfirmRequest request =
-                new KakaoConfirmRequest(cid, order.getPaymentKey(), (KakaoSuccessParam) param);
+        KakaoApproveRequest request =
+                new KakaoApproveRequest(cid, order.getPaymentKey(), (KakaoSuccessParam) param);
         try {
-            kakaoPaymentClient.confirm(AUTHORIZATION_PREFIX + adminKey, request);
-            return new ConfirmResult(PaymentProvider.KAKAO, OrderStatus.PAYMENT_DONE, "");
+            kakaoPaymentClient.approve(AUTHORIZATION_PREFIX + adminKey, request);
+            return new ApproveResult(PaymentProvider.KAKAO, OrderStatus.PAYMENT_DONE, "");
         } catch (FeignException e) {
-            return new ConfirmResult(PaymentProvider.KAKAO, OrderStatus.PAYMENT_FAILED, e.getMessage());
+            return new ApproveResult(PaymentProvider.KAKAO, OrderStatus.PAYMENT_FAILED, e.getMessage());
         }
     }
 
     @Override
     public PaymentProvider support() {
         return PaymentProvider.KAKAO;
+    }
+
+    @Override
+    public OrderCancelResponse cancel(Order order, OrderCancelRequest request) {
+        kakaoPaymentClient.cancel(
+                AUTHORIZATION_PREFIX + adminKey,
+                new KakaoCancelRequest(cid, order.getPaymentKey(), order.getTotalAmount().intValue(), 0)
+        );
+        return new OrderCancelResponse(OrderStatus.ORDER_CANCELED);
     }
 
 }
