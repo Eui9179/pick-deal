@@ -3,7 +3,7 @@ package com.leui.orderservice.domain.payments.controller;
 import com.leui.orderservice.domain.payments.dto.PaymentFailParam;
 import com.leui.orderservice.domain.payments.dto.PaymentStatusResponse;
 import com.leui.orderservice.domain.payments.provider.ApproveResult;
-import com.leui.orderservice.global.facade.OrderPaymentProviderService;
+import com.leui.orderservice.domain.facade.OrderPaymentProviderService;
 import com.leui.orderservice.domain.payments.dto.provider.KakaoSuccessParam;
 import dto.payment.PaymentFailResponse;
 import com.leui.orderservice.domain.payments.dto.provider.TossSuccessParam;

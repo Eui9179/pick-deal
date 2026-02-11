@@ -1,6 +1,5 @@
 package com.leui.orderservice.global.kafka;
 
-import event.OrderEvent;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,7 +26,7 @@ public class KafkaConsumerConfig {
     private String groupId;
 
     @Bean
-    public ConsumerFactory<String, OrderEvent> consumerFactory() {
+    public ConsumerFactory<String, Object> consumerFactory() {
         Map<String, Object> configProps = new HashMap<>();
 
         // 기본 설정
@@ -41,7 +40,7 @@ public class KafkaConsumerConfig {
 
         // JSON 역직렬화 설정
         configProps.put(JsonDeserializer.TRUSTED_PACKAGES, "com.leui.orderservice.domain.event,com.leui.common.event");
-        configProps.put(JsonDeserializer.VALUE_DEFAULT_TYPE, OrderEvent.class.getName());
+        configProps.put(JsonDeserializer.VALUE_DEFAULT_TYPE, Object.class.getName());
 
         // Offset 설정
         configProps.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
@@ -55,9 +54,9 @@ public class KafkaConsumerConfig {
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, OrderEvent> kafkaListenerContainerFactory() {
+    public ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListenerContainerFactory() {
 
-        ConcurrentKafkaListenerContainerFactory<String, OrderEvent> factory =
+        ConcurrentKafkaListenerContainerFactory<String, Object> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
 
         factory.setConsumerFactory(consumerFactory());

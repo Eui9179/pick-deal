@@ -1,4 +1,4 @@
-package event;
+package kafka.event;
 
 import enumtype.OrderStatus;
 import lombok.AllArgsConstructor;
@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class OrderEvent {
+public class PaymentDoneEvent {
 
     public static final String TOPIC = "order-event";
 
