@@ -1,13 +1,19 @@
 package com.leui.storeservice.domain.deal.scheduler;
 
+import com.leui.storeservice.domain.deal.entity.DealReservation;
 import com.leui.storeservice.domain.deal.repository.DealReservationRepository;
+import kafka.event.DealReservationExpiredEvent;
+import kafka.topic.EventTopics;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -15,6 +21,7 @@ import java.time.Instant;
 public class DealReservationScheduler {
 
     private final DealReservationRepository dealReservationRepository;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     /**
      * 만료된 재고 예약 정리
@@ -26,10 +33,24 @@ public class DealReservationScheduler {
     public void cleanupExpiredReservations() {
         long now = Instant.now().toEpochMilli();
 
-        int deleted = dealReservationRepository.deleteByExpiredAtBefore(now);
+        List<DealReservation> expired = dealReservationRepository.findByExpiredAtLessThan(now);
 
-        if (deleted > 0) {
-            log.info("Cleaned up {} expired deal reservations", deleted);
+        if (expired.isEmpty()) {
+            return;
         }
+
+        expired.forEach(reservation -> {
+            reservation.delete();
+            kafkaTemplate.send(
+                    EventTopics.DEAL_STOCK_RESERVATION_EXPIRED,
+                    DealReservationExpiredEvent.builder()
+                            .orderId(reservation.getOrderId())
+                            .dealId(reservation.getDealId())
+                            .userId(reservation.getUserId())
+                            .quantity(reservation.getQuantity())
+                            .expiredAt(reservation.getExpiredAt())
+                            .build()
+            );
+        });
     }
 }

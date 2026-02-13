@@ -111,7 +111,7 @@ public class OrderPaymentProviderService {
         OrderCancelResponse cancel = paymentProviderHandler.cancel(order, request);
         order.updatePaymentCancel();
 
-        kafkaTemplate.send(EventTopics.PAYMENT_CANCEL, order.getId(),
+        kafkaTemplate.send(EventTopics.PAYMENT_CANCELED, order.getId(),
                 PaymentCancelEvent.builder()
                         .orderId(order.getId())
                         .dealId(order.getDealId())
@@ -139,7 +139,7 @@ public class OrderPaymentProviderService {
     private void failPayment(Order order, String failCause) {
         order.updatePaymentFail();
         order.setFailDescription(failCause);
-        kafkaTemplate.send(EventTopics.PAYMENT_FAIL, order.getId(),
+        kafkaTemplate.send(EventTopics.PAYMENT_FAILED, order.getId(),
                 PaymentFailEvent.builder()
                         .orderId(order.getId())
                         .dealId(order.getDealId())

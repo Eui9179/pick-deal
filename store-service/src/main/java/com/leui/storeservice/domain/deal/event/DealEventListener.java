@@ -43,7 +43,7 @@ public class DealEventListener {
     }
 
     @KafkaListener(
-            topics = {EventTopics.PAYMENT_FAIL, EventTopics.PAYMENT_CANCEL},
+            topics = {EventTopics.PAYMENT_FAILED, EventTopics.PAYMENT_CANCELED},
             groupId = "${spring.kafka.consumer.group-id}",
             containerFactory = "kafkaListenerContainerFactory"
     )
@@ -57,9 +57,9 @@ public class DealEventListener {
             log.info("이벤트 수신: partition={}, offset={}, orderId={}", partition, offset, event.getOrderId());
             dealService.rollbackStock(event.getOrderId(), event.getQuantity());
             acknowledgment.acknowledge();
-            log.info("이벤트 처리 완료: orderId={}, status={}", event.getOrderId(), EventTopics.PAYMENT_FAIL);
+            log.info("이벤트 처리 완료: orderId={}, status={}", event.getOrderId(), EventTopics.PAYMENT_FAILED);
         } catch (Exception e) {
-            log.error("이벤트 처리 실패: orderId={}, status={}", event.getOrderId(), EventTopics.PAYMENT_FAIL, e);
+            log.error("이벤트 처리 실패: orderId={}, status={}", event.getOrderId(), EventTopics.PAYMENT_FAILED, e);
             throw e;
         }
     }

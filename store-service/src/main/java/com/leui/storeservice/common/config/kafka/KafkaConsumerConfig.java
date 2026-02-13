@@ -1,4 +1,4 @@
-package com.leui.orderservice.global.kafka;
+package com.leui.storeservice.common.config.kafka;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -39,7 +39,7 @@ public class KafkaConsumerConfig {
         configProps.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, JsonDeserializer.class.getName());
 
         // JSON 역직렬화 설정
-        configProps.put(JsonDeserializer.TRUSTED_PACKAGES, "java.kafka.event");
+        configProps.put(JsonDeserializer.TRUSTED_PACKAGES, "com.leui.orderservice.domain.event,com.leui.common.event");
         configProps.put(JsonDeserializer.VALUE_DEFAULT_TYPE, Object.class.getName());
 
         // Offset 설정

@@ -7,6 +7,8 @@ public enum OrderStatus {
     ORDER_CANCELED, // 주문/결제 취소
     ORDER_READY_FOR_PICKUP, // 픽업 대기
     ORDER_COMPLETE, // 주문 완료
+    ORDER_EXPIRED, // 주문 완료
+
 
     // 서비스 실패
     FAIL_DEAL_NOTFOUND, // 상품 NotFound
@@ -16,5 +18,6 @@ public enum OrderStatus {
     PAYMENT_DONE, // 결제 완료
     PAYMENT_FAILED, // 결제 실패
     PAYMENT_CANCEL, // 결제 취소
+    PAYMENT_EXPIRED, // 결제 만료
     ;
 }

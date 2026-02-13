@@ -1,7 +1,11 @@
-package com.inzisoft.notificationservice.kafkaevent.order;
+package com.leui.orderservice.domain.order.eventlistener;
 
-import kafka.event.PaymentDoneEvent;
+import com.leui.orderservice.domain.order.entity.Order;
+import com.leui.orderservice.domain.order.service.OrderService;
+import enumtype.OrderStatus;
+import kafka.event.DealReservationExpiredEvent;
 import kafka.topic.EventTopics;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
@@ -10,23 +14,28 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
+@RequiredArgsConstructor
 @Slf4j
 @Component
 public class OrderEventListener {
 
+    private final OrderService orderService;
+
     @KafkaListener(
-            topics = EventTopics.PAYMENT_DONE,
+            topics = EventTopics.DEAL_STOCK_RESERVATION_EXPIRED,
             groupId = "${spring.kafka.consumer.group-id}",
             containerFactory = "kafkaListenerContainerFactory"
     )
     public void onPaymentDoneEvent(
-            @Payload PaymentDoneEvent event,
+            @Payload DealReservationExpiredEvent event,
             @Header(KafkaHeaders.RECEIVED_PARTITION) int partition,
             @Header(KafkaHeaders.OFFSET) long offset,
             Acknowledgment acknowledgment
     ) {
-        //TODO 실시간 알림
         log.info("이벤트 수신: partition={}, offset={}, orderId={}", partition, offset, event.getOrderId());
+        Order order = orderService.getOrder(event.getOrderId());
+        order.updateOrderExpired();
         acknowledgment.acknowledge();
     }
+
 }

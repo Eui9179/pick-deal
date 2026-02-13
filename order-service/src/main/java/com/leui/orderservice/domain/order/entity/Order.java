@@ -31,6 +31,7 @@ public class Order extends BaseEntity {
     @Setter
     private PaymentProvider provider;
 
+    @Setter
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
@@ -77,5 +78,9 @@ public class Order extends BaseEntity {
 
     public void updateOrderCreated() {
         this.status = OrderStatus.ORDER_CANCELED;
+    }
+
+    public void updateOrderExpired() {
+        this.status = OrderStatus.ORDER_EXPIRED;
     }
 }
