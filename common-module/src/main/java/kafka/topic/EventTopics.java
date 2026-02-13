@@ -1,6 +1,6 @@
 package kafka.topic;
 
-public class KafkaTopics {
+public class EventTopics {
     public final static String ORDER_CANCEL = "order-service.order.cancel";
     public final static String ORDER_COMPLETE = "order-service.order.complete";
     public final static String PAYMENT_APPROVE = "order-service.payment.approve";

@@ -2,7 +2,7 @@ package com.leui.storeservice.domain.deal.event;
 
 import com.leui.storeservice.domain.deal.service.DealService;
 import kafka.event.PaymentDoneEvent;
-import kafka.topic.KafkaTopics;
+import kafka.topic.EventTopics;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -20,7 +20,7 @@ public class DealEventListener {
     private final DealService dealService;
 
     @KafkaListener(
-            topics = KafkaTopics.PAYMENT_DONE,
+            topics = EventTopics.PAYMENT_DONE,
             groupId = "${spring.kafka.consumer.group-id}",
             containerFactory = "kafkaListenerContainerFactory"
     )

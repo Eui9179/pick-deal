@@ -19,11 +19,13 @@ import dto.store.DealDetailResponse;
 import dto.store.DealStockQuantityRequest;
 import enumtype.OrderStatus;
 import enumtype.PaymentProvider;
-import kafka.event.PaymentDoneEvent;
 import exception.OutOfStockException;
 import feign.FeignException;
 import jakarta.persistence.EntityNotFoundException;
-import kafka.topic.KafkaTopics;
+import kafka.event.PaymentCancelEvent;
+import kafka.event.PaymentDoneEvent;
+import kafka.event.PaymentFailEvent;
+import kafka.topic.EventTopics;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -38,8 +40,7 @@ public class OrderPaymentProviderService {
     private final PaymentProviderHandler paymentProviderHandler;
     private final OrderService orderService;
     private final StoreDealFeignClient storeDealFeignClient;
-    private final KafkaTemplate<String, PaymentDoneEvent> kafkaTemplate;
-
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Transactional
     public PaymentReadyResponse startOrderTransaction(OrderCreateRequest request, Long userId) {
@@ -72,32 +73,17 @@ public class OrderPaymentProviderService {
         order.setFailDescription(result.failCode());
 
         if (result.status() == OrderStatus.PAYMENT_DONE) {
-            kafkaTemplate.send(
-                    KafkaTopics.PAYMENT_DONE,
-                    order.getId(),
+            kafkaTemplate.send(EventTopics.PAYMENT_DONE, order.getId(),
                     PaymentDoneEvent.builder()
                             .orderId(order.getId())
                             .status(OrderStatus.PAYMENT_DONE)
                             .dealId(order.getDealId())
                             .quantity(order.getQuantity())
-                            .build()
-            );
-        }
-
-        if (result.status() == OrderStatus.PAYMENT_DONE) {
-            publishMessageEvent(PaymentDoneEvent.builder()
-                    .orderId(order.getId())
-                    .status(OrderStatus.PAYMENT_DONE)
-                    .dealId(order.getDealId())
-                    .quantity(order.getQuantity())
-                    .build());
+                            .build());
         } else {
-            publishMessageEvent(PaymentDoneEvent.builder()
-                    .orderId(order.getId())
-                    .status(OrderStatus.PAYMENT_FAILED)
-                    .dealId(order.getDealId())
-                    .quantity(order.getQuantity())
-                    .build());
+            kafkaTemplate.send(EventTopics.PAYMENT_FAIL, order.getId(),
+                    PaymentFailEvent.builder()
+                            .build());
         }
 
         return result;
@@ -109,13 +95,8 @@ public class OrderPaymentProviderService {
         OrderStatus status = OrderStatus.PAYMENT_FAILED;
         order.setStatus(status);
         order.setFailDescription(param.failCode());
-        publishMessageEvent(PaymentDoneEvent.builder()
-                .orderId(order.getId())
-                .status(status)
-                .dealId(order.getDealId())
-                .quantity(order.getQuantity())
-                .failDescription(param.failCode())
-                .build());
+        kafkaTemplate.send(EventTopics.PAYMENT_FAIL, order.getId(),
+                PaymentFailEvent.builder().build());
         return new PaymentFailResponse(order.getId(), OrderStatus.PAYMENT_FAILED);
     }
 
@@ -126,7 +107,6 @@ public class OrderPaymentProviderService {
 
     @Transactional
     public OrderCancelResponse cancel(String orderId, Long userId, OrderCancelRequest request) {
-        // TODO 결제 취소 이벤트 발행
         Order order = orderService.getOrder(orderId);
         if (!order.getUserId().equals(userId)) {
             throw new ForbiddenException("Forbidden userId = " + userId);
@@ -134,11 +114,12 @@ public class OrderPaymentProviderService {
 
         OrderCancelResponse cancel = paymentProviderHandler.cancel(order, request);
         order.setStatus(cancel.orderStatus());
-        return cancel;
-    }
 
-    private void publishMessageEvent(PaymentDoneEvent event) {
-        kafkaTemplate.send(PaymentDoneEvent.TOPIC, event.getOrderId(), event);
+        kafkaTemplate.send(EventTopics.PAYMENT_CANCEL, order.getId(),
+                PaymentCancelEvent.builder()
+                        .build());
+
+        return cancel;
     }
 
     private void decreaseDealStock(Order order, Long dealId, int quantity) {
