@@ -53,7 +53,8 @@ public class OrderPaymentProviderService {
         }
 
         Order order = orderService.createOrder(userId, request, totalAmount);
-        decreaseDealStock(order, request.dealId(), request.quantity());
+        decreaseDealStock(order, request.dealId(), request.quantity()); // 임시 재고 감소
+        order.updateOrderCreated();
 
         return paymentProviderHandler.ready(PaymentReadyRequest.builder()
                 .provider(request.provider())
@@ -68,22 +69,20 @@ public class OrderPaymentProviderService {
     @Transactional
     public ApproveResult approvePayments(PaymentProvider provider, PaymentSuccessParam param) {
         Order order = orderService.getOrder(param.getOrderId());
+
+        // PG 결제
         ApproveResult result = paymentProviderHandler.approve(provider, param, order);
-        order.setStatus(result.status());
-        order.setFailDescription(result.failCode());
 
         if (result.status() == OrderStatus.PAYMENT_DONE) {
+            order.updatePaymentDone();
             kafkaTemplate.send(EventTopics.PAYMENT_DONE, order.getId(),
                     PaymentDoneEvent.builder()
                             .orderId(order.getId())
-                            .status(OrderStatus.PAYMENT_DONE)
                             .dealId(order.getDealId())
                             .quantity(order.getQuantity())
                             .build());
         } else {
-            kafkaTemplate.send(EventTopics.PAYMENT_FAIL, order.getId(),
-                    PaymentFailEvent.builder()
-                            .build());
+            failPayment(order, result.failCode());
         }
 
         return result;
@@ -92,11 +91,8 @@ public class OrderPaymentProviderService {
     @Transactional
     public PaymentFailResponse failPayment(PaymentFailParam param) {
         Order order = orderService.getOrder(param.orderId());
-        OrderStatus status = OrderStatus.PAYMENT_FAILED;
-        order.setStatus(status);
-        order.setFailDescription(param.failCode());
-        kafkaTemplate.send(EventTopics.PAYMENT_FAIL, order.getId(),
-                PaymentFailEvent.builder().build());
+        failPayment(order, param.failCode());
+
         return new PaymentFailResponse(order.getId(), OrderStatus.PAYMENT_FAILED);
     }
 
@@ -113,10 +109,16 @@ public class OrderPaymentProviderService {
         }
 
         OrderCancelResponse cancel = paymentProviderHandler.cancel(order, request);
-        order.setStatus(cancel.orderStatus());
+        order.updatePaymentCancel();
 
         kafkaTemplate.send(EventTopics.PAYMENT_CANCEL, order.getId(),
                 PaymentCancelEvent.builder()
+                        .orderId(order.getId())
+                        .dealId(order.getDealId())
+                        .totalAmount(order.getTotalAmount())
+                        .quantity(order.getQuantity())
+                        .userId(order.getUserId())
+                        .paymentKey(order.getPaymentKey())
                         .build());
 
         return cancel;
@@ -125,7 +127,6 @@ public class OrderPaymentProviderService {
     private void decreaseDealStock(Order order, Long dealId, int quantity) {
         try {
             storeDealFeignClient.reserveStock(dealId, new DealStockQuantityRequest(order.getId(), quantity));
-            order.setStatus(OrderStatus.ORDER_START);
         } catch (FeignException.NotFound e) {
             order.setErrorStatus(OrderStatus.FAIL_DEAL_NOTFOUND, e.getMessage());
             throw new EntityNotFoundException(e.getMessage());
@@ -135,4 +136,18 @@ public class OrderPaymentProviderService {
         }
     }
 
+    private void failPayment(Order order, String failCause) {
+        order.updatePaymentFail();
+        order.setFailDescription(failCause);
+        kafkaTemplate.send(EventTopics.PAYMENT_FAIL, order.getId(),
+                PaymentFailEvent.builder()
+                        .orderId(order.getId())
+                        .dealId(order.getDealId())
+                        .totalAmount(order.getTotalAmount())
+                        .quantity(order.getQuantity())
+                        .userId(order.getUserId())
+                        .paymentKey(order.getPaymentKey())
+                        .failDescription(failCause)
+                        .build());
+    }
 }

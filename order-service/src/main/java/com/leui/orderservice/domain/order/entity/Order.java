@@ -31,7 +31,6 @@ public class Order extends BaseEntity {
     @Setter
     private PaymentProvider provider;
 
-    @Setter
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
@@ -62,5 +61,21 @@ public class Order extends BaseEntity {
     public void setErrorStatus(OrderStatus status, String failDescription) {
         this.status = status;
         this.failDescription = failDescription;
+    }
+
+    public void updatePaymentDone() {
+        this.status = OrderStatus.PAYMENT_DONE;
+    }
+
+    public void updatePaymentFail() {
+        this.status = OrderStatus.PAYMENT_FAILED;
+    }
+
+    public void updatePaymentCancel() {
+        this.status = OrderStatus.PAYMENT_CANCEL;
+    }
+
+    public void updateOrderCreated() {
+        this.status = OrderStatus.ORDER_CANCELED;
     }
 }

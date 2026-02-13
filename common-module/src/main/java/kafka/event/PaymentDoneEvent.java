@@ -13,17 +13,10 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Builder
 public class PaymentDoneEvent {
-
-    public static final String TOPIC = "order-event";
-
-    private String eventId;
     private String orderId;
     private Long dealId;
     private Long userId;
     private Integer quantity;
     private BigDecimal totalAmount;
-    private OrderStatus status;
     private String paymentKey;
-    private String failDescription;
-
 }

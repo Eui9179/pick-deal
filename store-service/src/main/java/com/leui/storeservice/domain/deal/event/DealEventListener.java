@@ -2,6 +2,7 @@ package com.leui.storeservice.domain.deal.event;
 
 import com.leui.storeservice.domain.deal.service.DealService;
 import kafka.event.PaymentDoneEvent;
+import kafka.event.PaymentFailEvent;
 import kafka.topic.EventTopics;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +25,7 @@ public class DealEventListener {
             groupId = "${spring.kafka.consumer.group-id}",
             containerFactory = "kafkaListenerContainerFactory"
     )
-    public void onOrderEvent(
+    public void onPaymentDoneEvent(
             @Payload PaymentDoneEvent event,
             @Header(KafkaHeaders.RECEIVED_PARTITION) int partition,
             @Header(KafkaHeaders.OFFSET) long offset,
@@ -34,9 +35,31 @@ public class DealEventListener {
             log.info("이벤트 수신: partition={}, offset={}, orderId={}", partition, offset, event.getOrderId());
             dealService.confirmStock(event.getDealId(), event.getOrderId(), event.getQuantity());
             acknowledgment.acknowledge();
-            log.info("이벤트 처리 완료: orderId={}, status={}", event.getOrderId(), event.getStatus());
+            log.info("이벤트 처리 완료: orderId={}, status={}", event.getOrderId(), EventTopics.PAYMENT_DONE);
         } catch (Exception e) {
-            log.error("이벤트 처리 실패: orderId={}, status={}", event.getOrderId(), event.getStatus(), e);
+            log.error("이벤트 처리 실패: orderId={}, status={}", event.getOrderId(), EventTopics.PAYMENT_DONE, e);
+            throw e;
+        }
+    }
+
+    @KafkaListener(
+            topics = {EventTopics.PAYMENT_FAIL, EventTopics.PAYMENT_CANCEL},
+            groupId = "${spring.kafka.consumer.group-id}",
+            containerFactory = "kafkaListenerContainerFactory"
+    )
+    public void onPaymentFailEvent(
+            @Payload PaymentFailEvent event,
+            @Header(KafkaHeaders.RECEIVED_PARTITION) int partition,
+            @Header(KafkaHeaders.OFFSET) long offset,
+            Acknowledgment acknowledgment
+    ) {
+        try {
+            log.info("이벤트 수신: partition={}, offset={}, orderId={}", partition, offset, event.getOrderId());
+            dealService.rollbackStock(event.getOrderId(), event.getQuantity());
+            acknowledgment.acknowledge();
+            log.info("이벤트 처리 완료: orderId={}, status={}", event.getOrderId(), EventTopics.PAYMENT_FAIL);
+        } catch (Exception e) {
+            log.error("이벤트 처리 실패: orderId={}, status={}", event.getOrderId(), EventTopics.PAYMENT_FAIL, e);
             throw e;
         }
     }

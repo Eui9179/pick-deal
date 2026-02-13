@@ -15,5 +15,6 @@ public enum OrderStatus {
     // PG 관련
     PAYMENT_DONE, // 결제 완료
     PAYMENT_FAILED, // 결제 실패
+    PAYMENT_CANCEL, // 결제 취소
     ;
 }
