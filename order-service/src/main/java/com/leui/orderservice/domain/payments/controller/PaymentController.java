@@ -1,11 +1,13 @@
 package com.leui.orderservice.domain.payments.controller;
 
-import com.leui.orderservice.domain.payments.provider.ConfirmResult;
-import com.leui.orderservice.global.facade.OrderPaymentProviderService;
-import dto.payment.KakaoSuccessParam;
-import dto.payment.PaymentFailRequest;
+import com.leui.orderservice.domain.payments.dto.PaymentFailParam;
+import com.leui.orderservice.domain.payments.dto.PaymentStatusResponse;
+import com.leui.orderservice.domain.payments.dto.PaymentTrackingResponse;
+import com.leui.orderservice.domain.facade.OrderPaymentProviderService;
+import com.leui.orderservice.domain.payments.dto.provider.KakaoSuccessParam;
 import dto.payment.PaymentFailResponse;
-import dto.payment.TossSuccessParam;
+import com.leui.orderservice.domain.payments.dto.provider.TossSuccessParam;
+import enumtype.PaymentProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,18 +19,29 @@ public class PaymentController {
 
     private final OrderPaymentProviderService orderPaymentProviderService;
 
-    @PostMapping("/toss/confirm")
-    public ResponseEntity<ConfirmResult> confirmToss(@RequestBody TossSuccessParam param) {
-        return ResponseEntity.ok(orderPaymentProviderService.confirmToss(param));
+    /**
+     * Client Polling API
+     * @param orderId 주문 고유 id
+     * @return 결제 상태 (PAYMENT_DONE,
+     */
+    @GetMapping("/{orderId}/status")
+    public ResponseEntity<PaymentStatusResponse> status(@PathVariable String orderId) {
+        return ResponseEntity.ok(orderPaymentProviderService.status(orderId));
     }
 
-    @PostMapping("/kakao/confirm")
-    public ResponseEntity<ConfirmResult> confirmKakao(@RequestBody KakaoSuccessParam param) {
-        return ResponseEntity.ok(orderPaymentProviderService.confirmKakao(param));
+    @PostMapping("/toss/success")
+    public ResponseEntity<PaymentTrackingResponse> confirmToss(@RequestBody TossSuccessParam param) {
+        return ResponseEntity.ok(orderPaymentProviderService.approvePayments(PaymentProvider.TOSS, param));
+    }
+
+    @PostMapping("/kakao/success")
+    public ResponseEntity<PaymentTrackingResponse> confirmKakao(@RequestBody KakaoSuccessParam param) {
+        return ResponseEntity.ok(orderPaymentProviderService.approvePayments(PaymentProvider.KAKAO, param));
     }
 
     @PostMapping("/fail")
-    public ResponseEntity<PaymentFailResponse> fail(@RequestBody PaymentFailRequest param) {
+    public ResponseEntity<PaymentFailResponse> fail(@RequestBody PaymentFailParam param) {
         return ResponseEntity.ok(orderPaymentProviderService.failPayment(param));
     }
+
 }

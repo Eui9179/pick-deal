@@ -7,5 +7,6 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public abstract class PaymentReadyResponse {
+    private final String orderId;
     private final PaymentProvider provider;
 }

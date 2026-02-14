@@ -1,5 +1,6 @@
-package dto.payment;
+package com.leui.orderservice.domain.payments.dto.provider;
 
+import dto.payment.PaymentSuccessParam;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,7 +10,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class KakaoSuccessParam extends PaymentSuccessParam {
+public class KakaoSuccessParam implements PaymentSuccessParam {
     private String orderId;
     private String userId;
     private String pgToken;

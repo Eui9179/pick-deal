@@ -1,6 +1,6 @@
 package com.leui.orderservice.domain.payments.dto.provider;
 
-public record KakaoConfirmResponse(
+public record KakaoApproveResponse(
         String aid,
         String tid,
         String cid,
