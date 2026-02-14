@@ -88,7 +88,7 @@ public class OrderPaymentProviderService {
         ApproveResult result = paymentProviderHandler.approve(provider, param, order);
         if (result.status() == OrderStatus.PAYMENT_APPROVE) {
             order.updatePaymentDone();
-            kafkaTemplate.send(EventTopics.PAYMENT_APPROVE, order.getId(),
+            kafkaTemplate.send(EventTopics.PAYMENT_APPROVED, order.getId(),
                     PaymentApproveEvent.builder()
                             .orderId(order.getId())
                             .dealId(order.getDealId())
@@ -96,20 +96,12 @@ public class OrderPaymentProviderService {
                             .quantity(order.getQuantity())
                             .totalAmount(order.getTotalAmount())
                             .usedPoint(order.getUsedPoint())
+                            .provider(order.getProvider())
                             .build());
         } else {
             order.updatePaymentFail();
             order.setFailDescription(result.failCode());
-            kafkaTemplate.send(EventTopics.PAYMENT_APPROVE_FAIL, order.getId(),
-                    PaymentFailEvent.builder()
-                            .orderId(order.getId())
-                            .dealId(order.getDealId())
-                            .totalAmount(order.getTotalAmount())
-                            .quantity(order.getQuantity())
-                            .userId(order.getUserId())
-                            .paymentKey(order.getPaymentKey())
-                            .failDescription(result.failCode())
-                            .build());
+            kafkaTemplate.send(EventTopics.PAYMENT_APPROVED_FAIL, order.getId(), new PaymentFailEvent(order.getId()));
         }
     }
 
@@ -118,16 +110,7 @@ public class OrderPaymentProviderService {
         Order order = orderService.getOrder(param.orderId());
         order.updatePaymentFail();
         order.setFailDescription(param.failCode());
-        kafkaTemplate.send(EventTopics.PAYMENT_APPROVE_FAIL, order.getId(),
-                PaymentFailEvent.builder()
-                        .orderId(order.getId())
-                        .dealId(order.getDealId())
-                        .totalAmount(order.getTotalAmount())
-                        .quantity(order.getQuantity())
-                        .userId(order.getUserId())
-                        .paymentKey(order.getPaymentKey())
-                        .failDescription(param.failCode())
-                        .build());
+        kafkaTemplate.send(EventTopics.PAYMENT_APPROVED_FAIL, order.getId(), new PaymentFailEvent(order.getId()));
 
         return new PaymentFailResponse(order.getId(), OrderStatus.PAYMENT_FAILED);
     }

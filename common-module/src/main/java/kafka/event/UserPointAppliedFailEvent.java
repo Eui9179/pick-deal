@@ -4,15 +4,13 @@ import enumtype.PaymentProvider;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
-@NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Getter
-public class DealStockCommitEvent {
+public class UserPointAppliedFailEvent {
     private String orderId;
     private Long dealId;
     private Long userId;

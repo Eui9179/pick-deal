@@ -44,7 +44,7 @@ public class UserEventListener {
             user.subtractPoint(event.getUsedPoint()); // 포인트 사용
             BigDecimal earn = event.getTotalAmount().subtract(event.getUsedPoint()).divide(BigDecimal.TEN);
             user.accumulatePoint(earn); // 포인트 적립
-            kafkaTemplate.send(EventTopics.USER_POINT_HANDLE_DONE, event.getOrderId(),
+            kafkaTemplate.send(EventTopics.USER_POINT_APPLIED, event.getOrderId(),
                     DealStockCommitEvent.builder()
                             .orderId(event.getOrderId())
                             .dealId(event.getDealId())
@@ -55,7 +55,7 @@ public class UserEventListener {
                             .paymentKey(event.getPaymentKey())
                             .build());
         } catch (Exception e) {
-            kafkaTemplate.send(EventTopics.USER_POINT_HANDLE_DONE, event.getOrderId(),
+            kafkaTemplate.send(EventTopics.USER_POINT_APPLIED_FAIL, event.getOrderId(),
                     DealStockCommitEvent.builder()
                             .orderId(event.getOrderId())
                             .dealId(event.getDealId())

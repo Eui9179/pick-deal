@@ -9,6 +9,8 @@ public enum OrderStatus {
     ORDER_COMPLETE, // 주문 완료
     ORDER_EXPIRED, // 주문 완료
 
+    FAIL_DEAL_STOCK_COMMIT, // 재고 커밋 실패
+
 
     // 서비스 실패
     FAIL_DEAL_NOTFOUND, // 상품 NotFound

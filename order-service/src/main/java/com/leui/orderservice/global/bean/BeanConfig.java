@@ -14,12 +14,12 @@ public class BeanConfig {
 
     @Bean
     public PaymentProviderHandler paymentHandler(
-            KafkaTemplate<String, Object> kafkaTemplate,
             TossPaymentStrategy tossPayment,
             KakaoPaymentStrategy kakaoPayment
     ) {
-        return new PaymentProviderHandler(kafkaTemplate,
-                List.of(tossPayment, kakaoPayment)
+        return new PaymentProviderHandler(List.of(
+                tossPayment,
+                kakaoPayment)
         );
     }
 

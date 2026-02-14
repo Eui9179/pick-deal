@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Builder
 @Getter
-public class DealStockCommitEvent {
+public class DealStockCommitFailEvent {
     private String orderId;
     private Long dealId;
     private Long userId;

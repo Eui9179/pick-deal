@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 public class NotificationEventListener {
 
     @KafkaListener(
-            topics = EventTopics.USER_POINT_HANDLE_DONE,
+            topics = EventTopics.USER_POINT_APPLIED,
             groupId = "${spring.kafka.consumer.group-id}",
             containerFactory = "kafkaListenerContainerFactory"
     )

@@ -1,5 +1,6 @@
 package kafka.event;
 
+import enumtype.PaymentProvider;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,4 +20,5 @@ public class PaymentApproveEvent {
     private BigDecimal totalAmount;
     private BigDecimal usedPoint;
     private String paymentKey;
+    private PaymentProvider provider;
 }

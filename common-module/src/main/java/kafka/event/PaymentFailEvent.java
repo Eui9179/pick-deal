@@ -1,5 +1,6 @@
 package kafka.event;
 
+import enumtype.PaymentProvider;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,4 +18,9 @@ public class PaymentFailEvent {
     private BigDecimal totalAmount;
     private String paymentKey;
     private String failDescription;
+    private PaymentProvider provider;
+
+    public PaymentFailEvent(String orderId) {
+        this.orderId = orderId;
+    }
 }
