@@ -2,7 +2,7 @@ package com.leui.orderservice.domain.payments.controller;
 
 import com.leui.orderservice.domain.payments.dto.PaymentFailParam;
 import com.leui.orderservice.domain.payments.dto.PaymentStatusResponse;
-import com.leui.orderservice.domain.payments.provider.ApproveResult;
+import com.leui.orderservice.domain.payments.dto.PaymentTrackingResponse;
 import com.leui.orderservice.domain.facade.OrderPaymentProviderService;
 import com.leui.orderservice.domain.payments.dto.provider.KakaoSuccessParam;
 import dto.payment.PaymentFailResponse;
@@ -30,12 +30,12 @@ public class PaymentController {
     }
 
     @PostMapping("/toss/success")
-    public ResponseEntity<ApproveResult> confirmToss(@RequestBody TossSuccessParam param) {
+    public ResponseEntity<PaymentTrackingResponse> confirmToss(@RequestBody TossSuccessParam param) {
         return ResponseEntity.ok(orderPaymentProviderService.approvePayments(PaymentProvider.TOSS, param));
     }
 
     @PostMapping("/kakao/success")
-    public ResponseEntity<ApproveResult> confirmKakao(@RequestBody KakaoSuccessParam param) {
+    public ResponseEntity<PaymentTrackingResponse> confirmKakao(@RequestBody KakaoSuccessParam param) {
         return ResponseEntity.ok(orderPaymentProviderService.approvePayments(PaymentProvider.KAKAO, param));
     }
 

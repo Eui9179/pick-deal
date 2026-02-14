@@ -3,17 +3,17 @@ package com.leui.orderservice.domain.payments.provider.toss.strategy;
 import com.leui.orderservice.domain.order.dto.OrderCancelRequest;
 import com.leui.orderservice.domain.order.dto.OrderCancelResponse;
 import com.leui.orderservice.domain.order.entity.Order;
+import com.leui.orderservice.domain.payments.dto.ApproveResult;
 import com.leui.orderservice.domain.payments.dto.PaymentReadyRequest;
 import com.leui.orderservice.domain.payments.dto.PaymentReadyResponse;
-import com.leui.orderservice.domain.payments.dto.provider.TossCancelParam;
 import com.leui.orderservice.domain.payments.dto.provider.TossApproveResponse;
+import com.leui.orderservice.domain.payments.dto.provider.TossCancelParam;
 import com.leui.orderservice.domain.payments.dto.provider.TossReadyPayload;
-import com.leui.orderservice.domain.payments.provider.ApproveResult;
+import com.leui.orderservice.domain.payments.dto.provider.TossSuccessParam;
 import com.leui.orderservice.domain.payments.provider.PaymentStrategy;
 import com.leui.orderservice.domain.payments.provider.toss.feignclient.TossPaymentClient;
 import com.leui.orderservice.global.feignclient.UserFeignClient;
 import dto.payment.PaymentSuccessParam;
-import com.leui.orderservice.domain.payments.dto.provider.TossSuccessParam;
 import dto.user.UserDetailResponse;
 import enumtype.OrderStatus;
 import enumtype.PaymentProvider;
@@ -22,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -52,6 +53,7 @@ public class TossPaymentStrategy implements PaymentStrategy {
         );
     }
 
+    @Transactional
     @Override
     public ApproveResult approve(PaymentSuccessParam param, Order order) {
         if (!(param instanceof TossSuccessParam)) {

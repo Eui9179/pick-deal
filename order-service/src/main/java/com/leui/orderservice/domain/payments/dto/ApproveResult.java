@@ -1,4 +1,4 @@
-package com.leui.orderservice.domain.payments.provider;
+package com.leui.orderservice.domain.payments.dto;
 
 import enumtype.OrderStatus;
 import enumtype.PaymentProvider;

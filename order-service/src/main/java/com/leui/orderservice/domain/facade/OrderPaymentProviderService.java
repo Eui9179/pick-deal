@@ -9,7 +9,7 @@ import com.leui.orderservice.domain.payments.dto.PaymentFailParam;
 import com.leui.orderservice.domain.payments.dto.PaymentReadyRequest;
 import com.leui.orderservice.domain.payments.dto.PaymentReadyResponse;
 import com.leui.orderservice.domain.payments.dto.PaymentStatusResponse;
-import com.leui.orderservice.domain.payments.provider.ApproveResult;
+import com.leui.orderservice.domain.payments.dto.PaymentTrackingResponse;
 import com.leui.orderservice.domain.payments.provider.PaymentProviderHandler;
 import com.leui.orderservice.global.exception.ForbiddenException;
 import com.leui.orderservice.global.feignclient.StoreDealFeignClient;
@@ -23,7 +23,6 @@ import exception.OutOfStockException;
 import feign.FeignException;
 import jakarta.persistence.EntityNotFoundException;
 import kafka.event.PaymentCancelEvent;
-import kafka.event.PaymentDoneEvent;
 import kafka.event.PaymentFailEvent;
 import kafka.topic.EventTopics;
 import lombok.RequiredArgsConstructor;
@@ -67,25 +66,11 @@ public class OrderPaymentProviderService {
     }
 
     @Transactional
-    public ApproveResult approvePayments(PaymentProvider provider, PaymentSuccessParam param) {
+    public PaymentTrackingResponse approvePayments(PaymentProvider provider, PaymentSuccessParam param) {
         Order order = orderService.getOrder(param.getOrderId());
-
-        // PG 결제
-        ApproveResult result = paymentProviderHandler.approve(provider, param, order);
-
-        if (result.status() == OrderStatus.PAYMENT_DONE) {
-            order.updatePaymentDone();
-            kafkaTemplate.send(EventTopics.PAYMENT_DONE, order.getId(),
-                    PaymentDoneEvent.builder()
-                            .orderId(order.getId())
-                            .dealId(order.getDealId())
-                            .quantity(order.getQuantity())
-                            .build());
-        } else {
-            failPayment(order, result.failCode());
-        }
-
-        return result;
+        // PG 결제 (비동기)
+        paymentProviderHandler.approve(provider, param, order);
+        return new PaymentTrackingResponse(order.getId());
     }
 
     @Transactional

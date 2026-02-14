@@ -6,7 +6,11 @@ import com.leui.orderservice.domain.order.entity.Order;
 import com.leui.orderservice.domain.payments.dto.PaymentReadyRequest;
 import com.leui.orderservice.domain.payments.dto.PaymentReadyResponse;
 import dto.payment.PaymentSuccessParam;
+import enumtype.OrderStatus;
 import enumtype.PaymentProvider;
+import kafka.event.PaymentDoneEvent;
+import kafka.topic.EventTopics;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -32,10 +36,24 @@ public class PaymentProviderHandler {
                 .ready(readyRequest);
     }
 
-    @Transactional
-    public ApproveResult approve(PaymentProvider provider, PaymentSuccessParam param, Order order) {
-        return strategies.get(provider)
+
+    @Async
+    public void approve(PaymentProvider provider, PaymentSuccessParam param, Order order) {
+        strategies.get(provider)
                 .approve(param, order);
+
+        if (result.status() == OrderStatus.PAYMENT_DONE) {
+            order.updatePaymentDone();
+            kafkaTemplate.send(EventTopics.PAYMENT_DONE, order.getId(),
+                    PaymentDoneEvent.builder()
+                            .orderId(order.getId())
+                            .dealId(order.getDealId())
+                            .quantity(order.getQuantity())
+                            .build());
+        } else {
+            failPayment(order, result.failCode());
+        }
+
     }
 
     public OrderCancelResponse cancel(Order order, OrderCancelRequest request) {
