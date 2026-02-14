@@ -24,8 +24,14 @@ public class OrderService {
     }
 
     public Order createOrder(Long userId, OrderCreateRequest request, BigDecimal totalAmount) {
-        Order order = new Order(userId, request.dealId(), request.pickupTime(), request.quantity(), request.provider(), totalAmount);
-        return orderRepository.save(order);
+        return orderRepository.save(new Order(
+                userId,
+                request.dealId(),
+                request.pickupTime(),
+                request.quantity(),
+                request.provider(),
+                request.usedPoint(),
+                totalAmount));
     }
 
     public OrderDetailResponse getOrderDetail(Long orderId) {

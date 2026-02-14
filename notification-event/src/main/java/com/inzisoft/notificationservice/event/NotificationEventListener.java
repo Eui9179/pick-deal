@@ -1,6 +1,6 @@
-package com.inzisoft.notificationservice.event.order;
+package com.inzisoft.notificationservice.event;
 
-import kafka.event.PaymentDoneEvent;
+import kafka.event.PaymentApproveEvent;
 import kafka.topic.EventTopics;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -15,12 +15,12 @@ import org.springframework.stereotype.Component;
 public class NotificationEventListener {
 
     @KafkaListener(
-            topics = EventTopics.PAYMENT_APPROVE,
+            topics = EventTopics.USER_POINT_HANDLE_DONE,
             groupId = "${spring.kafka.consumer.group-id}",
             containerFactory = "kafkaListenerContainerFactory"
     )
     public void onPaymentDoneEvent(
-            @Payload PaymentDoneEvent event,
+            @Payload PaymentApproveEvent event,
             @Header(KafkaHeaders.RECEIVED_PARTITION) int partition,
             @Header(KafkaHeaders.OFFSET) long offset,
             Acknowledgment acknowledgment

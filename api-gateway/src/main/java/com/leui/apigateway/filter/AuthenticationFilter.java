@@ -44,8 +44,8 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
 
             ServerHttpRequest request = exchange.getRequest()
                     .mutate()
-                    .header("X-User-Id", userId)
-                    .header("X-User-Role", role)
+                    .header("x-user-id", userId)
+                    .header("x-user-role", role)
                     .build();
 
             return chain.filter(exchange.mutate().request(request).build());

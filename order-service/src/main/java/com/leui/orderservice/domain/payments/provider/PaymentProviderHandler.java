@@ -7,13 +7,8 @@ import com.leui.orderservice.domain.payments.dto.ApproveResult;
 import com.leui.orderservice.domain.payments.dto.PaymentReadyRequest;
 import com.leui.orderservice.domain.payments.dto.PaymentReadyResponse;
 import dto.payment.PaymentSuccessParam;
-import enumtype.OrderStatus;
 import enumtype.PaymentProvider;
-import kafka.event.PaymentDoneEvent;
-import kafka.event.PaymentFailEvent;
-import kafka.topic.EventTopics;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
