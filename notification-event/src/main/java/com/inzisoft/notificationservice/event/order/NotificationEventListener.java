@@ -1,4 +1,4 @@
-package com.inzisoft.notificationservice.kafkaevent.order;
+package com.inzisoft.notificationservice.event.order;
 
 import kafka.event.PaymentDoneEvent;
 import kafka.topic.EventTopics;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 public class NotificationEventListener {
 
     @KafkaListener(
-            topics = EventTopics.PAYMENT_DONE,
+            topics = EventTopics.PAYMENT_APPROVE,
             groupId = "${spring.kafka.consumer.group-id}",
             containerFactory = "kafkaListenerContainerFactory"
     )

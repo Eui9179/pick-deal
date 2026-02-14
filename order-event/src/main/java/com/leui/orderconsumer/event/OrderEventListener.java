@@ -1,8 +1,8 @@
-package com.leui.orderservice.domain.order.eventlistener;
+package com.leui.orderconsumer.event;
 
-import com.leui.orderservice.domain.order.entity.Order;
-import com.leui.orderservice.domain.order.service.OrderService;
-import enumtype.OrderStatus;
+import com.leui.orderconsumer.domain.Order;
+import com.leui.orderconsumer.domain.OrderRepository;
+import jakarta.persistence.EntityNotFoundException;
 import kafka.event.DealReservationExpiredEvent;
 import kafka.topic.EventTopics;
 import lombok.RequiredArgsConstructor;
@@ -13,14 +13,16 @@ import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Slf4j
 @Component
 public class OrderEventListener {
 
-    private final OrderService orderService;
+    private final OrderRepository orderRepository;
 
+    @Transactional
     @KafkaListener(
             topics = EventTopics.DEAL_STOCK_RESERVATION_EXPIRED,
             groupId = "${spring.kafka.consumer.group-id}",
@@ -33,7 +35,8 @@ public class OrderEventListener {
             Acknowledgment acknowledgment
     ) {
         log.info("이벤트 수신: partition={}, offset={}, orderId={}", partition, offset, event.getOrderId());
-        Order order = orderService.getOrder(event.getOrderId());
+        Order order = orderRepository.findById(event.getOrderId())
+                .orElseThrow(() -> new EntityNotFoundException("Not found. id = " + event.getOrderId()));
         order.updateOrderExpired();
         acknowledgment.acknowledge();
     }
