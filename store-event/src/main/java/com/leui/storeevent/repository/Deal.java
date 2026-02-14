@@ -1,13 +1,9 @@
-package com.leui.storeservice.domain.deal.entity;
+package com.leui.storeevent.repository;
 
-import com.leui.storeservice.common.entity.BaseEntity;
 import dto.store.DealCreateRequest;
 import dto.store.DealUpdateRequest;
-import com.leui.storeservice.domain.discountpolicy.entity.DiscountPolicy;
-import com.leui.storeservice.domain.store.entity.Store;
 import enumtype.DealStatus;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,20 +14,17 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class Deal extends BaseEntity {
+public class Deal {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @JoinColumn(name = "store_id", nullable = false)
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Store store;
+    @JoinColumn(nullable = false)
+    private Long storeId;
 
-    @Size(max = 100, message = "The length of 'name' is exceeded")
     @Column(nullable = false, length = 100)
     private String name;
 
-    @Size(max = 100, message = "The length of 'description' is exceeded")
     @Column(nullable = false, length = 2000)
     private String description;
 
@@ -48,12 +41,9 @@ public class Deal extends BaseEntity {
     @Column(nullable = false)
     private LocalDateTime pickupEndTime;
 
-    @OneToOne(mappedBy = "deal", cascade = CascadeType.ALL, orphanRemoval = true)
-    private DiscountPolicy discountPolicy;
-
-    public Deal(Store store, String name, String description, BigDecimal price,
+    public Deal(Long storeId, String name, String description, BigDecimal price,
                 int stockQuantity, DealStatus dealStatus, LocalDateTime pickupEndTime) {
-        this.store = store;
+        this.storeId = storeId;
         this.name = name;
         this.description = description;
         this.price = price;
@@ -62,8 +52,8 @@ public class Deal extends BaseEntity {
         this.pickupEndTime = pickupEndTime;
     }
 
-    public Deal(Store store, DealCreateRequest request) {
-        this(store, request.name(), request.description(), request.price(), request.stockQuantity(),DealStatus.ON_SALE,
+    public Deal(Long storeId, DealCreateRequest request) {
+        this(storeId, request.name(), request.description(), request.price(), request.stockQuantity(),DealStatus.ON_SALE,
                 request.pickupEndTime());
     }
 
@@ -86,12 +76,5 @@ public class Deal extends BaseEntity {
 
     public void updateClosed() {
         this.dealStatus = DealStatus.CLOSED;
-    }
-
-    public void setDiscountPolicy(DiscountPolicy discountPolicy) {
-        this.discountPolicy = discountPolicy;
-        if (discountPolicy != null) {
-            discountPolicy.setDeal(this);
-        }
     }
 }

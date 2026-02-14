@@ -7,7 +7,6 @@ import com.leui.orderservice.domain.payments.dto.ApproveResult;
 import com.leui.orderservice.domain.payments.dto.PaymentReadyRequest;
 import com.leui.orderservice.domain.payments.dto.PaymentReadyResponse;
 import com.leui.orderservice.domain.payments.dto.provider.*;
-import com.leui.orderservice.domain.payments.dto.PaymentTrackingResponse;
 import com.leui.orderservice.domain.payments.provider.PaymentStrategy;
 import com.leui.orderservice.domain.payments.provider.kakao.feignclient.KakaoPaymentClient;
 import dto.payment.PaymentSuccessParam;
@@ -70,7 +69,7 @@ public class KakaoPaymentStrategy implements PaymentStrategy {
                 new KakaoApproveRequest(cid, order.getPaymentKey(), (KakaoSuccessParam) param);
         try {
             kakaoPaymentClient.approve(AUTHORIZATION_PREFIX + adminKey, request);
-            return new ApproveResult(PaymentProvider.KAKAO, OrderStatus.PAYMENT_DONE, "");
+            return new ApproveResult(PaymentProvider.KAKAO, OrderStatus.PAYMENT_APPROVE, "");
         } catch (FeignException e) {
             return new ApproveResult(PaymentProvider.KAKAO, OrderStatus.PAYMENT_FAILED, e.getMessage());
         }

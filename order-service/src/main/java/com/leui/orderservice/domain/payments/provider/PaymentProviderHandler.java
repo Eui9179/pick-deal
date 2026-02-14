@@ -3,13 +3,16 @@ package com.leui.orderservice.domain.payments.provider;
 import com.leui.orderservice.domain.order.dto.OrderCancelRequest;
 import com.leui.orderservice.domain.order.dto.OrderCancelResponse;
 import com.leui.orderservice.domain.order.entity.Order;
+import com.leui.orderservice.domain.payments.dto.ApproveResult;
 import com.leui.orderservice.domain.payments.dto.PaymentReadyRequest;
 import com.leui.orderservice.domain.payments.dto.PaymentReadyResponse;
 import dto.payment.PaymentSuccessParam;
 import enumtype.OrderStatus;
 import enumtype.PaymentProvider;
 import kafka.event.PaymentDoneEvent;
+import kafka.event.PaymentFailEvent;
 import kafka.topic.EventTopics;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,8 +24,10 @@ import java.util.stream.Collectors;
 public class PaymentProviderHandler {
 
     private final Map<PaymentProvider, PaymentStrategy> strategies;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    public PaymentProviderHandler(List<PaymentStrategy> strategyList) {
+    public PaymentProviderHandler(KafkaTemplate<String, Object> kafkaTemplate, List<PaymentStrategy> strategyList) {
+        this.kafkaTemplate = kafkaTemplate;
         this.strategies = strategyList.stream()
                 .collect(Collectors.toMap(
                         PaymentStrategy::support,
@@ -36,24 +41,9 @@ public class PaymentProviderHandler {
                 .ready(readyRequest);
     }
 
-
-    @Async
-    public void approve(PaymentProvider provider, PaymentSuccessParam param, Order order) {
-        strategies.get(provider)
+    public ApproveResult approve(PaymentProvider provider, PaymentSuccessParam param, Order order) {
+        return strategies.get(provider)
                 .approve(param, order);
-
-        if (result.status() == OrderStatus.PAYMENT_DONE) {
-            order.updatePaymentDone();
-            kafkaTemplate.send(EventTopics.PAYMENT_DONE, order.getId(),
-                    PaymentDoneEvent.builder()
-                            .orderId(order.getId())
-                            .dealId(order.getDealId())
-                            .quantity(order.getQuantity())
-                            .build());
-        } else {
-            failPayment(order, result.failCode());
-        }
-
     }
 
     public OrderCancelResponse cancel(Order order, OrderCancelRequest request) {

@@ -65,7 +65,7 @@ public class Order extends BaseEntity {
     }
 
     public void updatePaymentDone() {
-        this.status = OrderStatus.PAYMENT_DONE;
+        this.status = OrderStatus.PAYMENT_APPROVE;
     }
 
     public void updatePaymentFail() {

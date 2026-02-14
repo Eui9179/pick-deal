@@ -1,7 +1,7 @@
 package com.leui.orderconsumer.event;
 
-import com.leui.orderconsumer.domain.Order;
-import com.leui.orderconsumer.domain.OrderRepository;
+import com.leui.orderconsumer.repository.Order;
+import com.leui.orderconsumer.repository.OrderRepository;
 import jakarta.persistence.EntityNotFoundException;
 import kafka.event.DealReservationExpiredEvent;
 import kafka.topic.EventTopics;

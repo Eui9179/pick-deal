@@ -1,4 +1,4 @@
-package com.leui.orderconsumer.domain;
+package com.leui.orderconsumer.repository;
 
 import enumtype.OrderStatus;
 import enumtype.PaymentProvider;

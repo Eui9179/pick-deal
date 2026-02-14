@@ -1,4 +1,4 @@
-package com.leui.orderconsumer.common.config.kafka;
+package com.leui.orderconsumer.config.kafka;
 
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;

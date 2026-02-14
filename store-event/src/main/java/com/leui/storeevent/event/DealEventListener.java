@@ -1,6 +1,9 @@
-package com.leui.storeservice.domain.deal.event;
+package com.leui.storeevent.event;
 
-import com.leui.storeservice.domain.deal.service.DealService;
+import com.leui.storeevent.repository.DealRepository;
+import com.leui.storeevent.repository.DealReservationRepository;
+import exception.OutOfStockException;
+import jakarta.persistence.EntityNotFoundException;
 import kafka.event.PaymentDoneEvent;
 import kafka.event.PaymentFailEvent;
 import kafka.topic.EventTopics;
@@ -18,7 +21,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class DealEventListener {
 
-    private final DealService dealService;
+    private final DealRepository dealRepository;
+    private final DealReservationRepository dealReservationRepository;
 
     @KafkaListener(
             topics = EventTopics.PAYMENT_APPROVE,
@@ -32,10 +36,15 @@ public class DealEventListener {
             Acknowledgment acknowledgment
     ) {
         try {
-            log.info("이벤트 수신: partition={}, offset={}, orderId={}", partition, offset, event.getOrderId());
-            dealService.confirmStock(event.getDealId(), event.getOrderId(), event.getQuantity());
-            acknowledgment.acknowledge();
-            log.info("이벤트 처리 완료: orderId={}, status={}", event.getOrderId(), EventTopics.PAYMENT_APPROVE);
+            int stockQuantity = dealRepository.decreaseStockQuantity(event.getDealId(), event.getQuantity());
+            if (stockQuantity == 0) {
+                if (!dealRepository.existsById(event.getDealId())) {
+                    throw new EntityNotFoundException("Deal Not Found. dealId: " + event.getDealId());
+                }
+                throw new OutOfStockException("Out of Stock. dealId: " + event.getDealId());
+            }
+
+            dealReservationRepository.deleteByOrderId(event.getOrderId());
         } catch (Exception e) {
             log.error("이벤트 처리 실패: orderId={}, status={}", event.getOrderId(), EventTopics.PAYMENT_APPROVE, e);
             throw e;
@@ -55,7 +64,7 @@ public class DealEventListener {
     ) {
         try {
             log.info("이벤트 수신: partition={}, offset={}, orderId={}", partition, offset, event.getOrderId());
-            dealService.rollbackStock(event.getOrderId(), event.getQuantity());
+            dealReservationRepository.deleteByOrderId(event.getOrderId());
             acknowledgment.acknowledge();
             log.info("이벤트 처리 완료: orderId={}, status={}", event.getOrderId(), EventTopics.PAYMENT_FAILED);
         } catch (Exception e) {

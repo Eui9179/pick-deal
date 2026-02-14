@@ -15,7 +15,7 @@ public enum OrderStatus {
     FAIL_OUT_OF_STOCK, // 품절
 
     // PG 관련
-    PAYMENT_DONE, // 결제 완료
+    PAYMENT_APPROVE, // 결제 완료
     PAYMENT_FAILED, // 결제 실패
     PAYMENT_CANCEL, // 결제 취소
     PAYMENT_EXPIRED, // 결제 만료
