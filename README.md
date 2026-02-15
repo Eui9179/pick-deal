@@ -309,7 +309,17 @@ docker compose -f docker-compose-local.yml up -d
 
 ## 이슈 해결
 
-### 1. 재고 동시성 처리
+### 1. 분산 트랜잭션 (Saga Choreography)
+
+**문제:** 결제 승인 → 재고 확정 → 포인트 처리가 서로 다른 서비스에서 일어나므로, 중간에 실패하면 일관성이 깨짐.
+
+**해결:**
+- 중앙 오케스트레이터 없이 각 Kafka 컨슈머가 성공/실패 이벤트를 발행하는 **Choreography 기반 Saga** 패턴 적용
+- 각 단계에서 실패 시 이전 단계를 되돌리는 **보상 트랜잭션** 이벤트를 발행하여 최종 일관성 보장
+
+---
+
+### 2. 재고 동시성 처리
 
 **문제:** 여러 사용자가 동시에 동일 딜을 주문할 경우 재고가 음수가 되는 Race Condition 발생 가능성.
 
@@ -320,39 +330,7 @@ docker compose -f docker-compose-local.yml up -d
 
 ---
 
-### 2. 분산 트랜잭션 (Saga Choreography)
-
-**문제:** 결제 승인 → 재고 확정 → 포인트 처리가 서로 다른 서비스에서 일어나므로, 중간에 실패하면 일관성이 깨짐.
-
-**해결:**
-- 중앙 오케스트레이터 없이 각 Kafka 컨슈머가 성공/실패 이벤트를 발행하는 **Choreography 기반 Saga** 패턴 적용
-- 각 단계에서 실패 시 이전 단계를 되돌리는 **보상 트랜잭션** 이벤트를 발행하여 최종 일관성 보장
-
----
-
-### 3. Kafka 메시지 신뢰성
-
-**문제:** 네트워크 장애나 브로커 재시작 시 메시지 유실 가능성.
-
-**해결:**
-- Producer: `acks=all`, `enable.idempotence=true`, `retries=3`, `compression=snappy`
-- Consumer: `ack-mode=manual` (처리 완료 후 명시적 acknowledge)
-- Kafka 클러스터: 3-node KRaft 구성으로 고가용성 확보 (`replication.factor=3`, `min.insync.replicas=2`)
-
----
-
-### 4. 인증 집중화
-
-**문제:** 각 서비스마다 JWT 검증 로직을 중복 구현해야 하는 문제.
-
-**해결:**
-- API Gateway의 `AuthenticationFilter`에서 JWT 검증을 일괄 처리
-- 검증 후 `x-user-id`, `x-user-role` 헤더를 주입하여 내부 서비스는 헤더만 신뢰
-- `/internal/**` 경로는 Gateway를 통하지 않고 서비스 간 Feign 호출에만 사용 (외부 노출 없음)
-
----
-
-### 5. 동적 할인가 계산
+### 3. 동적 할인가 계산
 
 **문제:** 딜의 현재 할인가를 DB에 직접 저장하면 시간마다 업데이트가 필요하고 조회 시 일관성 문제 발생.
 
