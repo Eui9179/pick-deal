@@ -15,7 +15,6 @@
   - [Happy Path](#happy-path)
   - [보상 트랜잭션](#보상-트랜잭션-saga-choreography)
   - [예약 만료 플로우](#예약-만료-플로우)
-- [API 명세](#api-명세)
 - [로컬 실행 방법](#로컬-실행-방법)
 - [이슈 해결](#이슈-해결)
 
@@ -224,48 +223,6 @@ sequenceDiagram
     Note over OE: 주문 상태 → ORDER_EXPIRED
 ```
 
-<br/>
-
-## API 명세
-
-> 모든 요청은 API Gateway(`http://localhost:8888`)를 통합니다.
-> 인증이 필요한 API는 `Authorization: Bearer <access_token>` 헤더를 포함해야 합니다.
-
-### Auth / User
-
-| Method | Path | 인증 | 설명 |
-|---|---|---|---|
-| `POST` | `/api/v1/users` | N | 회원가입 |
-| `POST` | `/api/v1/auth/login` | N | 로그인, JWT 발급 |
-| `POST` | `/api/v1/auth/refresh` | N | Access Token 재발급 |
-| `POST` | `/api/v1/auth/logout` | Y | 로그아웃, 토큰 블랙리스트 등록 |
-
-### Store / Deal
-
-| Method | Path | 인증 | 설명 |
-|---|---|---|---|
-| `GET` | `/api/v1/stores?x=&y=&radius=` | Y | 반경 내 가게 목록 조회 (PostGIS) |
-| `POST` | `/api/v1/stores` | Y | 가게 등록 |
-| `PATCH` | `/api/v1/stores/{id}` | Y | 가게 정보 수정 |
-| `GET` | `/api/v1/stores/{storeId}/deals` | Y | 가게의 딜 목록 조회 |
-| `POST` | `/api/v1/stores/{storeId}/deals` | Y | 딜 등록 |
-| `GET` | `/api/v1/deals/{dealId}` | Y | 딜 상세 조회 (동적 할인가 포함) |
-| `PATCH` | `/api/v1/deals/{dealId}` | Y | 딜 정보 수정 |
-
-### Order / Payment
-
-| Method | Path | 인증 | 설명 |
-|---|---|---|---|
-| `POST` | `/api/v1/orders` | Y | 주문 생성 (재고 예약 + 결제 준비) |
-| `GET` | `/api/v1/orders/{orderId}` | Y | 주문 상세 조회 |
-| `POST` | `/api/v1/orders/{orderId}/cancel` | Y | 주문 취소 |
-| `GET` | `/api/v1/payments/{orderId}/status` | Y | 결제 상태 폴링 |
-| `POST` | `/api/v1/payments/toss/success` | Y | Toss 결제 승인 콜백 |
-| `POST` | `/api/v1/payments/kakao/success` | Y | Kakao 결제 승인 콜백 |
-| `POST` | `/api/v1/payments/fail` | Y | 결제 실패 콜백 |
-
-<br/>
-
 ## 로컬 실행 방법
 
 ### 사전 요구사항
@@ -273,7 +230,7 @@ sequenceDiagram
 - Java 17
 - Gradle 8.x
 
-### 1. 인프라 실행
+### 인프라 실행
 
 ```bash
 cd docker
@@ -282,34 +239,11 @@ docker compose -f docker-compose-local.yml up -d
 
 > PostgreSQL × 3, Redis, Kafka (KRaft 3-node) 가 실행됩니다.
 
-### 2. 서비스 실행 순서
-
-```bash
-# 1. 서비스 레지스트리
-./gradlew :eureka-server:bootRun
-
-# 2. API Gateway
-./gradlew :api-gateway:bootRun
-
-# 3. Core Services (순서 무관)
-./gradlew :user-service:bootRun
-./gradlew :store-service:bootRun
-./gradlew :order-service:bootRun
-
-# 4. Event Consumers (순서 무관)
-./gradlew :user-event:bootRun
-./gradlew :store-event:bootRun
-./gradlew :order-event:bootRun
-./gradlew :notification-event:bootRun
-```
-
-> 각 서비스는 `application-local.yml` 프로파일로 실행됩니다. (`-Dspring.profiles.active=local`)
-
 <br/>
 
 ## 이슈 해결
 
-### 1. 분산 트랜잭션 (Saga Choreography)
+### 1. 이벤트 체이닝 (분산 트랜잭션)
 
 **문제:** 결제 승인 → 재고 확정 → 포인트 처리가 서로 다른 서비스에서 일어나므로, 중간에 실패하면 일관성이 깨짐.
 
@@ -319,7 +253,17 @@ docker compose -f docker-compose-local.yml up -d
 
 ---
 
-### 2. 재고 동시성 처리
+### 2. 멱등성 처리
+
+**문제:** 결제 승인 → 재고 확정 → 포인트 처리가 서로 다른 서비스에서 일어나므로, 중간에 실패하면 일관성이 깨짐.
+
+**해결:**
+- 중앙 오케스트레이터 없이 각 Kafka 컨슈머가 성공/실패 이벤트를 발행하는 **Choreography 기반 Saga** 패턴 적용
+- 각 단계에서 실패 시 이전 단계를 되돌리는 **보상 트랜잭션** 이벤트를 발행하여 최종 일관성 보장
+
+---
+
+### 3. 재고 감소 처리
 
 **문제:** 여러 사용자가 동시에 동일 딜을 주문할 경우 재고가 음수가 되는 Race Condition 발생 가능성.
 
@@ -330,7 +274,7 @@ docker compose -f docker-compose-local.yml up -d
 
 ---
 
-### 3. 동적 할인가 계산
+### 4. PG 코드 구조 개선
 
 **문제:** 딜의 현재 할인가를 DB에 직접 저장하면 시간마다 업데이트가 필요하고 조회 시 일관성 문제 발생.
 
