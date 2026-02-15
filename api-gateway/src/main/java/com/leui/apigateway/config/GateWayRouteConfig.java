@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
 public class GateWayRouteConfig {
 
     @Bean
-    public JwtProvider jwtProvider(@Value("${auth.jwt.secret-key.}") String secret) {
+    public JwtProvider jwtProvider(@Value("${auth.jwt.secret-key}") String secret) {
         return new JwtProvider(secret);
     }
 
@@ -27,8 +27,18 @@ public class GateWayRouteConfig {
                         .filters(f -> f.filter(authenticationFilter.apply(new AuthenticationFilter.Config())))
                         .uri("lb://STORE-SERVICE")
                 )
+                .route("store-service-deals", r -> r
+                        .path("/api/v1/deals/**")
+                        .filters(f -> f.filter(authenticationFilter.apply(new AuthenticationFilter.Config())))
+                        .uri("lb://STORE-SERVICE")
+                )
                 .route("order-service", r -> r
                         .path("/api/v1/orders/**")
+                        .filters(f -> f.filter(authenticationFilter.apply(new AuthenticationFilter.Config())))
+                        .uri("lb://ORDER-SERVICE")
+                )
+                .route("order-service-payments", r -> r
+                        .path("/api/v1/payments/**")
                         .filters(f -> f.filter(authenticationFilter.apply(new AuthenticationFilter.Config())))
                         .uri("lb://ORDER-SERVICE")
                 )

@@ -29,6 +29,25 @@ public class OrderEventListener {
 
     @Transactional
     @KafkaListener(
+            topics = EventTopics.USER_POINT_APPLIED,
+            groupId = "${spring.kafka.consumer.group-id}",
+            containerFactory = "kafkaListenerContainerFactory"
+    )
+    public void onOrderCompleteEvent(
+            @Payload DealReservationExpiredEvent event,
+            @Header(KafkaHeaders.RECEIVED_PARTITION) int partition,
+            @Header(KafkaHeaders.OFFSET) long offset,
+            Acknowledgment acknowledgment
+    ) {
+        log.info("이벤트 수신: partition={}, offset={}, orderId={}", partition, offset, event.getOrderId());
+        Order order = orderRepository.findById(event.getOrderId())
+                .orElseThrow(() -> new EntityNotFoundException("Not found. id = " + event.getOrderId()));
+        order.updateOrderComplete();
+        acknowledgment.acknowledge();
+    }
+
+    @Transactional
+    @KafkaListener(
             topics = EventTopics.DEAL_STOCK_RESERVATION_EXPIRED,
             groupId = "${spring.kafka.consumer.group-id}",
             containerFactory = "kafkaListenerContainerFactory"

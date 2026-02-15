@@ -83,5 +83,9 @@ public class Order {
     public void updateOrderExpired() {
         this.status = OrderStatus.ORDER_EXPIRED;
     }
+
+    public void updateOrderComplete() {
+        this.status = OrderStatus.ORDER_COMPLETE;
+    }
 }
 
