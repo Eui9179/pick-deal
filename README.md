@@ -1,4 +1,9 @@
-# PickDeal
+<h1>
+  <img src="https://github.com/user-attachments/assets/88f89e2c-ed0c-465b-b81f-3eed4974ed0d" width="36" align="center" />
+  PickDeal
+</h1>
+
+
 > 주변 가게의 마감 할인 상품을 픽업하는 서비스입니다.
 > 
 > 시간이 지날수록 할인율이 높아지는 동적 가격 정책과 Kafka 기반 이벤트 체이닝을 통해 분산 환경에서 안전한 재고 처리 및 주문 흐름을 구현했습니다.
@@ -12,8 +17,8 @@
 - [프로젝트 구조](#프로젝트-구조)
 - [주요 기능](#주요-기능)
 - [이벤트 플로우](#이벤트-플로우)
-  - [Happy Path](#happy-path)
-  - [보상 트랜잭션](#보상-트랜잭션-saga-choreography)
+  - [결제 흐름](#결제-흐름)
+  - [보상 트랜잭션](#보상-트랜잭션)
   - [예약 만료 플로우](#예약-만료-플로우)
 - [로컬 실행 방법](#로컬-실행-방법)
 - [이슈 해결](#이슈-해결)
@@ -33,13 +38,14 @@
 | Cache / Session   | Redis (JWT Refresh Token, 블랙리스트) |
 | ORM               | Spring Data JPA, Hibernate Spatial |
 | Security          | Spring Security (JWT) |
-| Geospatial        | PostGIS, JTS, `ST_DWithin` (반경 검색) |
+| Geospatial        | PostGIS, `ST_DWithin` (반경 검색) |
 | PG                 | KakaoPay, Toss Payments (Strategy 패턴) |
 | Inter-service     | OpenFeign |
 
 <br/>
 
 ## 전체 아키텍처
+<img width="930" height="418" alt="Frame 406 (2)" src="https://github.com/user-attachments/assets/227c248c-acec-4e93-a3c3-7fe3a460d531" />
 
 
 <br/>
@@ -70,10 +76,6 @@ pick-deal/
 
 ## 주요 기능
 
-### 주변 딜 탐색
-- PostGIS `ST_DWithin` + geography 캐스팅으로 반경(meter) 내 가게 조회
-- 딜 목록 조회 시 현재 시각 기준 동적 할인가 계산 (`DiscountCalculator`)
-
 ### 동적 할인 가격 정책
 - `DiscountPolicy` 엔티티로 딜별 할인 정책 관리
 - `PERCENT` / `AMOUNT` 두 가지 할인 타입 지원
@@ -84,7 +86,7 @@ pick-deal/
 - 결제 미완료 시 스케줄러(매 15분)가 만료 예약을 감지하고 재고 반납
 - 추후 Redis Sorted Set + Lua Script 방식으로 전환 가능하도록 구현 병행
 
-### PG 결제 전략 패턴 적용
+### PG 결제
 - `PaymentStrategy` 인터페이스 + `KakaoPaymentStrategy` / `TossPaymentStrategy` 구현
 - `PaymentProviderHandler`가 `PaymentProvider` enum 기반으로 전략 선택
 - 결제 승인 후 이벤트 체인 시작
@@ -92,6 +94,11 @@ pick-deal/
 ### 포인트 시스템
 - 주문 시 보유 포인트 사용 가능 (차감)
 - 결제 완료 후 실결제 금액의 **10% 자동 적립**
+
+### 주변 딜 탐색
+- PostGIS `ST_DWithin` + geography 캐스팅으로 반경 내 가게 조회
+- 딜 목록 조회 시 현재 시각 기준 동적 할인가 계산 (`DiscountCalculator`)
+
 
 ### JWT 인증
 - Access Token: 5분, Refresh Token: 15일 (Redis 저장)
@@ -118,7 +125,7 @@ pick-deal/
 
 ---
 
-### Happy Path
+### 결제 흐름
 
 결제 승인 이후 비동기로 재고 확정 → 포인트 처리 → 알림까지 자동으로 이어집니다.
 
@@ -133,6 +140,7 @@ sequenceDiagram
     participant NE as notification-event
 
     Client->>OS: POST /payments/{provider}/success
+    Client<<-->>OS: /order/status (Polling)
     OS->>PG: 결제 승인 요청
     PG-->>OS: 승인 완료 (paymentKey)
 
@@ -243,24 +251,78 @@ docker compose -f docker-compose-local.yml up -d
 
 ## 이슈 해결
 
-### 1. 이벤트 체이닝 (분산 트랜잭션)
+### 1. 분산 트랜잭션 — Saga Choreography
 
-**문제:** 결제 승인 → 재고 확정 → 포인트 처리가 서로 다른 서비스에서 일어나므로, 중간에 실패하면 일관성이 깨짐.
+**문제**
 
-**해결:**
-- 중앙 오케스트레이터 없이 각 Kafka 컨슈머가 성공/실패 이벤트를 발행하는 **Choreography 기반 Saga** 패턴 적용
-- 각 단계에서 실패 시 이전 단계를 되돌리는 **보상 트랜잭션** 이벤트를 발행하여 최종 일관성 보장
+결제 승인 → 재고 감소 → 포인트 처리가 독립된 서비스에 걸쳐 있어, 중간 단계에서 실패하면 데이터 정합성이 깨지는 문제가 있었습니다.
 
----
+처음에 PAYMENT_APPROVED 이벤트를 발행하여 독립적인 Consumer가 재고 감소, 포인트 처리를 하였습니다.
+이러한 구조는 오류가 발생한 지점을 명확하게 판단하기 어렵기 때문에 이벤트 체이닝을 구현하였습니다.
 
-### 2. 멱등성 처리
+**고려한 방법**
 
-**문제:** 결제 승인 → 재고 확정 → 포인트 처리가 서로 다른 서비스에서 일어나므로, 중간에 실패하면 일관성이 깨짐.
+| 방식 | 장점 | 단점 |
+|---|---|---|
+| Saga Orchestration | 흐름 추적 용이, 상태 중앙 관리 | 오케스트레이터가 단일 장애 지점, 서비스 결합도 증가 |
+| **Saga Choreography** | 단일 장애 지점 없음, 서비스 독립성 보장 | 이벤트 추적이 상대적으로 어려움 |
 
-**해결:**
-- 중앙 오케스트레이터 없이 각 Kafka 컨슈머가 성공/실패 이벤트를 발행하는 **Choreography 기반 Saga** 패턴 적용
-- 각 단계에서 실패 시 이전 단계를 되돌리는 **보상 트랜잭션** 이벤트를 발행하여 최종 일관성 보장
+**해결**
 
+각 서비스가 성공/실패 이벤트를 직접 발행하고, 실패 시 이전 단계를 되돌리는 **보상 트랜잭션** 이벤트를 체인으로 연결했습니다.
+
+```java
+// store-event: 재고 확정 실패 시 보상 이벤트 발행
+@KafkaListener(topics = EventTopics.PAYMENT_APPROVED)
+public void onPaymentApproveEvent(PaymentApproveEvent event, Acknowledgment ack) {
+    try {
+        int updated = dealRepository.decreaseStockQuantity(event.getDealId(), event.getQuantity());
+        if (updated == 0) throw new OutOfStockException("Out of Stock");
+
+        dealReservationRepository.deleteByOrderId(event.getOrderId());
+        kafkaTemplate.send(EventTopics.DEAL_STOCK_COMMIT, DealStockCommitEvent.from(event));
+
+    } catch (Exception e) {
+        // 실패 → 보상 이벤트 발행
+        kafkaTemplate.send(EventTopics.DEAL_STOCK_COMMIT_FAIL, DealStockCommitFailEvent.from(event));
+        throw e;
+    }
+}
+```
+
+### 2. 중복 이벤트 멱등성 처리
+
+**문제:** 결제 승인 → 재고 확정 → 포인트 처리가 서로 다른 서비스에서 이벤트 기반으로 처리되는데, 메시지 발행/소비 과정에서 ack 실패 등으로 재시도가 발생할 수 있습니다. 
+이때 이미 처리된 비즈니스 로직이 중복 실행될 수 있어 멱등성 보장이 필요합니다.
+
+**해결:** ProcessedEvent에 기록하여 중복 처리를 방지하고, 보상 로직에 `EventType`을 사용하여 이전에 처리된 적이 있을 때만 보상하도록 구현하였습니다.
+
+```java
+@KafkaListener(topics = "payment-done")
+@Transactional
+public void handleCommit(PaymentDoneEvent event) {
+    if (processedEventRepository.existsById(event.getEventId())) {
+        return;
+    }
+    
+    stockService.commit(event);
+    processedEventRepository.save(new ProcessedEvent(event.getEventId(), "STOCK_COMMIT", event.getOrderId()));
+}
+
+@KafkaListener(topics = "stock-rollback")
+@Transactional
+public void handleRollback(StockRollbackEvent event) {
+    if (processedEventRepository.existsById(event.getEventId())) {
+        return;
+    }
+    
+    // 커밋된 적 있을 때만 롤백
+    if (processedEventRepository.existsByOrderIdAndEventType(event.getOrderId(), "STOCK_COMMIT")) {
+        stockService.rollback(event);
+        processedEventRepository.save(new ProcessedEvent(event.getEventId(), "STOCK_ROLLBACK", event.getOrderId()));
+    }
+}
+```
 ---
 
 ### 3. 재고 감소 처리
