@@ -287,7 +287,7 @@ public void handleRollback(StockRollbackEvent event) {
 - `decreaseStockQuantity` 쿼리에서 `stock >= quantity` 조건을 WHERE 절로 걸어 음수 차감 방지하였습니다. (업데이트 건수 0이면 예외 발생)
 - 많은 트래픽에는 Redis가 유리하기 때문에 Sorted Set + Lua Script로 원자적 예약 처리 구현해보았습니다.
 
-**Redis 방안 검토**
+**Redis 방식**
 
 Lua Script를 활용한 원자적 처리 (`ZADD` + `EXPIRE`) 방식을 설계하고 코드도 구현했습니다.
 
