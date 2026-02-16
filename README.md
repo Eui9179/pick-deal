@@ -16,12 +16,12 @@
 - [기술 스택](#기술-스택)
 - [전체 아키텍처](#전체-아키텍처)
 - [프로젝트 구조](#프로젝트-구조)
-- [주요 기능](#주요-기능)
 - [이벤트 플로우](#이벤트-플로우)
   - [결제 흐름](#결제-흐름)
   - [보상 트랜잭션](#보상-트랜잭션)
   - [예약 만료 플로우](#예약-만료-플로우)
 - [이슈 해결](#이슈-해결)
+- [주요 기능](#주요-기능)
 - [로컬 실행 방법](#로컬-실행-방법)
 
 
@@ -73,34 +73,6 @@ pick-deal/
 └── docker/
     └── docker-compose-local.yml
 ```
-
-<br/>
-
-## 주요 기능
-
-### 동적 할인 가격 정책
-- `DiscountPolicy` 엔티티로 딜별 할인 정책 관리
-- `PERCENT` / `AMOUNT` 두 가지 할인 타입 지원
-- 설정된 인터벌(분) 마다 할인율 증가, 최대 할인 한도 설정 가능
-
-### 재고 임시 예약
-- 주문 시점에 `DealReservation` 레코드 생성 (15분 TTL)
-- 결제 미완료 시 스케줄러(매 15분)가 만료 예약을 감지하고 재고 반납
-- 추후 Redis Sorted Set + Lua Script 방식으로 전환 가능하도록 구현 병행
-
-### PG 결제
-- `PaymentStrategy` 인터페이스 + `KakaoPaymentStrategy` / `TossPaymentStrategy` 구현
-- `PaymentProviderHandler`가 `PaymentProvider` enum 기반으로 전략 선택
-- 결제 승인 후 이벤트 체인 시작
-
-### 주변 딜 탐색
-- PostGIS `ST_DWithin` + geography 캐스팅으로 반경 내 가게 조회
-- 딜 목록 조회 시 현재 시각 기준 동적 할인가 계산 (`DiscountCalculator`)
-
-### JWT 인증
-- Access Token: 5분, Refresh Token: 15일 (Redis 저장)
-- 로그아웃 시 Access Token 블랙리스트 등록
-- Gateway에서 검증 후 `x-user-id`, `x-user-role` 헤더를 내부 서비스에 주입
 
 <br/>
 
@@ -424,6 +396,36 @@ public class PaymentProviderHandler {
 }
 ```
 새 PG사 추가 시 `PaymentStrategy` 구현체 하나만 추가하고, 기존 코드는 변경되지 않도록 설계하였습니다.
+
+---
+
+## 주요 기능
+
+### 동적 할인 가격 정책
+- `DiscountPolicy` 엔티티로 딜별 할인 정책 관리
+- `PERCENT` / `AMOUNT` 두 가지 할인 타입 지원
+- 설정된 인터벌(분) 마다 할인율 증가, 최대 할인 한도 설정 가능
+
+### 재고 임시 예약
+- 주문 시점에 `DealReservation` 레코드 생성 (15분 TTL)
+- 결제 미완료 시 스케줄러(매 15분)가 만료 예약을 감지하고 재고 반납
+- 추후 Redis Sorted Set + Lua Script 방식으로 전환 가능하도록 구현 병행
+
+### PG 결제
+- `PaymentStrategy` 인터페이스 + `KakaoPaymentStrategy` / `TossPaymentStrategy` 구현
+- `PaymentProviderHandler`가 `PaymentProvider` enum 기반으로 전략 선택
+- 결제 승인 후 이벤트 체인 시작
+
+### 주변 딜 탐색
+- PostGIS `ST_DWithin` + geography 캐스팅으로 반경 내 가게 조회
+- 딜 목록 조회 시 현재 시각 기준 동적 할인가 계산 (`DiscountCalculator`)
+
+### JWT 인증
+- Access Token: 5분, Refresh Token: 15일 (Redis 저장)
+- 로그아웃 시 Access Token 블랙리스트 등록
+- Gateway에서 검증 후 `x-user-id`, `x-user-role` 헤더를 내부 서비스에 주입
+
+<br/>
 
 ---
 
