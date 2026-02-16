@@ -20,8 +20,9 @@
   - [결제 흐름](#결제-흐름)
   - [보상 트랜잭션](#보상-트랜잭션)
   - [예약 만료 플로우](#예약-만료-플로우)
-- [로컬 실행 방법](#로컬-실행-방법)
 - [이슈 해결](#이슈-해결)
+- [로컬 실행 방법](#로컬-실행-방법)
+
 
 <br/>
 
@@ -91,14 +92,9 @@ pick-deal/
 - `PaymentProviderHandler`가 `PaymentProvider` enum 기반으로 전략 선택
 - 결제 승인 후 이벤트 체인 시작
 
-### 포인트 시스템
-- 주문 시 보유 포인트 사용 가능 (차감)
-- 결제 완료 후 실결제 금액의 **10% 자동 적립**
-
 ### 주변 딜 탐색
 - PostGIS `ST_DWithin` + geography 캐스팅으로 반경 내 가게 조회
 - 딜 목록 조회 시 현재 시각 기준 동적 할인가 계산 (`DiscountCalculator`)
-
 
 ### JWT 인증
 - Access Token: 5분, Refresh Token: 15일 (Redis 저장)
@@ -231,24 +227,6 @@ sequenceDiagram
     Note over OE: 주문 상태 → ORDER_EXPIRED
 ```
 
-## 로컬 실행 방법
-
-### 사전 요구사항
-- Docker, Docker Compose
-- Java 17
-- Gradle 8.x
-
-### 인프라 실행
-
-```bash
-cd docker
-docker compose -f docker-compose-local.yml up -d
-```
-
-> PostgreSQL × 3, Redis, Kafka (KRaft 3-node) 가 실행됩니다.
-
-<br/>
-
 ## 이슈 해결
 
 ### 1. 분산 트랜잭션 — Saga Choreography
@@ -325,22 +303,146 @@ public void handleRollback(StockRollbackEvent event) {
 ```
 ---
 
-### 3. 재고 감소 처리
+### 3. 재고 감소 처리 — Redis vs DB 분석 및 선택
 
-**문제:** 여러 사용자가 동시에 동일 딜을 주문할 경우 재고가 음수가 되는 Race Condition 발생 가능성.
+**문제** 
+1. 마감 할인 제품 특성상 재고가 많지 않기 때문에 초과 판매를 방지해야 합니다. 또한 결제가 완료된 후에 실제 재고가 없어서 거래 실패 처리를 할 경우 사용자 경험이 좋지 않습니다. 
+1. 여러 사용자가 동시에 주문할 경우 재고가 음수가 되는 Race Condition 발생 가능성이 있습니다.
 
 **해결:**
-- 주문 시점에 DB `DealReservation` 테이블에 임시 예약 레코드를 삽입하고, 실제 재고 감소는 결제 완료 이후 Kafka 이벤트를 통해 처리
-- `decreaseStockQuantity` 쿼리에서 `stock >= quantity` 조건을 WHERE 절로 걸어 음수 차감 방지 (업데이트 건수 0이면 예외 발생)
-- Redis Sorted Set + Lua Script로 원자적 예약 처리 구현도 병행 (DB 방식과 전환 가능하도록 설계)
+- 주문 시점에 DB `DealReservation` 테이블에 임시 예약 레코드를 삽입하고, 실제 재고 감소는 결제 완료 이후 Kafka 이벤트를 통해 처리하였습니다.
+- `decreaseStockQuantity` 쿼리에서 `stock >= quantity` 조건을 WHERE 절로 걸어 음수 차감 방지하였습니다. (업데이트 건수 0이면 예외 발생)
+- 많은 트래픽에는 Redis가 유리하기 때문에 Sorted Set + Lua Script로 원자적 예약 처리 구현해보았습니다.
+
+**Redis 방안 검토**
+
+Lua Script를 활용한 원자적 처리 (`ZADD` + `EXPIRE`) 방식을 설계하고 코드도 구현했습니다.
+
+```java
+// 검토했던 Redis Lua Script 방식
+private Long saveAtomicInRedis(Long dealId, long stockQuantity,
+                               String orderId, long requestQuantity, long expiredAt) {
+    // KEYS[1]: deal:reservations:{dealId}  (ZSET - TTL 기반 예약 관리)
+    // KEYS[2]: deal:totalQty:{dealId}
+    // KEYS[3]: order:qty:{orderId}
+    return redisRepository.executeScript(reserveStockScript, keys, args);
+}
+```
+
+| 기준 | Redis | DB (채택) |
+|---|---|---|
+| 내구성 | 재시작 시 유실 위험 (AOF/RDB 설정 필요) | ACID 보장 |
+| 이력 | 별도 구현 필요 | Soft Delete로 이력 유지 |
+| 구현 복잡도 | Lua Script + Redis Cluster 설정 | JPA + Pessimistic Lock |
+
+**해결: DB Pessimistic Lock + 2단계 예약**
+
+```java
+// 1단계 (주문 생성): Pessimistic Lock으로 동시 요청 직렬화
+@Lock(LockModeType.PESSIMISTIC_WRITE)
+@Query("SELECT d FROM Deal d WHERE d.id = :dealId")
+Optional<Deal> findByIdWithLock(Long dealId);
+
+// 가용 재고 = 실재고 - 현재 예약 합계 (진행 중인 주문 고려)
+long availableStock = deal.getStockQuantity()
+    - dealReservationRepository.sumQuantityByDealId(dealId);
+
+if (availableStock < quantity) throw new OutOfStockException();
+
+// TTL 15분인 임시 예약 생성
+dealReservationRepository.save(
+    new DealReservation(dealId, orderId, userId, quantity,
+        Instant.now().plusSeconds(900).toEpochMilli())
+);
+```
+
+```java
+// 2단계 (결제 완료): WHERE 조건부 원자 감소 → stock < quantity면 0 반환
+@Modifying
+@Query("update Deal d set d.stockQuantity = d.stockQuantity - :quantity " +
+       "where d.id = :dealId and d.stockQuantity >= :quantity")
+int decreaseStockQuantity(Long dealId, int quantity);
+```
+
+Redis와 DB를 비교하고 구현하였으나 Redis는 많은 트래픽과, 처리 응답속도가 빠른 상황에 사용하기 적합하다고 판단하여 최종적으로 DB로 구현하였습니다.
 
 ---
 
-### 4. PG 코드 구조 개선
+### 4. PG 공통 기능 처리
 
-**문제:** 딜의 현재 할인가를 DB에 직접 저장하면 시간마다 업데이트가 필요하고 조회 시 일관성 문제 발생.
+**문제** 
 
-**해결:**
-- `DiscountPolicy`에 시작 시각, 인터벌, 할인값, 최대 할인 한도만 저장
-- 조회 시점에 `DiscountCalculator`가 `(현재 시각 - startAt) / interval` 로 현재 할인 단계를 계산하여 즉시 반환
-- DB 업데이트 없이 언제나 정확한 현재가 제공
+### 3. PG 결제 — Strategy Pattern으로 확장 가능한 설계
+
+**문제**
+KakaoPay, Toss는 인증 방식, 요청 포맷, 응답 포맷이 모두 다르지만 이벤트 발행, DB 상태 업데이트 등 공통적인 코드가 있습니다.
+
+| | KakaoPay | Toss |
+|---|---|---|
+| 인증 | `SECRET_KEY {adminKey}` | `Base64(secretKey:)` |
+| Ready 방식 | 서버가 TID 발급 후 저장 | 클라이언트용 confirm URL 반환 |
+| Approve 파라미터 | TID + pg_token | paymentKey + amount |
+
+**해결: Strategy Pattern**
+
+```java
+public interface PaymentStrategy {
+    PaymentReadyResponse ready(PaymentReadyRequest request);
+    ApproveResult approve(PaymentSuccessParam param, Order order);
+    OrderCancelResponse cancel(Order order, OrderCancelRequest request);
+    PaymentProvider support(); // 각 구현체가 자신이 처리할 Provider 선언
+}
+
+public class PaymentProviderHandler {
+
+    private final Map<PaymentProvider, PaymentStrategy> strategies;
+
+    public PaymentProviderHandler(List<PaymentStrategy> strategyList) {
+        this.strategies = strategyList.stream()
+                .collect(Collectors.toMap(
+                        PaymentStrategy::support,
+                        Function.identity()
+                ));
+    }
+
+    @Transactional
+    public PaymentReadyResponse ready(PaymentReadyRequest readyRequest) {
+        return strategies.get(readyRequest.provider())
+                .ready(readyRequest);
+    }
+
+    public ApproveResult approve(PaymentProvider provider, PaymentSuccessParam param, Order order) {
+        return strategies.get(provider)
+                .approve(param, order);
+    }
+
+    public OrderCancelResponse cancel(Order order, OrderCancelRequest request) {
+        return strategies.get(order.getProvider())
+                .cancel(order, request);
+    }
+}
+```
+새 PG사 추가 시 `PaymentStrategy` 구현체 하나만 추가하고, 기존 코드는 변경되지 않도록 설계하였습니다.
+
+---
+
+## 로컬 실행 방법
+
+### 사전 요구사항
+- Docker, Docker Compose
+- Java 17
+- Gradle 8.x
+- Kakao, Toss API 키 등 (application-secret.yml)
+
+
+### 인프라 실행
+
+```bash
+cd docker
+docker compose -f docker-compose-local.yml up -d
+```
+
+> PostgreSQL × 3, Redis, Kafka (KRaft 3-node) 가 실행됩니다.
+
+<br/>
+
