@@ -1,7 +1,9 @@
 package com.leui.orderconsumer.event;
 
-import com.leui.orderconsumer.repository.Order;
-import com.leui.orderconsumer.repository.OrderRepository;
+import com.leui.orderconsumer.repository.order.Order;
+import com.leui.orderconsumer.repository.order.OrderRepository;
+import com.leui.orderconsumer.repository.prcessedevent.ProcessedEvent;
+import com.leui.orderconsumer.repository.prcessedevent.ProcessedEventRepository;
 import enumtype.OrderStatus;
 import jakarta.persistence.EntityNotFoundException;
 import kafka.event.DealReservationExpiredEvent;
@@ -19,12 +21,15 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 @RequiredArgsConstructor
 @Slf4j
 @Component
 public class OrderEventListener {
 
     private final OrderRepository orderRepository;
+    private final ProcessedEventRepository processedEventRepository;
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Transactional
@@ -40,9 +45,22 @@ public class OrderEventListener {
             Acknowledgment acknowledgment
     ) {
         log.info("이벤트 수신: partition={}, offset={}, orderId={}", partition, offset, event.getOrderId());
+        if (processedEventRepository.existsById(event.getEventId())) {
+            log.info("이벤트 중복: eventId={}", event.getEventId());
+            return;
+        }
         Order order = orderRepository.findById(event.getOrderId())
                 .orElseThrow(() -> new EntityNotFoundException("Not found. id = " + event.getOrderId()));
         order.updateOrderComplete();
+
+
+        processedEventRepository.save(
+                new ProcessedEvent(
+                        event.getEventId(),
+                        event.getOrderId(),
+                        OrderStatus.ORDER_COMPLETE,
+                        LocalDateTime.now()
+                ));
         acknowledgment.acknowledge();
     }
 

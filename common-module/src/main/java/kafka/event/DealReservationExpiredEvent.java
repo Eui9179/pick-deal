@@ -8,6 +8,7 @@ import lombok.Getter;
 @Builder
 @Getter
 public class DealReservationExpiredEvent {
+    private String eventId;
     private Long dealId;
     private String orderId;
     private Long userId;

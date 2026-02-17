@@ -9,10 +9,10 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 
 @Getter
-@NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class PaymentApproveEvent {
+    private String eventId;
     private String orderId;
     private Long dealId;
     private Long userId;

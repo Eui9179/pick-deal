@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -43,6 +44,7 @@ public class DealReservationScheduler {
             kafkaTemplate.send(
                     EventTopics.DEAL_STOCK_RESERVATION_EXPIRED,
                     DealReservationExpiredEvent.builder()
+                            .eventId(UUID.randomUUID().toString())
                             .orderId(reservation.getOrderId())
                             .dealId(reservation.getDealId())
                             .userId(reservation.getUserId())

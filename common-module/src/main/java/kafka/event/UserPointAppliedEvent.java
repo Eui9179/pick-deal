@@ -8,20 +8,16 @@ import lombok.Getter;
 import java.math.BigDecimal;
 
 @AllArgsConstructor
-@Builder
 @Getter
-public class PaymentFailEvent {
-    private String eventId;
+@Builder
+public class UserPointAppliedEvent {
+    private  String eventId;
     private String orderId;
     private Long dealId;
     private Long userId;
     private Integer quantity;
     private BigDecimal totalAmount;
+    private BigDecimal usedPoint;
     private String paymentKey;
-    private String failDescription;
     private PaymentProvider provider;
-
-    public PaymentFailEvent(String orderId) {
-        this.orderId = orderId;
-    }
 }

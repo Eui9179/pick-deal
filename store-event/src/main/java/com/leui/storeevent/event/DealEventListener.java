@@ -16,6 +16,8 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
+
 @RequiredArgsConstructor
 @Slf4j
 @Component
@@ -52,6 +54,7 @@ public class DealEventListener {
 
             kafkaTemplate.send(EventTopics.DEAL_STOCK_COMMIT, event.getOrderId(),
                     DealStockCommitEvent.builder()
+                            .eventId(UUID.randomUUID().toString())
                             .orderId(event.getOrderId())
                             .dealId(event.getDealId())
                             .userId(event.getUserId())
@@ -64,6 +67,7 @@ public class DealEventListener {
             log.error("이벤트 처리 실패: orderId={}, status={}", event.getOrderId(), EventTopics.DEAL_STOCK_COMMIT_FAIL, e);
             kafkaTemplate.send(EventTopics.DEAL_STOCK_COMMIT_FAIL, event.getOrderId(),
                     DealStockCommitFailEvent.builder()
+                            .eventId(UUID.randomUUID().toString())
                             .orderId(event.getOrderId())
                             .dealId(event.getDealId())
                             .userId(event.getUserId())
@@ -115,6 +119,7 @@ public class DealEventListener {
         acknowledgment.acknowledge();
         kafkaTemplate.send(EventTopics.DEAL_STOCK_COMMIT_FAIL, event.getOrderId(),
                 DealStockCommitEvent.builder()
+                        .eventId(UUID.randomUUID().toString())
                         .orderId(event.getOrderId())
                         .dealId(event.getDealId())
                         .userId(event.getUserId())

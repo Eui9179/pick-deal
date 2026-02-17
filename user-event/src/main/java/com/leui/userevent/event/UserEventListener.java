@@ -4,6 +4,8 @@ import com.leui.userevent.repository.User;
 import com.leui.userevent.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import kafka.event.DealStockCommitEvent;
+import kafka.event.UserPointAppliedEvent;
+import kafka.event.UserPointAppliedFailEvent;
 import kafka.topic.EventTopics;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -45,7 +48,8 @@ public class UserEventListener {
             BigDecimal earn = event.getTotalAmount().subtract(event.getUsedPoint()).divide(BigDecimal.TEN);
             user.accumulatePoint(earn); // 포인트 적립
             kafkaTemplate.send(EventTopics.USER_POINT_APPLIED, event.getOrderId(),
-                    DealStockCommitEvent.builder()
+                    UserPointAppliedEvent.builder()
+                            .eventId(UUID.randomUUID().toString())
                             .orderId(event.getOrderId())
                             .dealId(event.getDealId())
                             .userId(event.getUserId())
@@ -56,7 +60,8 @@ public class UserEventListener {
                             .build());
         } catch (Exception e) {
             kafkaTemplate.send(EventTopics.USER_POINT_APPLIED_FAIL, event.getOrderId(),
-                    DealStockCommitEvent.builder()
+                    UserPointAppliedFailEvent.builder()
+                            .eventId(UUID.randomUUID().toString())
                             .orderId(event.getOrderId())
                             .dealId(event.getDealId())
                             .userId(event.getUserId())

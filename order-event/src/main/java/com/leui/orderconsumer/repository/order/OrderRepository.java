@@ -1,4 +1,4 @@
-package com.leui.orderconsumer.repository;
+package com.leui.orderconsumer.repository.order;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

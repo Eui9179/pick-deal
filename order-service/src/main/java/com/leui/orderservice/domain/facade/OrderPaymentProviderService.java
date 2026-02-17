@@ -31,6 +31,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
@@ -90,6 +91,7 @@ public class OrderPaymentProviderService {
             order.updatePaymentDone();
             kafkaTemplate.send(EventTopics.PAYMENT_APPROVED, order.getId(),
                     PaymentApproveEvent.builder()
+                            .eventId(UUID.randomUUID().toString())
                             .orderId(order.getId())
                             .dealId(order.getDealId())
                             .userId(order.getUserId())
@@ -101,7 +103,8 @@ public class OrderPaymentProviderService {
         } else {
             order.updatePaymentFail();
             order.setFailDescription(result.failCode());
-            kafkaTemplate.send(EventTopics.PAYMENT_APPROVED_FAIL, order.getId(), new PaymentFailEvent(order.getId()));
+            kafkaTemplate.send(EventTopics.PAYMENT_APPROVED_FAIL, order.getId(),
+                    new PaymentFailEvent(order.getId()));
         }
     }
 
@@ -132,6 +135,7 @@ public class OrderPaymentProviderService {
 
         kafkaTemplate.send(EventTopics.PAYMENT_CANCELED, order.getId(),
                 PaymentCancelEvent.builder()
+                        .eventId(UUID.randomUUID().toString())
                         .orderId(order.getId())
                         .dealId(order.getDealId())
                         .totalAmount(order.getTotalAmount())

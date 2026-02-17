@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 @Builder
 @Getter
 public class UserPointAppliedFailEvent {
+    private String eventId;
     private String orderId;
     private Long dealId;
     private Long userId;
