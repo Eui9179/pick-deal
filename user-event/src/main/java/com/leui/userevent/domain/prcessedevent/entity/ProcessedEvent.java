@@ -1,6 +1,5 @@
 package com.leui.userevent.domain.prcessedevent.entity;
 
-import enumtype.OrderStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
