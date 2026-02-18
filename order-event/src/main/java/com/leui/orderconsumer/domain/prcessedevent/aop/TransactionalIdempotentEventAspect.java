@@ -30,7 +30,6 @@ public class TransactionalIdempotentEventAspect {
             value = "@annotation(idempotentEvent) && args(payload, ..)",
             argNames = "joinPoint,idempotentEvent,payload"
     )
-    @Transactional
     public Object around(
             ProceedingJoinPoint joinPoint,
             TransactionalIdempotentEvent idempotentEvent,
