@@ -246,34 +246,78 @@ public void onPaymentApproveEvent(PaymentApproveEvent event, Acknowledgment ack)
 **문제:** 결제 승인 → 재고 확정 → 포인트 처리가 서로 다른 서비스에서 이벤트 기반으로 처리되는데, 메시지 발행/소비 과정에서 ack 실패 등으로 재시도가 발생할 수 있습니다. 
 이때 이미 처리된 비즈니스 로직이 중복 실행될 수 있어 멱등성 보장이 필요합니다.
 
-**해결:** ProcessedEvent에 기록하여 중복 처리를 방지하고, 보상 로직에 `EventType`을 사용하여 이전에 처리된 적이 있을 때만 보상하도록 구현하였습니다.
+**해결:** ProcessedEvent에 기록하여 중복 처리를 방지합니다. 애너테이션 기반 AOP를 적용하여서 재사용성을 고려하였습니다.
 
 ```java
-@KafkaListener(topics = "payment-done")
-@Transactional
-public void handleCommit(PaymentDoneEvent event) {
-    if (processedEventRepository.existsById(event.getEventId())) {
-        return;
+// Aspect
+@RequiredArgsConstructor
+@Aspect
+@Component
+@Slf4j
+public class TransactionalIdempotentEventAspect {
+
+    private final ProcessedEventService processedEventService;
+
+    @Around(
+            value = "@annotation(idempotentEvent) && args(payload, ..)",
+            argNames = "joinPoint,idempotentEvent,payload"
+    )
+    public Object around(
+            ProceedingJoinPoint joinPoint,
+            TransactionalIdempotentEvent idempotentEvent,
+            IdempotentEventPayload payload
+    ) {
+        return processedEventService.execute(joinPoint, payload);
     }
-    
-    stockService.commit(event);
-    processedEventRepository.save(new ProcessedEvent(event.getEventId(), "STOCK_COMMIT", event.getOrderId()));
+
 }
 
-@KafkaListener(topics = "stock-rollback")
-@Transactional
-public void handleRollback(StockRollbackEvent event) {
-    if (processedEventRepository.existsById(event.getEventId())) {
-        return;
-    }
-    
-    // 커밋된 적 있을 때만 롤백
-    if (processedEventRepository.existsByOrderIdAndEventType(event.getOrderId(), "STOCK_COMMIT")) {
-        stockService.rollback(event);
-        processedEventRepository.save(new ProcessedEvent(event.getEventId(), "STOCK_ROLLBACK", event.getOrderId()));
+// 중복 이벤트 방지 서비스
+@Slf4j
+@RequiredArgsConstructor
+@Service
+public class ProcessedEventService {
+
+    private final ProcessedEventRepository processedEventRepository;
+
+    @Transactional
+    public Object execute(
+            ProceedingJoinPoint joinPoint,
+            IdempotentEventPayload payload
+    ) {
+        try {
+            // 이미 처리된 이벤트는 무시
+            if (processedEventRepository.existsById(payload.eventId())) {
+                log.error("Event duplication error. eventId={}, topic={}, topicKey={}",
+                        payload.eventId(),
+                        payload.topic(),
+                        payload.topicKey()
+                );
+                return null;
+            }
+
+            try { // 중복 저장 방지
+                processedEventRepository.save(new ProcessedEvent(
+                        payload.eventId(), payload.topic(), payload.topicKey(), LocalDateTime.now())
+                );
+
+            } catch (DataIntegrityViolationException e) {
+                return null;
+            }
+
+            return joinPoint.proceed();
+        } catch (Throwable e) {
+            log.error("TransactionalIdempotentEventAspect exception : {}", e.getMessage());
+            throw new RuntimeException(e);
+        }
     }
 }
 ```
+이벤트 발행 시 고유한 eventId를 생성하여 함께 전달하고, 
+해당 eventId를 PK로 설정한 테이블에 저장함으로써 중복 처리를 방지합니다. 
+서비스 로직과 멱등성 보장 로직은 AOP를 통해 하나의 트랜잭션으로 묶어 원자성을 보장합니다.
+
+
 ---
 
 ### 3. 재고 감소 처리 — Redis vs DB 분석 및 선택
