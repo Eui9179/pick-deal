@@ -1,13 +1,10 @@
 package com.leui.userevent.domain.user.event;
 
+import com.leui.protobuf.DealStockCommitEvent;
+import com.leui.protobuf.UserPointAppliedEvent;
+import com.leui.protobuf.UserPointAppliedFailEvent;
 import com.leui.userevent.domain.user.dto.UserEvent;
-import com.leui.userevent.domain.user.entity.User;
-import com.leui.userevent.domain.user.repository.UserRepository;
 import com.leui.userevent.domain.user.service.UserService;
-import jakarta.persistence.EntityNotFoundException;
-import kafka.event.DealStockCommitEvent;
-import kafka.event.UserPointAppliedEvent;
-import kafka.event.UserPointAppliedFailEvent;
 import kafka.topic.EventTopics;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -49,31 +46,31 @@ public class UserEventListener {
                     EventTopics.DEAL_STOCK_COMMIT,
                     event.getOrderId(),
                     event.getUserId(),
-                    event.getTotalAmount(),
-                    event.getUsedPoint()
+                    new BigDecimal(event.getTotalAmount()),
+                    new BigDecimal(event.getUsedPoint())
             ));
             kafkaTemplate.send(EventTopics.USER_POINT_APPLIED, event.getOrderId(),
-                    UserPointAppliedEvent.builder()
-                            .eventId(UUID.randomUUID().toString())
-                            .orderId(event.getOrderId())
-                            .dealId(event.getDealId())
-                            .userId(event.getUserId())
-                            .quantity(event.getQuantity())
-                            .totalAmount(event.getTotalAmount())
-                            .usedPoint(event.getUsedPoint())
-                            .paymentKey(event.getPaymentKey())
+                    UserPointAppliedEvent.newBuilder()
+                            .setEventId(UUID.randomUUID().toString())
+                            .setOrderId(event.getOrderId())
+                            .setDealId(event.getDealId())
+                            .setUserId(event.getUserId())
+                            .setQuantity(event.getQuantity())
+                            .setTotalAmount(event.getTotalAmount())
+                            .setUsedPoint(event.getUsedPoint())
+                            .setPaymentKey(event.getPaymentKey())
                             .build());
         } catch (Exception e) {
             kafkaTemplate.send(EventTopics.USER_POINT_APPLIED_FAIL, event.getOrderId(),
-                    UserPointAppliedFailEvent.builder()
-                            .eventId(UUID.randomUUID().toString())
-                            .orderId(event.getOrderId())
-                            .dealId(event.getDealId())
-                            .userId(event.getUserId())
-                            .quantity(event.getQuantity())
-                            .totalAmount(event.getTotalAmount())
-                            .usedPoint(event.getUsedPoint())
-                            .paymentKey(event.getPaymentKey())
+                    UserPointAppliedFailEvent.newBuilder()
+                            .setEventId(UUID.randomUUID().toString())
+                            .setOrderId(event.getOrderId())
+                            .setDealId(event.getDealId())
+                            .setUserId(event.getUserId())
+                            .setQuantity(event.getQuantity())
+                            .setTotalAmount(event.getTotalAmount())
+                            .setUsedPoint(event.getUsedPoint())
+                            .setPaymentKey(event.getPaymentKey())
                             .build());
         }
     }

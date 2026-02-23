@@ -1,5 +1,6 @@
 package com.inzisoft.notificationservice.event;
 
+import com.leui.protobuf.PaymentApproveEvent;
 import kafka.topic.EventTopics;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;

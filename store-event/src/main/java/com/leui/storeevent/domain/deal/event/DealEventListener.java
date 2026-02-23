@@ -1,12 +1,9 @@
 package com.leui.storeevent.domain.deal.event;
 
-import com.leui.protobuf.PaymentApproveEvent;
+import com.leui.protobuf.*;
 import com.leui.storeevent.domain.deal.dto.DealEvent;
 import com.leui.storeevent.domain.deal.dto.RemoveDealReservation;
 import com.leui.storeevent.domain.deal.service.DealService;
-import enumtype.OrderStatus;
-import enumtype.PaymentProvider;
-import kafka.event.*;
 import kafka.topic.EventTopics;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +15,6 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -54,29 +50,29 @@ public class DealEventListener {
             ));
             acknowledgment.acknowledge();
             kafkaTemplate.send(EventTopics.DEAL_STOCK_COMMIT, event.getOrderId(),
-                    DealStockCommitEvent.builder()
-                            .eventId(UUID.randomUUID().toString())
-                            .orderId(event.getOrderId())
-                            .dealId(event.getDealId())
-                            .userId(event.getUserId())
-                            .quantity(event.getQuantity())
-                            .totalAmount(new BigDecimal(event.getTotalAmount()))
-                            .usedPoint(new BigDecimal(event.getUsedPoint()))
-                            .paymentKey(event.getPaymentKey())
+                    DealStockCommitEvent.newBuilder()
+                            .setEventId(UUID.randomUUID().toString())
+                            .setOrderId(event.getOrderId())
+                            .setDealId(event.getDealId())
+                            .setUserId(event.getUserId())
+                            .setQuantity(event.getQuantity())
+                            .setTotalAmount(event.getTotalAmount())
+                            .setUsedPoint(event.getUsedPoint())
+                            .setPaymentKey(event.getPaymentKey())
                             .build());
         } catch (Exception e) {
             log.error("이벤트 처리 실패: orderId={}, status={}", event.getOrderId(), EventTopics.DEAL_STOCK_COMMIT_FAIL, e);
             kafkaTemplate.send(EventTopics.DEAL_STOCK_COMMIT_FAIL, event.getOrderId(),
-                    DealStockCommitFailEvent.builder()
-                            .eventId(UUID.randomUUID().toString())
-                            .orderId(event.getOrderId())
-                            .dealId(event.getDealId())
-                            .userId(event.getUserId())
-                            .quantity(event.getQuantity())
-                            .totalAmount(new BigDecimal(event.getTotalAmount()))
-                            .usedPoint(new BigDecimal(event.getUsedPoint()))
-                            .paymentKey(event.getPaymentKey())
-                            .provider(PaymentProvider.from(event.getProvider()))
+                    DealStockCommitFailEvent.newBuilder()
+                            .setEventId(UUID.randomUUID().toString())
+                            .setOrderId(event.getOrderId())
+                            .setDealId(event.getDealId())
+                            .setUserId(event.getUserId())
+                            .setQuantity(event.getQuantity())
+                            .setTotalAmount(event.getTotalAmount())
+                            .setUsedPoint(event.getUsedPoint())
+                            .setPaymentKey(event.getPaymentKey())
+                            .setProvider(event.getProvider())
                             .build());
             throw e;
         }
@@ -129,15 +125,15 @@ public class DealEventListener {
         );
         acknowledgment.acknowledge();
         kafkaTemplate.send(EventTopics.DEAL_STOCK_COMMIT_FAIL, event.getOrderId(),
-                DealStockCommitEvent.builder()
-                        .eventId(UUID.randomUUID().toString())
-                        .orderId(event.getOrderId())
-                        .dealId(event.getDealId())
-                        .userId(event.getUserId())
-                        .quantity(event.getQuantity())
-                        .totalAmount(event.getTotalAmount())
-                        .usedPoint(event.getUsedPoint())
-                        .paymentKey(event.getPaymentKey())
+                DealStockCommitEvent.newBuilder()
+                        .setEventId(UUID.randomUUID().toString())
+                        .setOrderId(event.getOrderId())
+                        .setDealId(event.getDealId())
+                        .setUserId(event.getUserId())
+                        .setQuantity(event.getQuantity())
+                        .setTotalAmount(event.getTotalAmount())
+                        .setUsedPoint(event.getUsedPoint())
+                        .setPaymentKey(event.getPaymentKey())
                         .build());
     }
 

@@ -1,13 +1,10 @@
 package com.leui.orderconsumer.domain.order.event;
 
+import com.leui.protobuf.DealReservationExpiredEvent;
 import com.leui.orderconsumer.domain.order.dto.OrderEvent;
-import com.leui.orderconsumer.domain.order.entity.Order;
 import com.leui.orderconsumer.domain.order.service.OrderService;
-import enumtype.OrderStatus;
-import jakarta.persistence.EntityNotFoundException;
-import kafka.event.DealReservationExpiredEvent;
-import kafka.event.DealStockCommitEvent;
-import kafka.event.PaymentFailEvent;
+import com.leui.protobuf.DealStockCommitEvent;
+import com.leui.protobuf.PaymentFailEvent;
 import kafka.topic.EventTopics;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -89,7 +86,8 @@ public class OrderEventListener {
         ));
         // TODO PG 결제 취소 요청
         acknowledgment.acknowledge();
-        kafkaTemplate.send(EventTopics.PAYMENT_APPROVED_FAIL, event.getOrderId(), new PaymentFailEvent(event.getOrderId()));
+        kafkaTemplate.send(EventTopics.PAYMENT_APPROVED_FAIL, event.getOrderId(),
+                PaymentFailEvent.newBuilder().setOrderId(event.getOrderId()).build());
     }
 
 }

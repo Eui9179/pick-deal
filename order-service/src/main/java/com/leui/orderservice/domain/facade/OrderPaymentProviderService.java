@@ -10,6 +10,9 @@ import com.leui.orderservice.domain.payments.provider.PaymentProviderHandler;
 import com.leui.orderservice.global.exception.ForbiddenException;
 import com.leui.orderservice.global.feignclient.StoreDealFeignClient;
 import com.leui.orderservice.global.feignclient.UserFeignClient;
+import com.leui.protobuf.PaymentApproveEvent;
+import com.leui.protobuf.PaymentCancelEvent;
+import com.leui.protobuf.PaymentFailEvent;
 import dto.payment.PaymentFailResponse;
 import dto.payment.PaymentSuccessParam;
 import dto.store.DealDetailResponse;
@@ -20,8 +23,6 @@ import enumtype.PaymentProvider;
 import exception.OutOfStockException;
 import feign.FeignException;
 import jakarta.persistence.EntityNotFoundException;
-import kafka.event.PaymentCancelEvent;
-import kafka.event.PaymentFailEvent;
 import kafka.topic.EventTopics;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -89,21 +90,21 @@ public class OrderPaymentProviderService {
         if (result.status() == OrderStatus.PAYMENT_APPROVE) {
             order.updatePaymentDone();
             kafkaTemplate.send(EventTopics.PAYMENT_APPROVED, order.getId(),
-                    PaymentApproveEvent.builder()
-                            .eventId(UUID.randomUUID().toString())
-                            .orderId(order.getId())
-                            .dealId(order.getDealId())
-                            .userId(order.getUserId())
-                            .quantity(order.getQuantity())
-                            .totalAmount(order.getTotalAmount())
-                            .usedPoint(order.getUsedPoint())
-                            .provider(order.getProvider())
+                    PaymentApproveEvent.newBuilder()
+                            .setEventId(UUID.randomUUID().toString())
+                            .setOrderId(order.getId())
+                            .setDealId(order.getDealId())
+                            .setUserId(order.getUserId())
+                            .setQuantity(order.getQuantity())
+                            .setTotalAmount(order.getTotalAmount().toString())
+                            .setUsedPoint(order.getUsedPoint().toString())
+                            .setProvider(order.getProvider().name())
                             .build());
         } else {
             order.updatePaymentFail();
             order.setFailDescription(result.failCode());
             kafkaTemplate.send(EventTopics.PAYMENT_APPROVED_FAIL, order.getId(),
-                    new PaymentFailEvent(order.getId()));
+                    PaymentFailEvent.newBuilder().setOrderId(order.getId()));
         }
     }
 
@@ -112,7 +113,8 @@ public class OrderPaymentProviderService {
         Order order = orderService.getOrder(param.orderId());
         order.updatePaymentFail();
         order.setFailDescription(param.failCode());
-        kafkaTemplate.send(EventTopics.PAYMENT_APPROVED_FAIL, order.getId(), new PaymentFailEvent(order.getId()));
+        kafkaTemplate.send(EventTopics.PAYMENT_APPROVED_FAIL, order.getId(),
+                PaymentFailEvent.newBuilder().setOrderId(order.getId()));
 
         return new PaymentFailResponse(order.getId(), OrderStatus.PAYMENT_FAILED);
     }
@@ -133,14 +135,14 @@ public class OrderPaymentProviderService {
         order.updatePaymentCancel();
 
         kafkaTemplate.send(EventTopics.PAYMENT_CANCELED, order.getId(),
-                PaymentCancelEvent.builder()
-                        .eventId(UUID.randomUUID().toString())
-                        .orderId(order.getId())
-                        .dealId(order.getDealId())
-                        .totalAmount(order.getTotalAmount())
-                        .quantity(order.getQuantity())
-                        .userId(order.getUserId())
-                        .paymentKey(order.getPaymentKey())
+                PaymentCancelEvent.newBuilder()
+                        .setEventId(UUID.randomUUID().toString())
+                        .setOrderId(order.getId())
+                        .setDealId(order.getDealId())
+                        .setTotalAmount(order.getTotalAmount().toString())
+                        .setQuantity(order.getQuantity())
+                        .setUserId(order.getUserId())
+                        .setPaymentKey(order.getPaymentKey())
                         .build());
 
         return cancel;

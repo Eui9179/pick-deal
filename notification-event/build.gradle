@@ -10,8 +10,10 @@ description = 'notification-event'
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter'
     implementation 'org.springframework.kafka:spring-kafka'
+    implementation 'com.google.protobuf:protobuf-java:4.28.2'
 
     implementation project(":common-module")
+    implementation project(":protobuf-module")
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.kafka:spring-kafka-test'

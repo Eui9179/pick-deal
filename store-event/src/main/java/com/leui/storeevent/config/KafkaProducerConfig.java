@@ -1,5 +1,6 @@
 package com.leui.storeevent.config;
 
+import kafka.serializer.ProtobufSerializer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,7 +27,7 @@ public class KafkaProducerConfig {
         // 기본 설정
         configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
+        configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ProtobufSerializer.class);
 
         // 신뢰성 설정
         configProps.put(ProducerConfig.ACKS_CONFIG, "all");  // 모든 replica 확인
