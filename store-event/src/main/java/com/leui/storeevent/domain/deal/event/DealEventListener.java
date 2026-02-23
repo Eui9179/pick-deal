@@ -1,9 +1,11 @@
 package com.leui.storeevent.domain.deal.event;
 
+import com.leui.protobuf.PaymentApproveEvent;
 import com.leui.storeevent.domain.deal.dto.DealEvent;
 import com.leui.storeevent.domain.deal.dto.RemoveDealReservation;
 import com.leui.storeevent.domain.deal.service.DealService;
 import enumtype.OrderStatus;
+import enumtype.PaymentProvider;
 import kafka.event.*;
 import kafka.topic.EventTopics;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +18,7 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -57,8 +60,8 @@ public class DealEventListener {
                             .dealId(event.getDealId())
                             .userId(event.getUserId())
                             .quantity(event.getQuantity())
-                            .totalAmount(event.getTotalAmount())
-                            .usedPoint(event.getUsedPoint())
+                            .totalAmount(new BigDecimal(event.getTotalAmount()))
+                            .usedPoint(new BigDecimal(event.getUsedPoint()))
                             .paymentKey(event.getPaymentKey())
                             .build());
         } catch (Exception e) {
@@ -70,10 +73,10 @@ public class DealEventListener {
                             .dealId(event.getDealId())
                             .userId(event.getUserId())
                             .quantity(event.getQuantity())
-                            .totalAmount(event.getTotalAmount())
-                            .usedPoint(event.getUsedPoint())
+                            .totalAmount(new BigDecimal(event.getTotalAmount()))
+                            .usedPoint(new BigDecimal(event.getUsedPoint()))
                             .paymentKey(event.getPaymentKey())
-                            .provider(event.getProvider())
+                            .provider(PaymentProvider.from(event.getProvider()))
                             .build());
             throw e;
         }

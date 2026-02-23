@@ -21,7 +21,6 @@ import exception.OutOfStockException;
 import feign.FeignException;
 import jakarta.persistence.EntityNotFoundException;
 import kafka.event.PaymentCancelEvent;
-import kafka.event.PaymentApproveEvent;
 import kafka.event.PaymentFailEvent;
 import kafka.topic.EventTopics;
 import lombok.RequiredArgsConstructor;
