@@ -20,16 +20,3 @@ spring:
     init:
       mode: always
       data-locations: classpath:sql/data.sql
-
-  kafka:
-    bootstrap-servers: localhost:19092,localhost:29092,localhost:39092
-
-    consumer:
-      group-id: store-service
-      properties:
-        spring.json.trusted.packages: "com.leui.common.event"
-        max.poll.records: 100
-        max.poll.interval.ms: 300000
-    listener:
-      ack-mode: manual
-      concurrency: 3

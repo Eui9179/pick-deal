@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+option java_package = "com.leui.protobuf";
+option java_multiple_files = true;
+
+message PaymentFailEvent {
+  string event_id          = 1;
+  string order_id          = 2;
+  int64  deal_id           = 3;
+  int64  user_id           = 4;
+  int32  quantity          = 5;
+  string total_amount      = 6;
+  string payment_key       = 7;
+  string fail_description  = 8;
+  string provider          = 9;
+}

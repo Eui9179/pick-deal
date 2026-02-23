@@ -5,6 +5,7 @@ import com.leui.orderservice.domain.payments.provider.kakao.strategy.KakaoPaymen
 import com.leui.orderservice.domain.payments.provider.toss.strategy.TossPaymentStrategy;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.kafka.core.KafkaTemplate;
 
 import java.util.List;
 
@@ -16,8 +17,9 @@ public class BeanConfig {
             TossPaymentStrategy tossPayment,
             KakaoPaymentStrategy kakaoPayment
     ) {
-        return new PaymentProviderHandler(
-                List.of(tossPayment, kakaoPayment)
+        return new PaymentProviderHandler(List.of(
+                tossPayment,
+                kakaoPayment)
         );
     }
 

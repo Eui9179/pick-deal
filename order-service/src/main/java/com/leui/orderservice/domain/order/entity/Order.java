@@ -38,6 +38,8 @@ public class Order extends BaseEntity {
     @Setter
     private BigDecimal totalAmount;
 
+    private BigDecimal usedPoint;
+
     @Setter
     private String paymentKey;
 
@@ -49,13 +51,22 @@ public class Order extends BaseEntity {
 
     private LocalDateTime pickupTime;
 
-    public Order(Long userId, Long dealId, LocalDateTime pickupTime, int quantity, PaymentProvider provider, BigDecimal totalAmount) {
+    public Order(
+            Long userId,
+            Long dealId,
+            LocalDateTime pickupTime,
+            int quantity,
+            PaymentProvider provider,
+            BigDecimal usedPoint,
+            BigDecimal totalAmount
+    ) {
         this.userId = userId;
         this.dealId = dealId;
         this.pickupTime = pickupTime;
         this.quantity = quantity;
         this.provider = provider;
         this.status = OrderStatus.ORDER_START;
+        this.usedPoint = usedPoint;
         this.totalAmount = totalAmount;
     }
 
@@ -65,7 +76,7 @@ public class Order extends BaseEntity {
     }
 
     public void updatePaymentDone() {
-        this.status = OrderStatus.PAYMENT_DONE;
+        this.status = OrderStatus.PAYMENT_APPROVE;
     }
 
     public void updatePaymentFail() {

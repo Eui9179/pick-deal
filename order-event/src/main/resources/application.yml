@@ -1,0 +1,20 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+    hibernate:
+      ddl-auto: update
+  kafka:
+    bootstrap-servers: localhost:19092,localhost:29092,localhost:39092
+    consumer:
+      group-id: order-consumer
+    listener:
+      ack-mode: manual
+      concurrency: 3

@@ -63,7 +63,7 @@ public class TossPaymentStrategy implements PaymentStrategy {
             ResponseEntity<TossApproveResponse> response =
                     tossPaymentClient.approve(generateAuthorization(), (TossSuccessParam) param);
             order.setPaymentKey(response.getBody().paymentKey());
-            return new ApproveResult(PaymentProvider.TOSS, OrderStatus.PAYMENT_DONE, "");
+            return new ApproveResult(PaymentProvider.TOSS, OrderStatus.PAYMENT_APPROVE, "");
         } catch (FeignException e) {
             return new ApproveResult(PaymentProvider.TOSS, OrderStatus.PAYMENT_FAILED, e.getMessage());
         }

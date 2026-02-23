@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: user-event
+  kafka:
+    bootstrap-servers: localhost:19092,localhost:29092,localhost:39092
+    consumer:
+      group-id: user-consumer
+    listener:
+      ack-mode: manual
+      concurrency: 3

@@ -20,7 +20,9 @@ public record OrderCreateRequest(
         LocalDateTime pickupTime,
 
         @NotNull
-        BigDecimal amount,
+        BigDecimal totalAmount,
+
+        BigDecimal usedPoint,
 
         @NotNull
         PaymentProvider provider

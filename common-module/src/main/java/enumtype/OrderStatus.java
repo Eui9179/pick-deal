@@ -9,13 +9,15 @@ public enum OrderStatus {
     ORDER_COMPLETE, // 주문 완료
     ORDER_EXPIRED, // 주문 완료
 
+    FAIL_DEAL_STOCK_COMMIT, // 재고 커밋 실패
+
 
     // 서비스 실패
     FAIL_DEAL_NOTFOUND, // 상품 NotFound
     FAIL_OUT_OF_STOCK, // 품절
 
     // PG 관련
-    PAYMENT_DONE, // 결제 완료
+    PAYMENT_APPROVE, // 결제 완료
     PAYMENT_FAILED, // 결제 실패
     PAYMENT_CANCEL, // 결제 취소
     PAYMENT_EXPIRED, // 결제 만료

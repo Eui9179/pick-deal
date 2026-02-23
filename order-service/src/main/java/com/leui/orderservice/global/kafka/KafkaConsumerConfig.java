@@ -1,5 +1,11 @@
 package com.leui.orderservice.global.kafka;
 
+import com.google.protobuf.MessageLite;
+import com.google.protobuf.Parser;
+import com.leui.protobuf.PaymentApproveEvent;
+import com.leui.protobuf.PaymentCancelEvent;
+import com.leui.protobuf.PaymentFailEvent;
+import kafka.serializer.ProtobufDeserializer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,7 +32,21 @@ public class KafkaConsumerConfig {
     private String groupId;
 
     @Bean
-    public ConsumerFactory<String, Object> consumerFactory() {
+    public ConcurrentKafkaListenerContainerFactory<String, PaymentApproveEvent> paymentApproveEvent() {
+        return createFactory(PaymentApproveEvent.parser());
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, PaymentFailEvent> paymentFailEvent() {
+        return createFactory(PaymentFailEvent.parser());
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, PaymentCancelEvent> paymentCancelEvent() {
+        return createFactory(PaymentCancelEvent.parser());
+    }
+
+    private <T extends MessageLite> ConsumerFactory<String, T> consumerFactory(Parser<T> parser) {
         Map<String, Object> configProps = new HashMap<>();
 
         // 기본 설정
@@ -50,21 +70,22 @@ public class KafkaConsumerConfig {
         configProps.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 100);
         configProps.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, 300000);
 
-        return new DefaultKafkaConsumerFactory<>(configProps);
+        return new DefaultKafkaConsumerFactory<>(
+                configProps,
+                new StringDeserializer(),
+                new ProtobufDeserializer<>(parser)
+        );
     }
 
-    @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListenerContainerFactory() {
+    private <T extends MessageLite> ConcurrentKafkaListenerContainerFactory<String, T> createFactory(Parser<T> parser) {
 
-        ConcurrentKafkaListenerContainerFactory<String, Object> factory =
+        ConcurrentKafkaListenerContainerFactory<String, T> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
 
-        factory.setConsumerFactory(consumerFactory());
+        factory.setConsumerFactory(consumerFactory(parser));
         factory.setConcurrency(3);  // 동시 실행 Consumer 수
-
         // 수동 Acknowledge 설정
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
-
         // 에러 핸들러 (선택)
         factory.setCommonErrorHandler(new DefaultErrorHandler());
 

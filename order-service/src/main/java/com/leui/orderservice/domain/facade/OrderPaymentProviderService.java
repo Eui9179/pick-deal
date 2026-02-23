@@ -5,32 +5,33 @@ import com.leui.orderservice.domain.order.dto.OrderCancelResponse;
 import com.leui.orderservice.domain.order.dto.OrderCreateRequest;
 import com.leui.orderservice.domain.order.entity.Order;
 import com.leui.orderservice.domain.order.service.OrderService;
-import com.leui.orderservice.domain.payments.dto.PaymentFailParam;
-import com.leui.orderservice.domain.payments.dto.PaymentReadyRequest;
-import com.leui.orderservice.domain.payments.dto.PaymentReadyResponse;
-import com.leui.orderservice.domain.payments.dto.PaymentStatusResponse;
-import com.leui.orderservice.domain.payments.dto.PaymentTrackingResponse;
+import com.leui.orderservice.domain.payments.dto.*;
 import com.leui.orderservice.domain.payments.provider.PaymentProviderHandler;
 import com.leui.orderservice.global.exception.ForbiddenException;
 import com.leui.orderservice.global.feignclient.StoreDealFeignClient;
+import com.leui.orderservice.global.feignclient.UserFeignClient;
+import com.leui.protobuf.PaymentApproveEvent;
+import com.leui.protobuf.PaymentCancelEvent;
+import com.leui.protobuf.PaymentFailEvent;
 import dto.payment.PaymentFailResponse;
 import dto.payment.PaymentSuccessParam;
 import dto.store.DealDetailResponse;
 import dto.store.DealStockQuantityRequest;
+import dto.user.UserPointResponse;
 import enumtype.OrderStatus;
 import enumtype.PaymentProvider;
 import exception.OutOfStockException;
 import feign.FeignException;
 import jakarta.persistence.EntityNotFoundException;
-import kafka.event.PaymentCancelEvent;
-import kafka.event.PaymentFailEvent;
 import kafka.topic.EventTopics;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
@@ -39,16 +40,27 @@ public class OrderPaymentProviderService {
     private final PaymentProviderHandler paymentProviderHandler;
     private final OrderService orderService;
     private final StoreDealFeignClient storeDealFeignClient;
+    private final UserFeignClient userFeignClient;
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Transactional
     public PaymentReadyResponse startOrderTransaction(OrderCreateRequest request, Long userId) {
         DealDetailResponse dealDetail = storeDealFeignClient.getDealDetail(request.dealId());
-        BigDecimal totalAmount = dealDetail.discountPrice().multiply(BigDecimal.valueOf(request.quantity()));
+        UserPointResponse userPoint = userFeignClient.getUserPoint(userId);
 
-        if (!request.amount().equals(totalAmount)) {
+        // 사용할 포인트가 보유한 포인트보다 많은 경우
+        if (userPoint.point().compareTo(request.usedPoint()) < 0) {
+            throw new IllegalArgumentException("User Point mismatch. User's Point : " + userPoint +
+                    ", Request Point :" + request.usedPoint());
+        }
+
+        BigDecimal totalAmount = dealDetail.discountPrice()
+                .multiply(BigDecimal.valueOf(request.quantity()))
+                .subtract(request.usedPoint());
+
+        if (!request.totalAmount().equals(totalAmount)) {
             throw new IllegalArgumentException("Amount mismatch. expected=" + totalAmount +
-                    ", actual=" + request.amount());
+                    ", actual=" + request.totalAmount());
         }
 
         Order order = orderService.createOrder(userId, request, totalAmount);
@@ -68,15 +80,41 @@ public class OrderPaymentProviderService {
     @Transactional
     public PaymentTrackingResponse approvePayments(PaymentProvider provider, PaymentSuccessParam param) {
         Order order = orderService.getOrder(param.getOrderId());
-        // PG 결제 (비동기)
-        paymentProviderHandler.approve(provider, param, order);
+        approvePayment(provider, param, order);
         return new PaymentTrackingResponse(order.getId());
+    }
+
+    @Async
+    public void approvePayment(PaymentProvider provider, PaymentSuccessParam param, Order order) {
+        ApproveResult result = paymentProviderHandler.approve(provider, param, order);
+        if (result.status() == OrderStatus.PAYMENT_APPROVE) {
+            order.updatePaymentDone();
+            kafkaTemplate.send(EventTopics.PAYMENT_APPROVED, order.getId(),
+                    PaymentApproveEvent.newBuilder()
+                            .setEventId(UUID.randomUUID().toString())
+                            .setOrderId(order.getId())
+                            .setDealId(order.getDealId())
+                            .setUserId(order.getUserId())
+                            .setQuantity(order.getQuantity())
+                            .setTotalAmount(order.getTotalAmount().toString())
+                            .setUsedPoint(order.getUsedPoint().toString())
+                            .setProvider(order.getProvider().name())
+                            .build());
+        } else {
+            order.updatePaymentFail();
+            order.setFailDescription(result.failCode());
+            kafkaTemplate.send(EventTopics.PAYMENT_APPROVED_FAIL, order.getId(),
+                    PaymentFailEvent.newBuilder().setOrderId(order.getId()));
+        }
     }
 
     @Transactional
     public PaymentFailResponse failPayment(PaymentFailParam param) {
         Order order = orderService.getOrder(param.orderId());
-        failPayment(order, param.failCode());
+        order.updatePaymentFail();
+        order.setFailDescription(param.failCode());
+        kafkaTemplate.send(EventTopics.PAYMENT_APPROVED_FAIL, order.getId(),
+                PaymentFailEvent.newBuilder().setOrderId(order.getId()));
 
         return new PaymentFailResponse(order.getId(), OrderStatus.PAYMENT_FAILED);
     }
@@ -97,13 +135,14 @@ public class OrderPaymentProviderService {
         order.updatePaymentCancel();
 
         kafkaTemplate.send(EventTopics.PAYMENT_CANCELED, order.getId(),
-                PaymentCancelEvent.builder()
-                        .orderId(order.getId())
-                        .dealId(order.getDealId())
-                        .totalAmount(order.getTotalAmount())
-                        .quantity(order.getQuantity())
-                        .userId(order.getUserId())
-                        .paymentKey(order.getPaymentKey())
+                PaymentCancelEvent.newBuilder()
+                        .setEventId(UUID.randomUUID().toString())
+                        .setOrderId(order.getId())
+                        .setDealId(order.getDealId())
+                        .setTotalAmount(order.getTotalAmount().toString())
+                        .setQuantity(order.getQuantity())
+                        .setUserId(order.getUserId())
+                        .setPaymentKey(order.getPaymentKey())
                         .build());
 
         return cancel;
@@ -121,18 +160,4 @@ public class OrderPaymentProviderService {
         }
     }
 
-    private void failPayment(Order order, String failCause) {
-        order.updatePaymentFail();
-        order.setFailDescription(failCause);
-        kafkaTemplate.send(EventTopics.PAYMENT_FAILED, order.getId(),
-                PaymentFailEvent.builder()
-                        .orderId(order.getId())
-                        .dealId(order.getDealId())
-                        .totalAmount(order.getTotalAmount())
-                        .quantity(order.getQuantity())
-                        .userId(order.getUserId())
-                        .paymentKey(order.getPaymentKey())
-                        .failDescription(failCause)
-                        .build());
-    }
 }
